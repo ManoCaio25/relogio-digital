@@ -9,7 +9,7 @@ import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor, getInternshipProgress } from "../utils/dates";
 
-const wellBeingIcons = {
+const wellBeingVariants = {
   "Excellent": { icon: Smile, color: "text-success", bg: "bg-success/10" },
   "Good": { icon: Smile, color: "text-blue-500", bg: "bg-blue-500/10" },
   "Neutral": { icon: Meh, color: "text-warning", bg: "bg-warning/10" },
@@ -17,8 +17,27 @@ const wellBeingIcons = {
   "Overwhelmed": { icon: Annoyed, color: "text-error", bg: "bg-error/10" }
 };
 
+const wellBeingAliases = {
+  "excellent": "Excellent",
+  "good": "Good",
+  "neutral": "Neutral",
+  "stressed": "Stressed",
+  "overwhelmed": "Overwhelmed",
+  "green": "Excellent",
+  "yellow": "Neutral",
+  "red": "Overwhelmed"
+};
+
 export default function InternStatusCard({ intern, onStatusToggle, index }) {
-  const wellBeing = wellBeingIcons[intern.well_being_status] || wellBeingIcons["Neutral"];
+  const rawStatus = intern.well_being_status;
+  const normalizedStatus = typeof rawStatus === "string"
+    ? rawStatus.trim().toLowerCase()
+    : undefined;
+  const canonicalStatus = normalizedStatus && wellBeingAliases[normalizedStatus]
+    ? wellBeingAliases[normalizedStatus]
+    : rawStatus;
+
+  const wellBeing = wellBeingVariants[canonicalStatus] || wellBeingVariants["Neutral"];
   const WellBeingIcon = wellBeing.icon;
   const isActive = intern.status === 'active';
   
@@ -67,9 +86,9 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                     {intern.full_name}
                   </h3>
                   {intern.well_being_status && (
-                    <div 
+                    <div
                       className={`p-1.5 rounded-lg ${wellBeing.bg}`}
-                      title={`Well-being: ${intern.well_being_status}`}
+                      title={`Well-being: ${canonicalStatus || intern.well_being_status || 'Unknown'}`}
                     >
                       <WellBeingIcon className={`w-4 h-4 ${wellBeing.color}`} />
                     </div>
