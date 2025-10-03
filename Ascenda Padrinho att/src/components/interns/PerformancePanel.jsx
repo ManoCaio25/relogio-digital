@@ -26,7 +26,7 @@ function PerfTooltip({ active, payload }) {
   return (
     <div className="bg-surface border border-border rounded-lg p-3 shadow-e2">
       <p className="text-sm font-semibold text-primary mb-2">
-        {format(new Date(data.month), 'MMMM yyyy')}
+        {format(data.date, 'MMMM yyyy')}
       </p>
       <div className="space-y-1 text-xs">
         <div className="flex items-center justify-between gap-4">
@@ -57,14 +57,25 @@ export default function PerformancePanel({ intern }) {
     if (!intern.performance_history || intern.performance_history.length === 0) {
       return [];
     }
-    
-    return intern.performance_history.map(point => ({
-      month: point.month,
-      score: point.score,
-      completion: point.completion || point.score * 0.9,
-      points: point.points || Math.floor(point.score * 5),
-      hours: point.hours || Math.floor(point.score / 10)
-    }));
+
+    return intern.performance_history
+      .map(point => {
+        const rawDate = point.date ?? point.month;
+        const dateValue = rawDate instanceof Date ? rawDate : new Date(rawDate);
+
+        if (Number.isNaN(dateValue?.getTime?.())) {
+          return null;
+        }
+
+        return {
+          date: dateValue,
+          score: point.score,
+          completion: point.completion || point.score * 0.9,
+          points: point.points || Math.floor(point.score * 5),
+          hours: point.hours || Math.floor(point.score / 10)
+        };
+      })
+      .filter(Boolean);
   }, [intern.performance_history]);
 
   const stats = useMemo(() => {
@@ -88,7 +99,7 @@ export default function PerformancePanel({ intern }) {
   const exportCSV = React.useCallback(() => {
     const headers = ['Month', 'Score', 'Completion', 'Points', 'Hours'];
     const rows = chartData.map(d => [
-      format(new Date(d.month), 'yyyy-MM'),
+      format(d.date, 'yyyy-MM'),
       d.score,
       d.completion,
       d.points,
@@ -185,11 +196,11 @@ export default function PerformancePanel({ intern }) {
               
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
               
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="date"
                 stroke="var(--text-muted)"
                 tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-                tickFormatter={(month) => format(new Date(month), 'MMM')}
+                tickFormatter={(value) => format(value, 'MMM')}
               />
               
               <YAxis 
@@ -253,12 +264,12 @@ export default function PerformancePanel({ intern }) {
                 name="Points"
               />
               
-              <Brush 
-                dataKey="month"
+              <Brush
+                dataKey="date"
                 height={20}
                 stroke="var(--brand)"
                 fill="var(--surface-2)"
-                tickFormatter={(month) => format(new Date(month), 'MMM')}
+                tickFormatter={(value) => format(value, 'MMM')}
               />
             </ComposedChart>
           </ResponsiveContainer>
