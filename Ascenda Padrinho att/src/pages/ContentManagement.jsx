@@ -128,31 +128,73 @@ export default function ContentManagement() {
     trainingFilter !== "all" || searchTerm.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(55,110,255,0.12),_transparent_55%)] p-6 md:p-10">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10">
-        <motion.section
-          initial={{ opacity: 0, y: -12 }}
+    <div className="min-h-screen p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-surface/90 via-surface2/90 to-surface/95 p-8 shadow-e3"
         >
-          <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-brand via-brand2/70 to-brand" />
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-                <Sparkles className="h-4 w-4" />
-                {t('content.heroBadge', 'Learning hub')}
-              </span>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-primary md:text-4xl">
-                  {t('content.title', 'Content Management')}
-                </h1>
-                <p className="max-w-2xl text-base text-muted md:text-lg">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+            {t('content.title', 'Content Management')}
+          </h1>
+          <p className="text-muted">
+            {t('content.subtitle', 'Create and manage training materials for your team')}
+          </p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+            <CourseUploadForm 
+              onSuccess={handleCourseCreate}
+              onPreview={handleFormPreview}
+            />
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <h2 className="text-2xl font-bold text-primary">
+                {t('content.libraryTitle', 'Course Library')}
+              </h2>
+              <div className="w-full lg:w-auto space-y-2">
+                <p className="text-sm text-muted">
                   {t(
-                    'content.subtitle',
-                    'Create and manage training materials for your team'
+                    'content.courseCount',
+                    '{{count}} course{{suffix}}',
+                    {
+                      count: courses.length,
+                      suffix: courses.length === 1 ? '' : 's',
+                    },
                   )}
                 </p>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                    {t('content.filters.trainingType', 'Training type')}
+                  </p>
+                  <div
+                    className="mt-2 flex flex-wrap gap-2 rounded-2xl border border-border bg-surface2/80 p-2"
+                    role="group"
+                    aria-label={t('content.filters.trainingType', 'Training type')}
+                  >
+                    {trainingOptions.map((option) => {
+                      const isActive = trainingFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setTrainingFilter(option.value)}
+                          className={`rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                            isActive
+                              ? 'border-brand bg-brand text-white shadow-e1'
+                              : 'border-border/60 bg-surface text-secondary hover:border-brand/60 hover:text-primary'
+                          }`}
+                          aria-pressed={isActive}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -218,8 +260,12 @@ export default function ContentManagement() {
               </h3>
               <p className="mt-2 text-sm text-muted">
                 {t(
-                  'content.tips.body',
-                  'Highlight why the course matters, include helpful materials, and preview before publishing to craft delightful learning experiences.'
+                  'content.filteredCount',
+                  '{{count}} course{{suffix}} match this filter',
+                  {
+                    count: filteredCourses.length,
+                    suffix: filteredCourses.length === 1 ? '' : 's',
+                  },
                 )}
               </p>
             </motion.div>
