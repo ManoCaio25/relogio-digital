@@ -1,7 +1,9 @@
 import { createEntityStore } from './store';
-import { notifications as initialNotifications } from './data';
+import { notifications as initialNotifications, seedDataVersion } from './data';
 
-const store = createEntityStore('ascenda_notifications', initialNotifications);
+const store = createEntityStore('ascenda_notifications', initialNotifications, {
+  version: seedDataVersion,
+});
 
 export const Notification = {
   list(sort, limit) {

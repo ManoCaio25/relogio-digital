@@ -81,8 +81,24 @@ const cleanUpdates = (updates = {}) => {
   return result;
 };
 
-export function createEntityStore(storageKey, initialData = []) {
+export function createEntityStore(storageKey, initialData = [], options = {}) {
+  const { version, migrate } = options;
+  const versionKey = `${storageKey}_version`;
+
   let data = readStorage(storageKey, clone(initialData));
+
+  if (version) {
+    const storedVersion = readStorage(versionKey, null);
+    if (storedVersion !== version) {
+      const nextData = typeof migrate === 'function'
+        ? migrate(clone(data), clone(initialData))
+        : clone(initialData);
+
+      data = nextData;
+      writeStorage(storageKey, data);
+      writeStorage(versionKey, version);
+    }
+  }
 
   const persist = () => writeStorage(storageKey, data);
 
