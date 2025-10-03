@@ -5,10 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isWithinInterval, addMonths, subMonths, startOfWeek, endOfWeek, isSameDay } from "date-fns";
 import { Task } from "@/entities/Task";
+import { useTranslation } from "@/i18n";
 
 export default function VacationCalendar({ requests, interns }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [tasks, setTasks] = useState([]);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const loadTasks = async () => {
@@ -119,7 +121,7 @@ export default function VacationCalendar({ requests, interns }) {
             size="sm"
             onClick={handlePrevMonth}
             className="border-border"
-            aria-label="Previous month"
+            aria-label={t("vacation.calendar.previousMonth")}
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
@@ -129,14 +131,14 @@ export default function VacationCalendar({ requests, interns }) {
             onClick={() => setCurrentDate(new Date())}
             className="border-border"
           >
-            Today
+            {t("vacation.calendar.buttonToday")}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleNextMonth}
             className="border-border"
-            aria-label="Next month"
+            aria-label={t("vacation.calendar.nextMonth")}
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -150,17 +152,20 @@ export default function VacationCalendar({ requests, interns }) {
               <AlertTriangle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-semibold text-error mb-2">
-                  {conflicts.length} Scheduling Conflict{conflicts.length !== 1 ? 's' : ''} Detected
+                  {t("vacation.calendar.months.conflict", { count: conflicts.length })}
                 </h4>
                 <div className="space-y-2 text-sm">
                   {conflicts.slice(0, 3).map((conflict, idx) => (
                     <p key={idx} className="text-secondary">
-                      <span className="font-medium">{conflict.intern?.full_name}</span> has task "{conflict.task.title}" 
-                      due on {format(new Date(conflict.deadline), 'MMM d')} during vacation
+                      {t("vacation.calendar.conflictDetail", {
+                        name: conflict.intern?.full_name,
+                        task: conflict.task.title,
+                        date: format(new Date(conflict.deadline), 'MMM d'),
+                      })}
                     </p>
                   ))}
                   {conflicts.length > 3 && (
-                    <p className="text-muted">...and {conflicts.length - 3} more</p>
+                    <p className="text-muted">{t("vacation.calendar.more", { count: conflicts.length - 3 })}</p>
                   )}
                 </div>
               </div>
@@ -206,26 +211,28 @@ export default function VacationCalendar({ requests, interns }) {
               <div className="space-y-1">
                 {dayRequests.map(request => {
                   const intern = internsById[request.intern_id];
+                  const internName = intern?.full_name || t("common.misc.unknown");
                   return (
                     <div
                       key={request.id}
                       className="text-xs p-1 rounded bg-success/20 text-success border border-success/30 truncate"
-                      title={`${intern?.full_name || 'Unknown'} - ${request.reason}`}
+                      title={`${internName}${request.reason ? ` - ${request.reason}` : ''}`}
                     >
-                      {intern?.avatar_url} {intern?.full_name?.split(' ')[0]}
+                      {intern?.avatar_url} {internName.split(' ')[0]}
                     </div>
                   );
                 })}
 
                 {dayPending.map(request => {
                   const intern = internsById[request.intern_id];
+                  const internName = intern?.full_name || t("common.misc.unknown");
                   return (
                     <div
                       key={request.id}
                       className="text-xs p-1 rounded bg-warning/20 text-warning border border-warning/30 border-dashed truncate"
-                      title={`${intern?.full_name || 'Unknown'} - Pending: ${request.reason}`}
+                      title={`${internName} - ${t("common.status.pending")}${request.reason ? `: ${request.reason}` : ''}`}
                     >
-                      {intern?.avatar_url} {intern?.full_name?.split(' ')[0]}
+                      {intern?.avatar_url} {internName.split(' ')[0]}
                     </div>
                   );
                 })}
@@ -238,15 +245,15 @@ export default function VacationCalendar({ requests, interns }) {
       <div className="flex gap-4 text-sm">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-success/20 border border-success/30"></div>
-          <span className="text-secondary">Approved</span>
+          <span className="text-secondary">{t("vacation.calendar.approved")}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-warning/20 border border-warning/30 border-dashed"></div>
-          <span className="text-secondary">Pending</span>
+          <span className="text-secondary">{t("vacation.calendar.pending")}</span>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="destructive" className="h-4 w-4 p-0 flex items-center justify-center text-xs">!</Badge>
-          <span className="text-secondary">Conflict</span>
+          <span className="text-secondary">{t("vacation.calendar.conflict")}</span>
         </div>
       </div>
     </div>

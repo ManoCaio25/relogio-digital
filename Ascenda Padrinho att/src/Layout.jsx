@@ -1,10 +1,10 @@
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
   BarChart3,
   Calendar,
   Sparkles,
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { User } from "@/entities/User";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import ThemeToggle from "./components/theme/ThemeToggle";
+import LanguageToggle from "./components/theme/LanguageToggle";
 import NotificationBell from "./components/notifications/NotificationBell";
 import {
   Sidebar,
@@ -29,30 +30,30 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-
+import { LanguageProvider, useTranslation } from "@/i18n";
 const navigationItems = [
   {
-    title: "Dashboard",
+    titleKey: "layout.nav.dashboard",
     url: createPageUrl("Dashboard"),
     icon: LayoutDashboard,
   },
   {
-    title: "Team Overview",
+    titleKey: "layout.nav.interns",
     url: createPageUrl("Interns"),
     icon: Users,
   },
   {
-    title: "Content Management",
+    titleKey: "layout.nav.content",
     url: createPageUrl("ContentManagement"),
     icon: BookOpen,
   },
   {
-    title: "Vacation Requests",
+    titleKey: "layout.nav.vacation",
     url: createPageUrl("VacationRequests"),
     icon: Calendar,
   },
   {
-    title: "Reports",
+    titleKey: "layout.nav.reports",
     url: createPageUrl("Reports"),
     icon: BarChart3,
   },
@@ -61,6 +62,7 @@ const navigationItems = [
 function LayoutContent() {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -202,34 +204,34 @@ function LayoutContent() {
                 </div>
               </div>
               <div>
-                <h2 className="font-bold text-primary">Ascenda</h2>
-                <p className="text-xs text-muted">Manager Portal</p>
+                <h2 className="font-bold text-primary">{t("common.appName")}</h2>
+                <p className="text-xs text-muted">{t("common.managerPortal")}</p>
               </div>
             </div>
           </SidebarHeader>
-          
+
           <SidebarContent className="p-3">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-muted uppercase tracking-wider px-3 py-2">
-                Navigation
+                {t("common.navigation")}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => {
                     const isActive = location.pathname === item.url;
                     return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton 
-                          asChild 
+                      <SidebarMenuItem key={item.titleKey}>
+                        <SidebarMenuButton
+                          asChild
                           className={`transition-all duration-200 rounded-xl mb-1 ${
-                            isActive 
-                              ? 'bg-brand text-white hover:bg-brand' 
+                            isActive
+                              ? 'bg-brand text-white hover:bg-brand'
                               : 'hover:bg-surface2 text-secondary hover:text-primary'
                           }`}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                             <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.title}</span>
+                            <span className="font-medium">{t(item.titleKey)}</span>
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -243,6 +245,7 @@ function LayoutContent() {
           <SidebarFooter className="border-t border-border p-4 space-y-3">
             <div className="flex gap-2">
               <ThemeToggle />
+              <LanguageToggle />
               <NotificationBell />
             </div>
             {user && (
@@ -250,12 +253,12 @@ function LayoutContent() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-brand to-brand2 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
-                      {user.full_name?.charAt(0) || 'M'}
+                      {user.full_name?.charAt(0) || t("common.manager").charAt(0)}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-primary text-sm truncate">
-                      {user.full_name || 'Manager'}
+                      {user.full_name || t("common.manager")}
                     </p>
                     <p className="text-xs text-muted truncate">
                       {user.email}
@@ -269,7 +272,7 @@ function LayoutContent() {
                   className="w-full text-secondary hover:text-primary hover:bg-surface2"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Logout
+                  {t("common.actions.logout")}
                 </Button>
               </div>
             )}
@@ -280,7 +283,7 @@ function LayoutContent() {
           <header className="bg-surface border-b border-border px-6 py-4 md:hidden shadow-e1">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-surface2 p-2 rounded-lg transition-colors duration-200 text-secondary" />
-              <h1 className="text-xl font-bold text-primary">Ascenda</h1>
+              <h1 className="text-xl font-bold text-primary">{t("common.appName")}</h1>
               <div className="ml-auto flex gap-2">
                 <NotificationBell />
               </div>
@@ -298,8 +301,10 @@ function LayoutContent() {
 
 export default function Layout() {
   return (
-    <ThemeProvider>
-      <LayoutContent />
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <LayoutContent />
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }

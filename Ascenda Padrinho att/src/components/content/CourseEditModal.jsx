@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Youtube } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
+import { useTranslation } from "@/i18n";
 
 export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
     youtube_video_id: ""
   });
   const [isSaving, setIsSaving] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (course) {
@@ -80,12 +82,12 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-surface border-border text-primary">
         <DialogHeader>
-          <DialogTitle className="text-primary">Edit Course</DialogTitle>
+          <DialogTitle className="text-primary">{t("courseEdit.title")}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="edit-title" className="text-secondary">Course Title *</Label>
+            <Label htmlFor="edit-title" className="text-secondary">{t("courseForm.titleLabel")}</Label>
             <Input
               id="edit-title"
               value={formData.title}
@@ -96,7 +98,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
           </div>
 
           <div>
-            <Label htmlFor="edit-description" className="text-secondary">Description *</Label>
+            <Label htmlFor="edit-description" className="text-secondary">{t("courseForm.descriptionLabel")}</Label>
             <Textarea
               id="edit-description"
               value={formData.description}
@@ -108,37 +110,37 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="edit-category" className="text-secondary">Category</Label>
+              <Label htmlFor="edit-category" className="text-secondary">{t("courseForm.categoryLabel")}</Label>
               <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
                 <SelectTrigger className="bg-surface2 border-border text-primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-border">
-                  <SelectItem value="Technical">Technical</SelectItem>
-                  <SelectItem value="Leadership">Leadership</SelectItem>
-                  <SelectItem value="Communication">Communication</SelectItem>
-                  <SelectItem value="Design">Design</SelectItem>
-                  <SelectItem value="Business">Business</SelectItem>
+                  <SelectItem value="Technical">{t("courseForm.categories.technical")}</SelectItem>
+                  <SelectItem value="Leadership">{t("courseForm.categories.leadership")}</SelectItem>
+                  <SelectItem value="Communication">{t("courseForm.categories.communication")}</SelectItem>
+                  <SelectItem value="Design">{t("courseForm.categories.design")}</SelectItem>
+                  <SelectItem value="Business">{t("courseForm.categories.business")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="edit-difficulty" className="text-secondary">Difficulty</Label>
+              <Label htmlFor="edit-difficulty" className="text-secondary">{t("courseForm.difficultyLabel")}</Label>
               <Select value={formData.difficulty} onValueChange={(value) => setFormData({ ...formData, difficulty: value })}>
                 <SelectTrigger className="bg-surface2 border-border text-primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-border">
-                  <SelectItem value="Beginner">Beginner</SelectItem>
-                  <SelectItem value="Intermediate">Intermediate</SelectItem>
-                  <SelectItem value="Advanced">Advanced</SelectItem>
+                  <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
+                  <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
+                  <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="edit-duration" className="text-secondary">Duration (hours)</Label>
+              <Label htmlFor="edit-duration" className="text-secondary">{t("courseForm.durationLabel")}</Label>
               <Input
                 id="edit-duration"
                 type="number"
@@ -153,17 +155,17 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
           <div>
             <Label htmlFor="edit-youtube" className="text-secondary flex items-center gap-2">
               <Youtube className="w-4 h-4 text-error" />
-              YouTube Link (Optional)
+              {t("courseForm.youtubeLabel")}
             </Label>
             <Input
               id="edit-youtube"
               value={formData.youtube_url}
               onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-              placeholder="https://www.youtube.com/watch?v=..."
+              placeholder={t("common.placeholders.youtubeUrl")}
               className="bg-surface2 border-border text-primary placeholder:text-muted"
             />
-            <YouTubePreview 
-              url={formData.youtube_url} 
+            <YouTubePreview
+              url={formData.youtube_url}
               onVideoIdChange={handleVideoIdChange}
             />
           </div>
@@ -175,7 +177,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
               onClick={onClose}
               className="border-border"
             >
-              Cancel
+              {t("common.actions.cancel")}
             </Button>
             <Button
               type="submit"
@@ -185,10 +187,10 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
               {isSaving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
+                  {t("common.actions.saving")}
                 </>
               ) : (
-                "Save Changes"
+                t("courseEdit.save")
               )}
             </Button>
           </DialogFooter>
