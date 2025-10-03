@@ -140,7 +140,10 @@ export default function Dashboard() {
               {t('dashboard.status.heading', 'Intern Status & Well-being')}
             </h2>
             <span className="text-sm text-muted">
-              {t('dashboard.status.count', '{{count}} interns', { count: interns.length })}
+              {t('dashboard.status.count', '{{count}} intern{{suffix}}', {
+                count: interns.length,
+                suffix: interns.length === 1 ? '' : 's',
+              })}
             </span>
           </div>
           

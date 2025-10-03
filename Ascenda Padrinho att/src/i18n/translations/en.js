@@ -132,6 +132,15 @@ const en = {
       pointsTrend: "+15%"
     },
     sectionTitle: "Intern Status & Well-being",
+    status: {
+      heading: "Intern Status & Well-being",
+      count: "{{count}} intern{{suffix}}",
+      progressLabel: "Internship Progress",
+      daysLeft: "{{count}} days left",
+      systemStatus: "System Status",
+      active: "Active",
+      paused: "Paused",
+    },
     performanceChart: {
       noData: "No performance data available",
       legendLabel: "Performance Score",
@@ -156,6 +165,21 @@ const en = {
       journeyman: "Journeyman",
       expert: "Expert",
       master: "Master"
+    }
+  },
+  interns: {
+    tracks: {
+      javascriptReact: "JavaScript + React",
+      sapPmo: "SAP + PMO",
+      sap: "SAP",
+      sapHr: "SAP HR",
+      sapHrPmo: "SAP HR + PMO",
+      sapHrGoogle: "SAP HR + Google",
+      powerBi: "Power BI",
+      aiPython: "AI + Python",
+      google: "Google",
+      googleWorkspace: "Google Workspace",
+      webDevelopment: "Web Development",
     }
   },
   internStatus: {
@@ -224,8 +248,17 @@ const en = {
     title: "Content Management",
     subtitle: "Create and manage training materials for your team",
     libraryTitle: "Course Library",
+    courseCount: "{{count}} courses",
     noCourses: "No courses yet. Create your first one!",
-    addCourse: "Add New Course"
+    empty: "No courses yet. Create your first one!",
+    addCourse: "Add New Course",
+    filters: {
+      trainingType: "Training type",
+      trainingTypes: {
+        all: "All training types",
+      }
+    },
+    filteredCount: "{{count}} course(s) match this filter",
   },
   courseForm: {
     titleLabel: "Course Title *",
@@ -236,6 +269,7 @@ const en = {
     youtubeLabel: "YouTube Link (Optional)",
     materialsLabel: "Course Materials (Optional)",
     previewButton: "Preview Document",
+    trainingTypeLabel: "Training type",
     categories: {
       technical: "Technical",
       leadership: "Leadership",
@@ -247,6 +281,13 @@ const en = {
       beginner: "Beginner",
       intermediate: "Intermediate",
       advanced: "Advanced"
+    },
+    trainingTypes: {
+      sap: "SAP",
+      sapHr: "SAP HR",
+      sapHrPmo: "SAP HR PMO",
+      webDevelopment: "Web Development",
+      google: "Google",
     }
   },
   courseCard: {
@@ -269,7 +310,9 @@ const en = {
     dueDate: "Due Date (Optional)",
     notes: "Notes (Optional)",
     assigning: "Assigning...",
-    assignTo: "Assign to {{count}} Intern{{suffix}}"
+    assignTo: "Assign to {{count}} intern{{suffix}}",
+    notificationTitle: "New Course Assigned",
+    notificationBody: "\"{{course}}\" has been assigned to {{name}}",
   },
   reports: {
     title: "Reports & Analytics",

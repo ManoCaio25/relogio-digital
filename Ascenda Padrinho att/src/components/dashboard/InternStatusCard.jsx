@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor, getInternshipProgress } from "../utils/dates";
+import { getLevelLabel, getTrackLabel } from "@/utils/labels";
 import { useTranslation } from "../../i18n";
 
 const wellBeingVariants = {
@@ -42,7 +43,6 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
   const wellBeing = wellBeingVariants[canonicalStatus] || wellBeingVariants["Neutral"];
   const WellBeingIcon = wellBeing.icon;
   const isActive = intern.status === 'active';
-  const { t } = useTranslation();
   
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
@@ -55,6 +55,21 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
     value: progress,
     fill: progress > 66 ? 'var(--error)' : progress > 33 ? 'var(--warning)' : 'var(--success)'
   }], [progress]);
+
+  const trackLabel = React.useMemo(
+    () =>
+      getTrackLabel(
+        intern.track,
+        t,
+        t('internStatus.trackFallback', 'Learning Track')
+      ),
+    [intern.track, t]
+  );
+
+  const levelLabel = React.useMemo(
+    () => getLevelLabel(intern.level, t, intern.level || ''),
+    [intern.level, t]
+  );
 
   return (
     <motion.div
@@ -101,10 +116,10 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                 </div>
                 <div className="flex items-center gap-2 text-sm flex-wrap">
                   <Badge variant="outline" className="bg-surface2 text-secondary border-border">
-                    {intern.track || t('interns.card.trackFallback', 'Learning Track')}
+                    {trackLabel}
                   </Badge>
                   <span className="text-muted">•</span>
-                  <span className="text-muted">{intern.level}</span>
+                  <span className="text-muted">{levelLabel}</span>
                 </div>
               </div>
 

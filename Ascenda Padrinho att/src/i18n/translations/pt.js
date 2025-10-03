@@ -132,6 +132,15 @@ const pt = {
       pointsTrend: "+15%"
     },
     sectionTitle: "Status e bem-estar dos estagiários",
+    status: {
+      heading: "Status e bem-estar dos estagiários",
+      count: "{{count}} estagiário{{suffix}}",
+      progressLabel: "Progresso do estágio",
+      daysLeft: "{{count}} dias restantes",
+      systemStatus: "Status do sistema",
+      active: "Ativo",
+      paused: "Pausado",
+    },
     performanceChart: {
       noData: "Nenhum dado de performance disponível",
       legendLabel: "Pontuação de performance",
@@ -156,6 +165,21 @@ const pt = {
       journeyman: "Profissional",
       expert: "Especialista",
       master: "Mestre"
+    }
+  },
+  interns: {
+    tracks: {
+      javascriptReact: "JavaScript + React",
+      sapPmo: "SAP + PMO",
+      sap: "SAP",
+      sapHr: "SAP HR",
+      sapHrPmo: "SAP HR + PMO",
+      sapHrGoogle: "SAP HR + Google",
+      powerBi: "Power BI",
+      aiPython: "IA + Python",
+      google: "Google",
+      googleWorkspace: "Google Workspace",
+      webDevelopment: "Desenvolvimento Web",
     }
   },
   internStatus: {
@@ -224,8 +248,17 @@ const pt = {
     title: "Gestão de conteúdo",
     subtitle: "Crie e gerencie materiais de treinamento para sua equipe",
     libraryTitle: "Biblioteca de cursos",
+    courseCount: "{{count}} cursos",
     noCourses: "Ainda não há cursos. Crie o primeiro!",
-    addCourse: "Adicionar novo curso"
+    empty: "Ainda não há cursos. Crie o primeiro!",
+    addCourse: "Adicionar novo curso",
+    filters: {
+      trainingType: "Tipo de treinamento",
+      trainingTypes: {
+        all: "Todos os tipos",
+      }
+    },
+    filteredCount: "{{count}} curso(s) correspondem a este filtro",
   },
   courseForm: {
     titleLabel: "Título do curso *",
@@ -236,6 +269,7 @@ const pt = {
     youtubeLabel: "Link do YouTube (opcional)",
     materialsLabel: "Materiais do curso (opcional)",
     previewButton: "Pré-visualizar documento",
+    trainingTypeLabel: "Tipo de treinamento",
     categories: {
       technical: "Técnica",
       leadership: "Liderança",
@@ -247,6 +281,13 @@ const pt = {
       beginner: "Iniciante",
       intermediate: "Intermediário",
       advanced: "Avançado"
+    },
+    trainingTypes: {
+      sap: "SAP",
+      sapHr: "SAP HR",
+      sapHrPmo: "SAP HR PMO",
+      webDevelopment: "Desenvolvimento Web",
+      google: "Google",
     }
   },
   courseCard: {
@@ -269,7 +310,9 @@ const pt = {
     dueDate: "Data limite (opcional)",
     notes: "Observações (opcional)",
     assigning: "Atribuindo...",
-    assignTo: "Atribuir a {{count}} estagiário{{suffix}}"
+    assignTo: "Atribuir a {{count}} estagiário{{suffix}}",
+    notificationTitle: "Novo curso atribuído",
+    notificationBody: "\"{{course}}\" foi atribuído a {{name}}",
   },
   reports: {
     title: "Relatórios e análises",
