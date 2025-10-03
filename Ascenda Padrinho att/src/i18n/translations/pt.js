@@ -247,6 +247,7 @@ const pt = {
   content: {
     title: "Gestão de conteúdo",
     subtitle: "Crie e gerencie materiais de treinamento para sua equipe",
+    heroBadge: "Central de aprendizagem",
     libraryTitle: "Biblioteca de cursos",
     courseCount: "{{count}} curso{{suffix}}",
     noCourses: "Ainda não há cursos. Crie o primeiro!",
@@ -291,8 +292,9 @@ const pt = {
     }
   },
   courseCard: {
+    label: "Curso em destaque",
     youtube: "YouTube",
-    active: "{{count}} ativo{{suffix}}",
+    active: "{{count}} pessoa{{suffix}} ativa{{suffix}}",
     edit: "Editar",
     assign: "Atribuir",
     preview: "Pré-visualizar"

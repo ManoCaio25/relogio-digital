@@ -247,6 +247,7 @@ const en = {
   content: {
     title: "Content Management",
     subtitle: "Create and manage training materials for your team",
+    heroBadge: "Learning hub",
     libraryTitle: "Course Library",
     courseCount: "{{count}} course{{suffix}}",
     noCourses: "No courses yet. Create your first one!",
@@ -291,8 +292,9 @@ const en = {
     }
   },
   courseCard: {
+    label: "Featured course",
     youtube: "YouTube",
-    active: "{{count}} active",
+    active: "{{count}} active learner{{suffix}}",
     edit: "Edit",
     assign: "Assign",
     preview: "Preview"
