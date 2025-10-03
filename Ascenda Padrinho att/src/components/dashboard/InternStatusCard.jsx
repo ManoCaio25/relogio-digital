@@ -30,6 +30,7 @@ const wellBeingAliases = {
 };
 
 export default function InternStatusCard({ intern, onStatusToggle, index }) {
+  const { t } = useTranslation();
   const rawStatus = intern.well_being_status;
   const normalizedStatus = typeof rawStatus === "string"
     ? rawStatus.trim().toLowerCase()

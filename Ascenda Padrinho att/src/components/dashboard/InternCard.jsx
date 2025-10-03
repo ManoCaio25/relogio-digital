@@ -30,6 +30,13 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
 
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
+  const levelLabels = React.useMemo(() => ({
+    "Novice": t("internsPage.levels.novice"),
+    "Apprentice": t("internsPage.levels.apprentice"),
+    "Journeyman": t("internsPage.levels.journeyman"),
+    "Expert": t("internsPage.levels.expert"),
+    "Master": t("internsPage.levels.master"),
+  }), [t]);
 
   const handleChatClick = (e) => {
     e.stopPropagation();
