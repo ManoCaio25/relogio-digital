@@ -60,7 +60,11 @@ export function LanguageProvider({ children }) {
     },
   }), [language, changeLanguage]);
 
-  return React.createElement(LanguageContext.Provider, { value }, children);
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
 }
 
 export function useTranslation() {

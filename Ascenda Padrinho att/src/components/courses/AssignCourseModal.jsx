@@ -12,6 +12,7 @@ import { User } from "@/entities/User";
 import { Loader2, UserPlus, Calendar } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import { eventBus, EventTypes } from "../utils/eventBus";
+import { useTranslation } from "@/i18n";
 
 export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }) {
   const [interns, setInterns] = useState([]);
@@ -20,6 +21,7 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
   const [notes, setNotes] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
   const [user, setUser] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadData = async () => {
@@ -107,16 +109,16 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-brand" />
-            Assign "{course.title}" to Interns
+            {t("assignModal.title", { course: course.title })}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleAssign} className="space-y-6">
           <div>
-            <Label className="text-secondary mb-3 block">Select Interns *</Label>
+            <Label className="text-secondary mb-3 block">{t("assignModal.selectInterns")}</Label>
             <div className="space-y-2 max-h-64 overflow-y-auto border border-border rounded-lg p-3 bg-surface2">
               {interns.length === 0 ? (
-                <p className="text-muted text-sm text-center py-4">No active interns available</p>
+                <p className="text-muted text-sm text-center py-4">{t("assignModal.noneAvailable")}</p>
               ) : (
                 interns.map(intern => (
                   <label
@@ -138,14 +140,14 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               )}
             </div>
             <p className="text-xs text-muted mt-2">
-              {selectedInterns.size} intern{selectedInterns.size !== 1 ? 's' : ''} selected
+              {t("assignModal.selectedCount", { count: selectedInterns.size })}
             </p>
           </div>
 
           <div>
             <Label htmlFor="due-date" className="text-secondary flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Due Date (Optional)
+              {t("assignModal.dueDate")}
             </Label>
             <Input
               id="due-date"
@@ -158,12 +160,12 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
           </div>
 
           <div>
-            <Label htmlFor="notes" className="text-secondary">Notes (Optional)</Label>
+            <Label htmlFor="notes" className="text-secondary">{t("assignModal.notes")}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any special instructions or context..."
+              placeholder={t("common.placeholders.notes")}
               className="bg-surface2 border-border text-primary h-24"
             />
           </div>
@@ -175,7 +177,7 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               onClick={onClose}
               className="border-border"
             >
-              Cancel
+              {t("common.actions.cancel")}
             </Button>
             <Button
               type="submit"
@@ -185,10 +187,10 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               {isAssigning ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Assigning...
+                  {t("assignModal.assigning")}
                 </>
               ) : (
-                `Assign to ${selectedInterns.size} Intern${selectedInterns.size !== 1 ? 's' : ''}`
+                t("assignModal.assignTo", { count: selectedInterns.size })
               )}
             </Button>
           </DialogFooter>
