@@ -11,7 +11,7 @@ export const interns = [
   {
     id: 1,
     full_name: 'Lucas Almeida',
-    avatar_url: 'https://avatars.dicebear.com/api/avataaars/lucas-almeida.svg',
+    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=lucas-almeida',
     email: 'lucas.almeida@ascenda.com',
     level: 'Journeyman',
     status: 'active',
@@ -35,7 +35,7 @@ export const interns = [
   {
     id: 2,
     full_name: 'Carla Mendes',
-    avatar_url: 'https://avatars.dicebear.com/api/avataaars/carla-mendes.svg',
+    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=carla-mendes',
     email: 'carla.mendes@ascenda.com',
     level: 'Apprentice',
     status: 'active',
@@ -59,7 +59,7 @@ export const interns = [
   {
     id: 3,
     full_name: 'Pedro Silva',
-    avatar_url: 'https://avatars.dicebear.com/api/avataaars/pedro-silva.svg',
+    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=pedro-silva',
     email: 'pedro.silva@ascenda.com',
     level: 'Expert',
     status: 'active',
@@ -83,7 +83,7 @@ export const interns = [
   {
     id: 4,
     full_name: 'Ana Bezerra',
-    avatar_url: 'https://avatars.dicebear.com/api/avataaars/ana-bezerra.svg',
+    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana-bezerra',
     email: 'ana.bezerra@ascenda.com',
     level: 'Novice',
     status: 'paused',
