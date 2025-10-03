@@ -7,6 +7,7 @@ import CourseCard from "../components/content/CourseCard";
 import CourseEditModal from "../components/content/CourseEditModal";
 import PreviewDrawer from "../components/media/PreviewDrawer";
 import AssignCourseModal from "../components/courses/AssignCourseModal";
+import LibraryFilterCard from "../components/content/LibraryFilterCard";
 import { useTranslation } from "../i18n";
 import { useTrainingTypeOptions } from "@/utils/labels";
 import { Input } from "@/components/ui/input";
