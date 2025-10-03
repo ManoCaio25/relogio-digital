@@ -248,10 +248,17 @@ const pt = {
     title: "Gestão de conteúdo",
     subtitle: "Crie e gerencie materiais de treinamento para sua equipe",
     libraryTitle: "Biblioteca de cursos",
-    courseCount: "{{count}} cursos",
+    courseCount: "{{count}} curso{{suffix}}",
     noCourses: "Ainda não há cursos. Crie o primeiro!",
     empty: "Ainda não há cursos. Crie o primeiro!",
-    addCourse: "Adicionar novo curso"
+    addCourse: "Adicionar novo curso",
+    filters: {
+      trainingType: "Tipo de treinamento",
+      trainingTypes: {
+        all: "Todos os tipos",
+      },
+    },
+    filteredCount: "{{count}} curso{{suffix}} corresponde a este filtro"
   },
   courseForm: {
     titleLabel: "Título do curso *",
