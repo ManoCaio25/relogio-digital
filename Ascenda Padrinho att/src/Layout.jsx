@@ -1,10 +1,10 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
   BarChart3,
   Calendar,
   Sparkles,
@@ -15,6 +15,8 @@ import { User } from "@/entities/User";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import ThemeToggle from "./components/theme/ThemeToggle";
 import NotificationBell from "./components/notifications/NotificationBell";
+import LanguageToggle from "./components/i18n/LanguageToggle";
+import { useTranslation } from "./i18n";
 import {
   Sidebar,
   SidebarContent,
@@ -30,37 +32,38 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-const navigationItems = [
-  {
-    title: "Dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Team Overview",
-    url: createPageUrl("Interns"),
-    icon: Users,
-  },
-  {
-    title: "Content Management",
-    url: createPageUrl("ContentManagement"),
-    icon: BookOpen,
-  },
-  {
-    title: "Vacation Requests",
-    url: createPageUrl("VacationRequests"),
-    icon: Calendar,
-  },
-  {
-    title: "Reports",
-    url: createPageUrl("Reports"),
-    icon: BarChart3,
-  },
-];
-
-function LayoutContent({ children }) {
+function LayoutContent() {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
+  const { t } = useTranslation();
+
+  const navigationItems = React.useMemo(() => [
+    {
+      title: t("layout.navItems.dashboard", "Dashboard"),
+      url: createPageUrl("Dashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      title: t("layout.navItems.interns", "Team Overview"),
+      url: createPageUrl("Interns"),
+      icon: Users,
+    },
+    {
+      title: t("layout.navItems.content", "Content Management"),
+      url: createPageUrl("ContentManagement"),
+      icon: BookOpen,
+    },
+    {
+      title: t("layout.navItems.vacation", "Vacation Requests"),
+      url: createPageUrl("VacationRequests"),
+      icon: Calendar,
+    },
+    {
+      title: t("layout.navItems.reports", "Reports"),
+      url: createPageUrl("Reports"),
+      icon: BarChart3,
+    },
+  ], [t]);
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -202,8 +205,8 @@ function LayoutContent({ children }) {
                 </div>
               </div>
               <div>
-                <h2 className="font-bold text-primary">Ascenda</h2>
-                <p className="text-xs text-muted">Manager Portal</p>
+                <h2 className="font-bold text-primary">{t("layout.appName", "Ascenda")}</h2>
+                <p className="text-xs text-muted">{t("layout.subtitle", "Manager Portal")}</p>
               </div>
             </div>
           </SidebarHeader>
@@ -211,7 +214,7 @@ function LayoutContent({ children }) {
           <SidebarContent className="p-3">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-muted uppercase tracking-wider px-3 py-2">
-                Navigation
+                {t("layout.navigation", "Navigation")}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -241,8 +244,9 @@ function LayoutContent({ children }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border p-4 space-y-3">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <ThemeToggle />
+              <LanguageToggle />
               <NotificationBell />
             </div>
             {user && (
@@ -250,12 +254,12 @@ function LayoutContent({ children }) {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-brand to-brand2 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
-                      {user.full_name?.charAt(0) || 'M'}
+                      {user.full_name?.charAt(0) || t("layout.userFallback", "Manager").charAt(0)}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-primary text-sm truncate">
-                      {user.full_name || 'Manager'}
+                      {user.full_name || t("layout.userFallback", "Manager")}
                     </p>
                     <p className="text-xs text-muted truncate">
                       {user.email}
@@ -269,7 +273,7 @@ function LayoutContent({ children }) {
                   className="w-full text-secondary hover:text-primary hover:bg-surface2"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Logout
+                  {t("layout.logout", "Logout")}
                 </Button>
               </div>
             )}
@@ -288,7 +292,7 @@ function LayoutContent({ children }) {
           </header>
 
           <div className="flex-1 overflow-auto">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>
@@ -296,10 +300,10 @@ function LayoutContent({ children }) {
   );
 }
 
-export default function Layout({ children }) {
+export default function Layout() {
   return (
     <ThemeProvider>
-      <LayoutContent>{children}</LayoutContent>
+      <LayoutContent />
     </ThemeProvider>
   );
 }

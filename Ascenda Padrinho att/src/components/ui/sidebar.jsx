@@ -28,15 +28,17 @@ function useSidebar() {
 export function Sidebar({ className, children }) {
   const { isOpen, setOpen } = useSidebar();
 
+  const widthClass = 'w-64';
+
   const content = (
-    <nav className={cn('flex h-full w-72 flex-col bg-surface', className)}>{children}</nav>
+    <nav className={cn(`flex h-full ${widthClass} flex-col bg-surface`, className)}>{children}</nav>
   );
 
   return (
     <>
-      <div className="hidden h-screen w-72 flex-shrink-0 md:flex">{content}</div>
+      <div className={`hidden h-screen ${widthClass} flex-shrink-0 md:flex`}>{content}</div>
       <div className={cn('fixed inset-0 z-40 bg-black/40 transition-opacity md:hidden', isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')} onClick={() => setOpen(false)} />
-      <div className={cn('fixed inset-y-0 left-0 z-50 w-72 max-w-full transform bg-surface shadow-e3 transition-transform md:hidden', isOpen ? 'translate-x-0' : '-translate-x-full')}>
+      <div className={cn(`fixed inset-y-0 left-0 z-50 ${widthClass} max-w-full transform bg-surface shadow-e3 transition-transform md:hidden`, isOpen ? 'translate-x-0' : '-translate-x-full')}>
         {content}
       </div>
     </>

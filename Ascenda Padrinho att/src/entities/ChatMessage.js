@@ -1,7 +1,9 @@
 import { createEntityStore } from './store';
-import { chatMessages as initialMessages } from './data';
+import { chatMessages as initialMessages, seedDataVersion } from './data';
 
-const store = createEntityStore('ascenda_chat_messages', initialMessages);
+const store = createEntityStore('ascenda_chat_messages', initialMessages, {
+  version: seedDataVersion,
+});
 
 export const ChatMessage = {
   list(sort, limit) {
