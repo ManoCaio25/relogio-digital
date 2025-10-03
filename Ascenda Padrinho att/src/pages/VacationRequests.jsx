@@ -1,10 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
 import VacationRequestsPanel from "../components/vacation/VacationRequestsPanel";
-import { useTranslation } from "@/i18n";
+import { useTranslation } from "../i18n";
 
 export default function VacationRequests() {
   const { t } = useTranslation();
+
   return (
     <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-5xl mx-auto space-y-8">
@@ -13,9 +14,11 @@ export default function VacationRequests() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            {t("vacation.title")}
+            {t('vacations.title', 'Vacation Requests')}
           </h1>
-          <p className="text-muted">{t("vacation.subtitle")}</p>
+          <p className="text-muted">
+            {t('vacations.subtitle', 'Review and manage intern vacation requests')}
+          </p>
         </motion.div>
 
         <VacationRequestsPanel />
