@@ -1,124 +1,102 @@
-import React from "react";
-import en from "./translations/en";
-import pt from "./translations/pt";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import en from './en';
+import pt from './pt';
 
-const STORAGE_KEY = "ascenda-language";
-const resources = { en, pt };
-const fallbackLanguage = "en";
+const STORAGE_KEY = 'language';
+const translations = { en, pt };
 
-const LanguageContext = React.createContext({
-  language: fallbackLanguage,
-  setLanguage: () => {},
-  toggleLanguage: () => {},
-  t: (key, options) => options?.defaultValue ?? key,
-});
-
-function resolvePath(dictionary, key) {
-  return key.split(".").reduce((acc, part) => (acc ? acc[part] : undefined), dictionary);
+function getNestedTranslation(language, key) {
+  const source = translations[language] || translations.en;
+  return key.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), source);
 }
 
-function formatValue(value, options = {}) {
-  if (typeof value === "function") {
-    return value(options);
-  }
-
-  if (typeof value === "string") {
-    return value.replace(/{{(.*?)}}/g, (_, token) => {
-      const trimmed = token.trim();
-      if (trimmed === "suffix") {
-        const count = Number(options.count ?? options.value ?? 0);
-        return count === 1 ? "" : options.suffix ?? "s";
-      }
-      if (trimmed === "value" && options.value !== undefined) {
-        return String(options.value);
-      }
-      if (options[trimmed] !== undefined) {
-        return String(options[trimmed]);
-      }
-      return "";
-    });
-  }
-
-  if (value == null) {
-    return undefined;
-  }
-
-  return value;
+function interpolate(template, values) {
+  if (!template || !values) return template;
+  return template.replace(/\{\{(.*?)\}\}/g, (_, token) => {
+    const valueKey = token.trim();
+    return Object.prototype.hasOwnProperty.call(values, valueKey)
+      ? values[valueKey]
+      : `{{${valueKey}}}`;
+  });
 }
+
+const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored && resources[stored]) {
-        return stored;
-      }
-    }
-    return fallbackLanguage;
-  });
+  const [language, setLanguage] = useState('en');
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, language);
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored && translations[stored]) {
+      setLanguage(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('lang', language);
     }
   }, [language]);
 
-  const changeLanguage = React.useCallback((next) => {
-    if (resources[next]) {
-      setLanguage(next);
-    }
-  }, []);
-
-  const toggleLanguage = React.useCallback(() => {
-    setLanguage((prev) => (prev === "en" ? "pt" : "en"));
-  }, []);
-
-  const translate = React.useCallback(
-    (key, options = {}) => {
-      const langs = [language, fallbackLanguage];
-
-      for (const lang of langs) {
-        const dictionary = resources[lang];
-        const value = resolvePath(dictionary, key);
-        if (value !== undefined) {
-          const formatted = formatValue(value, options);
-          if (formatted !== undefined) {
-            return formatted;
-          }
-        }
+  const changeLanguage = useCallback((next) => {
+    setLanguage((prev) => {
+      const nextLanguage = translations[next] ? next : prev;
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(STORAGE_KEY, nextLanguage);
       }
+      return nextLanguage;
+    });
+  }, []);
 
-      return options.defaultValue ?? key;
+  const value = useMemo(() => ({
+    language,
+    setLanguage: changeLanguage,
+    t: (key, fallback, values) => {
+      const message = getNestedTranslation(language, key) ?? fallback ?? key;
+      if (typeof message === 'string') {
+        return interpolate(message, values);
+      }
+      return message;
     },
-    [language]
-  );
-
-  const contextValue = React.useMemo(
-    () => ({
-      language,
-      setLanguage: changeLanguage,
-      toggleLanguage,
-      t: translate,
-    }),
-    [language, changeLanguage, toggleLanguage, translate]
-  );
+  }), [language, changeLanguage]);
 
   return (
-    <LanguageContext.Provider value={contextValue}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
 }
 
-export function useLanguage() {
-  const context = React.useContext(LanguageContext);
+export function useTranslation() {
+  const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    throw new Error('useTranslation must be used within LanguageProvider');
   }
   return context;
 }
 
-export function useTranslation() {
-  const { t } = useLanguage();
-  return { t };
+export function useLanguage() {
+  const { language, setLanguage } = useTranslation();
+
+  const toggleLanguage = useCallback(() => {
+    const next = language === 'en' ? 'pt' : 'en';
+    setLanguage(next);
+  }, [language, setLanguage]);
+
+  return useMemo(
+    () => ({ language, setLanguage, toggleLanguage }),
+    [language, setLanguage, toggleLanguage],
+  );
 }
+
+export { translations };
