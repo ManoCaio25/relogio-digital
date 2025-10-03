@@ -115,8 +115,11 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
                   <Users className="w-3 h-3 mr-1" />
                   {t(
                     "courseCard.active",
-                    '{{count}} active learner(s)',
-                    { count: assignmentCount },
+                    '{{count}} active learner{{suffix}}',
+                    {
+                      count: assignmentCount,
+                      suffix: assignmentCount === 1 ? '' : 's',
+                    },
                   )}
                 </Badge>
               )}

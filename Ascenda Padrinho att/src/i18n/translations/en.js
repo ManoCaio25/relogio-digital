@@ -248,10 +248,17 @@ const en = {
     title: "Content Management",
     subtitle: "Create and manage training materials for your team",
     libraryTitle: "Course Library",
-    courseCount: "{{count}} courses",
+    courseCount: "{{count}} course{{suffix}}",
     noCourses: "No courses yet. Create your first one!",
     empty: "No courses yet. Create your first one!",
-    addCourse: "Add New Course"
+    addCourse: "Add New Course",
+    filters: {
+      trainingType: "Training type",
+      trainingTypes: {
+        all: "All training types",
+      },
+    },
+    filteredCount: "{{count}} course{{suffix}} match this filter"
   },
   courseForm: {
     titleLabel: "Course Title *",

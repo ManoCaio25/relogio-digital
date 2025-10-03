@@ -7,13 +7,6 @@ import CourseEditModal from "../components/content/CourseEditModal";
 import PreviewDrawer from "../components/media/PreviewDrawer";
 import AssignCourseModal from "../components/courses/AssignCourseModal";
 import { useTranslation } from "../i18n";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useTrainingTypeOptions } from "@/utils/labels";
 
 export default function ContentManagement() {
@@ -109,22 +102,46 @@ export default function ContentManagement() {
               <h2 className="text-2xl font-bold text-primary">
                 {t('content.libraryTitle', 'Course Library')}
               </h2>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted">
-                  {t('content.courseCount', '{{count}} courses', { count: courses.length })}
-                </span>
-                <Select value={trainingFilter} onValueChange={setTrainingFilter}>
-                  <SelectTrigger className="w-48 bg-surface2 border-border text-primary">
-                    <SelectValue placeholder={t('content.filters.trainingType', 'Training type')} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-surface border-border">
-                    {trainingOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="w-full lg:w-auto space-y-2">
+                <p className="text-sm text-muted">
+                  {t(
+                    'content.courseCount',
+                    '{{count}} course{{suffix}}',
+                    {
+                      count: courses.length,
+                      suffix: courses.length === 1 ? '' : 's',
+                    },
+                  )}
+                </p>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                    {t('content.filters.trainingType', 'Training type')}
+                  </p>
+                  <div
+                    className="mt-2 flex flex-wrap gap-2 rounded-2xl border border-border bg-surface2/80 p-2"
+                    role="group"
+                    aria-label={t('content.filters.trainingType', 'Training type')}
+                  >
+                    {trainingOptions.map((option) => {
+                      const isActive = trainingFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setTrainingFilter(option.value)}
+                          className={`rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                            isActive
+                              ? 'border-brand bg-brand text-white shadow-e1'
+                              : 'border-border/60 bg-surface text-secondary hover:border-brand/60 hover:text-primary'
+                          }`}
+                          aria-pressed={isActive}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -132,8 +149,11 @@ export default function ContentManagement() {
               <p className="text-xs text-muted">
                 {t(
                   'content.filteredCount',
-                  '{{count}} course(s) match this filter',
-                  { count: filteredCourses.length },
+                  '{{count}} course{{suffix}} match this filter',
+                  {
+                    count: filteredCourses.length,
+                    suffix: filteredCourses.length === 1 ? '' : 's',
+                  },
                 )}
               </p>
             )}

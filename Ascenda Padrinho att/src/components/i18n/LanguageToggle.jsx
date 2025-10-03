@@ -26,7 +26,17 @@ export default function LanguageToggle() {
             aria-label={option.label}
             title={option.label}
           >
-            <span aria-hidden="true">{option.emoji}</span>
+            <span
+              aria-hidden="true"
+              role="img"
+              className="leading-none"
+              style={{
+                fontFamily:
+                  '"Twemoji Country Flags", "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif',
+              }}
+            >
+              {option.emoji}
+            </span>
           </button>
         );
       })}
