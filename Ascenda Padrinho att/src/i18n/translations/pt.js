@@ -224,7 +224,9 @@ const pt = {
     title: "Gestão de conteúdo",
     subtitle: "Crie e gerencie materiais de treinamento para sua equipe",
     libraryTitle: "Biblioteca de cursos",
+    courseCount: "{{count}} cursos",
     noCourses: "Ainda não há cursos. Crie o primeiro!",
+    empty: "Ainda não há cursos. Crie o primeiro!",
     addCourse: "Adicionar novo curso"
   },
   courseForm: {

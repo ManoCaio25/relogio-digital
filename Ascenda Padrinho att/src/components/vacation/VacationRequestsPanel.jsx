@@ -73,87 +73,7 @@ export default function VacationRequestsPanel() {
     return Object.fromEntries(interns.map(i => [i.id, i]));
   }, [interns]);
 
-  const openEmojiEditor = useCallback((intern) => {
-    if (!intern) return;
-    setEmojiEditor(intern);
-    setEmojiValue(intern.avatar_url || "");
-  }, []);
-
-  const closeEmojiEditor = useCallback(() => {
-    setEmojiEditor(null);
-    setEmojiValue("");
-    setIsUpdatingEmoji(false);
-  }, []);
-
-  const saveEmoji = useCallback(async () => {
-    if (!emojiEditor || isUpdatingEmoji) return;
-
-    const nextValue = emojiValue.trim();
-    const currentValue = emojiEditor.avatar_url || '';
-    if (nextValue === currentValue) {
-      return;
-    }
-
-    setIsUpdatingEmoji(true);
-
-    try {
-      await Intern.update(emojiEditor.id, { avatar_url: nextValue || null });
-      setInterns((prev) =>
-        prev.map((item) =>
-          String(item.id) === String(emojiEditor.id)
-            ? { ...item, avatar_url: nextValue || null }
-            : item
-        )
-      );
-      closeEmojiEditor();
-    } catch (error) {
-      console.error('Error updating emoji:', error);
-    } finally {
-      setIsUpdatingEmoji(false);
-    }
-  }, [emojiEditor, emojiValue, isUpdatingEmoji, closeEmojiEditor]);
-
-  const openEmojiEditor = useCallback((intern) => {
-    if (!intern) return;
-    setEmojiEditor(intern);
-    setEmojiValue(intern.avatar_url || "");
-  }, []);
-
-  const closeEmojiEditor = useCallback(() => {
-    setEmojiEditor(null);
-    setEmojiValue("");
-    setIsUpdatingEmoji(false);
-  }, []);
-
-  const saveEmoji = useCallback(async () => {
-    if (!emojiEditor || isUpdatingEmoji) return;
-
-    const nextValue = emojiValue.trim();
-    const currentValue = emojiEditor.avatar_url || '';
-    if (nextValue === currentValue) {
-      return;
-    }
-
-    setIsUpdatingEmoji(true);
-
-    try {
-      await Intern.update(emojiEditor.id, { avatar_url: nextValue || null });
-      setInterns((prev) =>
-        prev.map((item) =>
-          String(item.id) === String(emojiEditor.id)
-            ? { ...item, avatar_url: nextValue || null }
-            : item
-        )
-      );
-      closeEmojiEditor();
-    } catch (error) {
-      console.error('Error updating emoji:', error);
-    } finally {
-      setIsUpdatingEmoji(false);
-    }
-  }, [emojiEditor, emojiValue, isUpdatingEmoji, closeEmojiEditor]);
-
-  const openEmojiEditor = useCallback((intern) => {
+  const handleOpenEmojiEditor = useCallback((intern) => {
     if (!intern) return;
     setEmojiEditor(intern);
     setEmojiValue(intern.avatar_url || "");
@@ -289,18 +209,6 @@ export default function VacationRequestsPanel() {
     ? trimmedEmojiValue !== (emojiEditor.avatar_url || '')
     : Boolean(trimmedEmojiValue);
 
-  const trimmedEmojiValue = emojiValue.trim();
-  const previewEmoji = trimmedEmojiValue || emojiEditor?.avatar_url || '👤';
-  const emojiHasChanges = emojiEditor
-    ? trimmedEmojiValue !== (emojiEditor.avatar_url || '')
-    : Boolean(trimmedEmojiValue);
-
-  const trimmedEmojiValue = emojiValue.trim();
-  const previewEmoji = trimmedEmojiValue || emojiEditor?.avatar_url || '👤';
-  const emojiHasChanges = emojiEditor
-    ? trimmedEmojiValue !== (emojiEditor.avatar_url || '')
-    : Boolean(trimmedEmojiValue);
-
   return (
     <>
       <Card className="border-border bg-surface shadow-e1">
@@ -362,7 +270,7 @@ export default function VacationRequestsPanel() {
                             <>
                               <button
                                 type="button"
-                                onClick={() => openEmojiEditor(intern)}
+                                onClick={() => handleOpenEmojiEditor(intern)}
                                 className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand2 flex items-center justify-center text-2xl transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                                 title={t('vacations.panel.aria.updateEmoji', 'Update profile emoji for {{name}}', {
                                   name: intern.full_name,

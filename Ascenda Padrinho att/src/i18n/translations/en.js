@@ -224,7 +224,9 @@ const en = {
     title: "Content Management",
     subtitle: "Create and manage training materials for your team",
     libraryTitle: "Course Library",
+    courseCount: "{{count}} courses",
     noCourses: "No courses yet. Create your first one!",
+    empty: "No courses yet. Create your first one!",
     addCourse: "Add New Course"
   },
   courseForm: {

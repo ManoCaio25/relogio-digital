@@ -25,9 +25,13 @@ export default function PerformanceChart({ data }) {
 
   const tooltipValue = React.useCallback(
     (value) =>
-      t("dashboard.performanceChart.tooltipValue", {
-        value: percentFormatter.format(value),
-      }),
+      t(
+        "dashboard.performanceChart.tooltipValue",
+        '{{value}}% score',
+        {
+          value: percentFormatter.format(value),
+        },
+      ),
     [percentFormatter, t]
   );
 
@@ -61,9 +65,13 @@ export default function PerformanceChart({ data }) {
           style={{ fontSize: "12px" }}
           domain={[0, 100]}
           tickFormatter={(value) =>
-            t("dashboard.performanceChart.percentValue", {
-              value: percentFormatter.format(value),
-            })
+            t(
+              "dashboard.performanceChart.percentValue",
+              '{{value}}%',
+              {
+                value: percentFormatter.format(value),
+              },
+            )
           }
         />
         <Tooltip
@@ -79,7 +87,11 @@ export default function PerformanceChart({ data }) {
             t("dashboard.performanceChart.legendLabel"),
           ]}
           labelFormatter={(label) =>
-            t("dashboard.performanceChart.tooltipLabel", { label })
+            t(
+              "dashboard.performanceChart.tooltipLabel",
+              'Month: {{label}}',
+              { label },
+            )
           }
         />
         <Legend

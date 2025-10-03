@@ -90,7 +90,7 @@ export const interns = [
   },
   {
     id: 'leticia',
-    full_name: 'Leticia Alvez',
+    full_name: 'Leticia Alves',
     avatar: '/avatars/leticia.jpg',
     avatar_url: '📊',
     email: 'leticia.alvez@ascenda.com',

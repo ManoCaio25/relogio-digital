@@ -112,7 +112,11 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
                 </p>
                 {daysLeft !== null && daysLeftColors && (
                   <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border} text-xs`}>
-                    {t("internDetails.daysLeft", { count: daysLeft })}
+                    {t(
+                      "internDetails.daysLeft",
+                      '{{count}} day(s) left',
+                      { count: daysLeft },
+                    )}
                   </Badge>
                 )}
               </div>
