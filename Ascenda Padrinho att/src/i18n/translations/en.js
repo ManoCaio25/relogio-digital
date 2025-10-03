@@ -251,14 +251,7 @@ const en = {
     courseCount: "{{count}} courses",
     noCourses: "No courses yet. Create your first one!",
     empty: "No courses yet. Create your first one!",
-    addCourse: "Add New Course",
-    filters: {
-      trainingType: "Training type",
-      trainingTypes: {
-        all: "All training types",
-      }
-    },
-    filteredCount: "{{count}} course(s) match this filter",
+    addCourse: "Add New Course"
   },
   courseForm: {
     titleLabel: "Course Title *",

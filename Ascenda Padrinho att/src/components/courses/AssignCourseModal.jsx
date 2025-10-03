@@ -163,11 +163,8 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
             <p className="text-xs text-muted mt-2">
               {t(
                 "assignModal.selectedCount",
-                '{{count}} intern{{suffix}} selected',
-                {
-                  count: selectedInterns.size,
-                  suffix: selectedInterns.size === 1 ? '' : 's',
-                },
+                '{{count}} intern(s) selected',
+                { count: selectedInterns.size },
               )}
             </p>
           </div>
@@ -220,11 +217,8 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               ) : (
                 t(
                   "assignModal.assignTo",
-                  'Assign to {{count}} intern{{suffix}}',
-                  {
-                    count: selectedInterns.size,
-                    suffix: selectedInterns.size === 1 ? '' : 's',
-                  },
+                  'Assign to {{count}} intern(s)',
+                  { count: selectedInterns.size },
                 )
               )}
             </Button>

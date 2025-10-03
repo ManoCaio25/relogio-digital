@@ -251,14 +251,7 @@ const pt = {
     courseCount: "{{count}} cursos",
     noCourses: "Ainda não há cursos. Crie o primeiro!",
     empty: "Ainda não há cursos. Crie o primeiro!",
-    addCourse: "Adicionar novo curso",
-    filters: {
-      trainingType: "Tipo de treinamento",
-      trainingTypes: {
-        all: "Todos os tipos",
-      }
-    },
-    filteredCount: "{{count}} curso(s) correspondem a este filtro",
+    addCourse: "Adicionar novo curso"
   },
   courseForm: {
     titleLabel: "Título do curso *",

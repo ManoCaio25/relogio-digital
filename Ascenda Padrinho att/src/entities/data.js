@@ -3,8 +3,8 @@ export const seedDataVersion = '2024-10-09-roster';
 export const users = [
   {
     id: 1,
-    full_name: 'Marina Costa',
-    email: 'marina.costa@ascenda.com',
+    full_name: 'Paulo Henrique',
+    email: 'paulo.henrique@ascenda.com',
     role: 'Manager'
   }
 ];
@@ -98,7 +98,7 @@ export const interns = [
     status: 'active',
     track: 'Power BI',
     cohort: '2024.3',
-    mentor_name: 'Marina Costa',
+    mentor_name: 'Paulo Henrique',
     points: 510,
     avg_score_pct: 71,
     well_being_status: 'Neutral',
@@ -350,7 +350,7 @@ export const notifications = [
     body: 'Caio Menezes received "React Performance Masterclass".',
     target_id: 1,
     target_kind: 'course',
-    actor_name: 'Marina Costa',
+    actor_name: 'Paulo Henrique',
     created_date: '2024-08-12T12:20:00.000Z',
     read: false
   },
@@ -361,7 +361,7 @@ export const notifications = [
     body: 'Gabriela Gomes will be on vacation from Sep 10 to Sep 13.',
     target_id: 2,
     target_kind: 'request',
-    actor_name: 'Marina Costa',
+    actor_name: 'Paulo Henrique',
     created_date: '2024-08-10T09:00:00.000Z',
     read: true
   },
