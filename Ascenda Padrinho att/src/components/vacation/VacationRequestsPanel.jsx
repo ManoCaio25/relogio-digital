@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -23,10 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Check, X, Calendar, CalendarCheck, AlertCircle } from "lucide-react";
+import { Check, X, Calendar, CalendarCheck, AlertCircle, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { eventBus, EventTypes } from "../utils/eventBus";
 import VacationCalendar from "./VacationCalendar";
+import Avatar from "@/components/ui/Avatar";
+import { useTranslation } from "../../i18n";
 
 export default function VacationRequestsPanel() {
   const [requests, setRequests] = useState([]);
@@ -36,6 +39,10 @@ export default function VacationRequestsPanel() {
   const [rejectDialog, setRejectDialog] = useState(null);
   const [managerNote, setManagerNote] = useState("");
   const [user, setUser] = useState(null);
+  const [emojiEditor, setEmojiEditor] = useState(null);
+  const [emojiValue, setEmojiValue] = useState("");
+  const [isUpdatingEmoji, setIsUpdatingEmoji] = useState(false);
+  const { t } = useTranslation();
 
   const loadData = useCallback(async () => {
     const [requestsData, internsData] = await Promise.all([
@@ -66,6 +73,46 @@ export default function VacationRequestsPanel() {
     return Object.fromEntries(interns.map(i => [i.id, i]));
   }, [interns]);
 
+  const openEmojiEditor = useCallback((intern) => {
+    if (!intern) return;
+    setEmojiEditor(intern);
+    setEmojiValue(intern.avatar_url || "");
+  }, []);
+
+  const closeEmojiEditor = useCallback(() => {
+    setEmojiEditor(null);
+    setEmojiValue("");
+    setIsUpdatingEmoji(false);
+  }, []);
+
+  const saveEmoji = useCallback(async () => {
+    if (!emojiEditor || isUpdatingEmoji) return;
+
+    const nextValue = emojiValue.trim();
+    const currentValue = emojiEditor.avatar_url || '';
+    if (nextValue === currentValue) {
+      return;
+    }
+
+    setIsUpdatingEmoji(true);
+
+    try {
+      await Intern.update(emojiEditor.id, { avatar_url: nextValue || null });
+      setInterns((prev) =>
+        prev.map((item) =>
+          String(item.id) === String(emojiEditor.id)
+            ? { ...item, avatar_url: nextValue || null }
+            : item
+        )
+      );
+      closeEmojiEditor();
+    } catch (error) {
+      console.error('Error updating emoji:', error);
+    } finally {
+      setIsUpdatingEmoji(false);
+    }
+  }, [emojiEditor, emojiValue, isUpdatingEmoji, closeEmojiEditor]);
+
   const handleApprove = useCallback(async (request) => {
     if (processingId) return;
     
@@ -79,11 +126,14 @@ export default function VacationRequestsPanel() {
       const intern = internsById[request.intern_id];
       await Notification.create({
         type: 'vacation_status_changed',
-        title: 'Vacation Request Approved',
-        body: `Your vacation request from ${format(new Date(request.start_date), 'MMM d')} to ${format(new Date(request.end_date), 'MMM d')} has been approved.`,
+        title: t('vacations.panel.notifications.approvedTitle', 'Vacation Request Approved'),
+        body: t('vacations.panel.notifications.approvedBody', 'Your vacation request from {{start}} to {{end}} has been approved.', {
+          start: format(new Date(request.start_date), 'MMM d'),
+          end: format(new Date(request.end_date), 'MMM d'),
+        }),
         target_id: request.id,
         target_kind: 'request',
-        actor_name: user?.full_name || 'Manager'
+        actor_name: user?.full_name || t('layout.userFallback', 'Manager')
       });
 
       eventBus.emit(EventTypes.VACATION_STATUS_CHANGED, {
@@ -117,11 +167,14 @@ export default function VacationRequestsPanel() {
       const intern = internsById[rejectDialog.intern_id];
       await Notification.create({
         type: 'vacation_status_changed',
-        title: 'Vacation Request Rejected',
-        body: `Your vacation request from ${format(new Date(rejectDialog.start_date), 'MMM d')} to ${format(new Date(rejectDialog.end_date), 'MMM d')} has been rejected.${managerNote ? ` Note: ${managerNote}` : ''}`,
+        title: t('vacations.panel.notifications.rejectedTitle', 'Vacation Request Rejected'),
+        body: `${t('vacations.panel.notifications.rejectedBody', 'Your vacation request from {{start}} to {{end}} has been rejected.', {
+          start: format(new Date(rejectDialog.start_date), 'MMM d'),
+          end: format(new Date(rejectDialog.end_date), 'MMM d'),
+        })}${managerNote ? t('vacations.panel.notifications.noteSuffix', ' Note: {{note}}', { note: managerNote }) : ''}`,
         target_id: rejectDialog.id,
         target_kind: 'request',
-        actor_name: user?.full_name || 'Manager'
+        actor_name: user?.full_name || t('layout.userFallback', 'Manager')
       });
 
       eventBus.emit(EventTypes.VACATION_STATUS_CHANGED, {
@@ -150,13 +203,19 @@ export default function VacationRequestsPanel() {
     rejected: "bg-red-500/20 text-error border-red-500/30"
   };
 
+  const trimmedEmojiValue = emojiValue.trim();
+  const previewEmoji = trimmedEmojiValue || emojiEditor?.avatar_url || '👤';
+  const emojiHasChanges = emojiEditor
+    ? trimmedEmojiValue !== (emojiEditor.avatar_url || '')
+    : Boolean(trimmedEmojiValue);
+
   return (
     <>
       <Card className="border-border bg-surface shadow-e1">
         <CardHeader>
           <CardTitle className="text-primary flex items-center gap-2">
             <Calendar className="w-5 h-5" />
-            Vacation Requests
+            {t('vacations.panel.heading', 'Vacation Requests')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -164,11 +223,11 @@ export default function VacationRequestsPanel() {
             <TabsList className="mb-6 bg-surface2">
               <TabsTrigger value="list" className="data-[state=active]:bg-surface">
                 <CalendarCheck className="w-4 h-4 mr-2" />
-                Requests List
+                {t('vacations.panel.tabs.list', 'Requests List')}
               </TabsTrigger>
               <TabsTrigger value="calendar" className="data-[state=active]:bg-surface">
                 <Calendar className="w-4 h-4 mr-2" />
-                Calendar View
+                {t('vacations.panel.tabs.calendar', 'Calendar View')}
               </TabsTrigger>
             </TabsList>
 
@@ -176,17 +235,19 @@ export default function VacationRequestsPanel() {
               <div className="flex items-center justify-between mb-4">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="w-40 bg-surface2 border-border text-primary">
-                    <SelectValue placeholder="Filter" />
+                    <SelectValue placeholder={t('vacations.panel.filterPlaceholder', 'Filter')} />
                   </SelectTrigger>
                   <SelectContent className="bg-surface border-border">
-                    <SelectItem value="all">All Requests</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="all">{t('vacations.panel.filters.all', 'All Requests')}</SelectItem>
+                    <SelectItem value="pending">{t('vacations.panel.filters.pending', 'Pending')}</SelectItem>
+                    <SelectItem value="approved">{t('vacations.panel.filters.approved', 'Approved')}</SelectItem>
+                    <SelectItem value="rejected">{t('vacations.panel.filters.rejected', 'Rejected')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <span className="text-sm text-muted">
-                  {filteredRequests.length} request{filteredRequests.length !== 1 ? 's' : ''}
+                  {filteredRequests.length === 1
+                    ? t('vacations.panel.count.one', '1 request')
+                    : t('vacations.panel.count.other', '{{count}} requests', { count: filteredRequests.length })}
                 </span>
               </div>
 
@@ -194,16 +255,43 @@ export default function VacationRequestsPanel() {
                 {filteredRequests.map((request) => {
                   const intern = internsById[request.intern_id];
                   const isPending = request.status === 'pending';
-                  
+
                   return (
                     <article
                       key={request.id}
                       className="p-4 rounded-xl border border-border bg-surface2 hover:shadow-e1 transition-all"
-                      aria-label={`Vacation request from ${intern?.full_name || 'Unknown'}`}
+                      aria-label={t('vacations.panel.aria.listItem', 'Vacation request from {{name}}', {
+                        name: intern?.full_name || 'Unknown',
+                      })}
                     >
                       <div className="grid grid-cols-[auto,1fr,auto] gap-4 items-start">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand2 flex items-center justify-center text-2xl flex-shrink-0">
-                          {intern?.avatar_url || '👤'}
+                        <div className="relative flex-shrink-0">
+                          {intern ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => openEmojiEditor(intern)}
+                                className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand2 flex items-center justify-center text-2xl transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                                title={t('vacations.panel.aria.updateEmoji', 'Update profile emoji for {{name}}', {
+                                  name: intern.full_name,
+                                })}
+                              >
+                                {intern.avatar_url || '👤'}
+                                <span className="sr-only">
+                                  {t('vacations.panel.aria.updateEmoji', 'Update profile emoji for {{name}}', {
+                                    name: intern.full_name,
+                                  })}
+                                </span>
+                              </button>
+                              <span className="absolute -bottom-1 -right-1 rounded-full bg-surface text-muted border border-border p-1 shadow-sm">
+                                <Pencil className="w-3 h-3" aria-hidden="true" />
+                              </span>
+                            </>
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-brand2 flex items-center justify-center text-2xl">
+                              {'👤'}
+                            </div>
+                          )}
                         </div>
                         
                         <div className="min-w-0">
@@ -212,39 +300,41 @@ export default function VacationRequestsPanel() {
                               {intern?.full_name || 'Unknown'}
                             </h3>
                             <Badge className={`${statusColors[request.status]} border capitalize flex-shrink-0`}>
-                              {request.status}
+                              {t(`vacations.panel.filters.${request.status}`, request.status)}
                             </Badge>
                           </div>
-                          
+
                           {intern && (
-                            <p className="text-xs text-muted mb-2">{intern.track}</p>
+                            <p className="text-xs text-muted mb-2">{intern.track || t('vacations.panel.fields.trackFallback', 'Learning track')}</p>
                           )}
-                          
+
                           <div className="space-y-1 text-sm">
                             <p className="text-secondary">
-                              <span className="text-muted">From:</span>{' '}
+                              <span className="text-muted">{t('vacations.panel.fields.from', 'From')}:</span>{' '}
                               <span className="font-medium">
                                 {format(new Date(request.start_date), 'MMM d, yyyy')}
                               </span>
                             </p>
                             <p className="text-secondary">
-                              <span className="text-muted">To:</span>{' '}
+                              <span className="text-muted">{t('vacations.panel.fields.to', 'To')}:</span>{' '}
                               <span className="font-medium">
                                 {format(new Date(request.end_date), 'MMM d, yyyy')}
                               </span>
                             </p>
                             {request.reason && (
                               <p className="text-secondary mt-2">
-                                <span className="text-muted">Reason:</span> {request.reason}
+                                <span className="text-muted">{t('vacations.panel.fields.reason', 'Reason')}:</span> {request.reason}
                               </p>
                             )}
                             {request.manager_note && (
                               <p className="text-secondary mt-2 p-2 bg-surface rounded border border-border">
-                                <span className="text-muted">Manager note:</span> {request.manager_note}
+                                <span className="text-muted">{t('vacations.panel.fields.managerNote', 'Manager note:')}</span> {request.manager_note}
                               </p>
                             )}
                             <p className="text-xs text-muted mt-2">
-                              Requested {format(new Date(request.created_date), 'MMM d, yyyy')}
+                              {t('vacations.panel.fields.requestedOn', 'Requested {{date}}', {
+                                date: format(new Date(request.created_date), 'MMM d, yyyy'),
+                              })}
                             </p>
                           </div>
                         </div>
@@ -256,10 +346,12 @@ export default function VacationRequestsPanel() {
                               onClick={() => handleApprove(request)}
                               disabled={processingId === request.id}
                               className="bg-success hover:bg-success/90 text-white font-medium"
-                              aria-label={`Approve vacation request for ${intern?.full_name}`}
+                              aria-label={t('vacations.panel.aria.approve', 'Approve vacation request for {{name}}', {
+                                name: intern?.full_name,
+                              })}
                             >
                               <Check className="w-4 h-4 mr-1" />
-                              Approve
+                              {t('vacations.panel.actions.approve', 'Approve')}
                             </Button>
                             <Button
                               size="sm"
@@ -267,10 +359,12 @@ export default function VacationRequestsPanel() {
                               onClick={() => handleReject(request)}
                               disabled={processingId === request.id}
                               className="border-error text-error hover:bg-error/10 font-medium"
-                              aria-label={`Reject vacation request for ${intern?.full_name}`}
+                              aria-label={t('vacations.panel.aria.reject', 'Reject vacation request for {{name}}', {
+                                name: intern?.full_name,
+                              })}
                             >
                               <X className="w-4 h-4 mr-1" />
-                              Reject
+                              {t('vacations.panel.actions.reject', 'Reject')}
                             </Button>
                           </div>
                         )}
@@ -282,7 +376,7 @@ export default function VacationRequestsPanel() {
                 {filteredRequests.length === 0 && (
                   <div className="text-center py-12 bg-surface2 rounded-xl border border-border">
                     <AlertCircle className="w-12 h-12 mx-auto mb-3 text-muted opacity-50" />
-                    <p className="text-muted">No vacation requests found</p>
+                    <p className="text-muted">{t('vacations.panel.empty', 'No vacation requests found')}</p>
                   </div>
                 )}
               </div>
@@ -298,24 +392,101 @@ export default function VacationRequestsPanel() {
         </CardContent>
       </Card>
 
+      <Dialog
+        open={!!emojiEditor}
+        onOpenChange={(open) => {
+          if (!open && !isUpdatingEmoji) {
+            closeEmojiEditor();
+          }
+        }}
+      >
+        <DialogContent className="bg-surface border-border max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-primary">
+              {t('vacations.panel.emojiDialog.title', 'Update Profile Emoji')}
+            </DialogTitle>
+            <DialogDescription className="text-secondary">
+              {t('vacations.panel.emojiDialog.description', 'Choose an emoji or paste an image URL for {{name}}.', {
+                name: emojiEditor?.full_name,
+              })}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand to-brand2 p-0.5">
+                <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
+                  <Avatar
+                    src={previewEmoji}
+                    alt={emojiEditor?.full_name || 'Intern avatar preview'}
+                    size={56}
+                  />
+                </div>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm text-secondary">
+                  {t('vacations.panel.emojiDialog.previewLabel', 'Preview')}
+                </p>
+                <p className="text-base font-semibold text-primary truncate max-w-[180px]">
+                  {emojiEditor?.full_name || 'Intern'}
+                </p>
+              </div>
+            </div>
+
+            <Input
+              value={emojiValue}
+              onChange={(e) => setEmojiValue(e.target.value)}
+              placeholder={t('vacations.panel.emojiDialog.placeholder', 'Try 😀 or paste an image URL')}
+              className="bg-surface2 border-border text-primary"
+            />
+            <p className="text-xs text-muted">
+              {t('vacations.panel.emojiDialog.helper', 'Emojis render beautifully across the app and you can swap them anytime. Image URLs are also supported.')}
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!isUpdatingEmoji) {
+                  closeEmojiEditor();
+                }
+              }}
+              className="border-border"
+            >
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button
+              onClick={saveEmoji}
+              disabled={!emojiHasChanges || isUpdatingEmoji}
+              className="bg-brand hover:bg-brand/90 text-white font-medium"
+            >
+              {t('vacations.panel.actions.saveEmoji', 'Save Emoji')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!rejectDialog} onOpenChange={() => setRejectDialog(null)}>
         <DialogContent className="bg-surface border-border">
           <DialogHeader>
-            <DialogTitle className="text-primary">Reject Vacation Request</DialogTitle>
+            <DialogTitle className="text-primary">
+              {t('vacations.panel.rejectDialog.title', 'Reject Vacation Request')}
+            </DialogTitle>
             <DialogDescription className="text-secondary">
-              Are you sure you want to reject this vacation request? You can optionally add a note.
+              {t('vacations.panel.rejectDialog.description', 'Are you sure you want to reject this vacation request? You can optionally add a note.')}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium text-secondary mb-2 block">
-                Manager Note (Optional)
+                {t('vacations.panel.rejectDialog.noteLabel', 'Manager Note (Optional)')}
               </label>
               <Textarea
                 value={managerNote}
                 onChange={(e) => setManagerNote(e.target.value)}
-                placeholder="Explain the reason for rejection..."
+                placeholder={t('vacations.panel.rejectDialog.notePlaceholder', 'Explain the reason for rejection...')}
                 className="bg-surface2 border-border text-primary"
                 rows={3}
               />
@@ -328,7 +499,7 @@ export default function VacationRequestsPanel() {
               onClick={() => setRejectDialog(null)}
               className="border-border"
             >
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </Button>
             <Button
               onClick={confirmReject}
@@ -336,7 +507,7 @@ export default function VacationRequestsPanel() {
               className="bg-error hover:bg-error/90 text-white font-medium"
             >
               <X className="w-4 h-4 mr-2" />
-              Reject Request
+              {t('vacations.panel.actions.rejectRequest', 'Reject Request')}
             </Button>
           </DialogFooter>
         </DialogContent>

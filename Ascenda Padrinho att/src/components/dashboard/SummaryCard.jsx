@@ -11,7 +11,7 @@ export default function SummaryCard({ title, value, icon: Icon, gradient, trend,
     >
       <Card className="border-border bg-surface hover:shadow-e2 transition-all duration-350 shadow-e1">
         <CardContent className="p-6">
-          <div className="flex items-start justify-between">
+          <div className="flex items-center justify-between">
             <div className="space-y-2">
               <p className="text-sm font-medium text-muted">{title}</p>
               <div className="flex items-baseline gap-2">
@@ -23,7 +23,7 @@ export default function SummaryCard({ title, value, icon: Icon, gradient, trend,
                 )}
               </div>
             </div>
-            <div className={`p-3 rounded-xl ${gradient} bg-opacity-20`}>
+            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${gradient} bg-opacity-20`}>
               <Icon className="w-6 h-6 text-brand" />
             </div>
           </div>

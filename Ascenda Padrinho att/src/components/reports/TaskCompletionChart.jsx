@@ -1,5 +1,6 @@
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { useTranslation } from "../../i18n";
 
 const COLORS = {
   completed: 'var(--success)',
@@ -9,17 +10,19 @@ const COLORS = {
 };
 
 export default function TaskCompletionChart({ data }) {
+  const { t } = useTranslation();
+
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-muted">
-        <p>No task data available</p>
+        <p>{t('reports.charts.statuses.empty', 'No task data available')}</p>
       </div>
     );
   }
 
   const formattedData = data.map(item => ({
     ...item,
-    displayName: item.name.replace('_', ' ').charAt(0).toUpperCase() + item.name.replace('_', ' ').slice(1)
+    displayName: t(`reports.charts.statuses.${item.name}`, item.name.replace('_', ' '))
   }));
 
   return (
