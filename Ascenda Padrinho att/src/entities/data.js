@@ -1,3 +1,5 @@
+export const seedDataVersion = '2024-10-07-roster';
+
 export const users = [
   {
     id: 1,
