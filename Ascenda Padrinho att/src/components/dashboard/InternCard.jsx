@@ -7,11 +7,13 @@ import { motion } from "framer-motion";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor } from "../utils/dates";
+import { useTranslation } from "../../i18n";
 
 export default function InternCard({ intern, onClick, onChatClick, index }) {
   const avgScore = intern.performance_history?.length > 0
     ? intern.performance_history.reduce((sum, p) => sum + p.score, 0) / intern.performance_history.length
     : 0;
+  const { t } = useTranslation();
 
   const levelColors = {
     "Novice": "bg-gray-500/20 text-secondary border-border",
@@ -75,7 +77,7 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                   {daysLeft !== null && daysLeftColors && (
                     <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
                       <Calendar className="w-3 h-3 mr-1" />
-                      {daysLeft}d left
+                  {t('interns.card.daysLeft', '{{count}}d left', { count: daysLeft })}
                     </Badge>
                   )}
                 </div>
@@ -83,7 +85,7 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
               
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
-                  <span className="text-muted">Points:</span>
+                  <span className="text-muted">{t('interns.card.points', 'Points')}:</span>
                   <span className="font-bold text-brand2">
                     {intern.points}
                   </span>
@@ -92,7 +94,9 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                   <div className="flex items-center gap-1">
                     <TrendingUp className="w-4 h-4 text-success" />
                     <span className="text-success font-medium">
-                      {avgScore.toFixed(0)}% avg
+                      {t('interns.card.avgScore', '{{value}}% avg', {
+                        value: avgScore.toFixed(0),
+                      })}
                     </span>
                   </div>
                 )}
@@ -135,7 +139,7 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                 className="w-full mt-2 border-border hover:bg-surface2 text-secondary hover:text-primary"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Chat
+                {t('interns.card.chat', 'Chat')}
               </Button>
             </div>
           </div>
