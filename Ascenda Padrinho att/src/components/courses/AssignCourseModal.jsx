@@ -109,7 +109,11 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-brand" />
-            {t("assignModal.title", { course: course.title })}
+            {t(
+              "assignModal.title",
+              'Assign "{{course}}" to interns',
+              { course: course.title },
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -140,7 +144,11 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               )}
             </div>
             <p className="text-xs text-muted mt-2">
-              {t("assignModal.selectedCount", { count: selectedInterns.size })}
+              {t(
+                "assignModal.selectedCount",
+                '{{count}} intern(s) selected',
+                { count: selectedInterns.size },
+              )}
             </p>
           </div>
 
@@ -190,7 +198,11 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
                   {t("assignModal.assigning")}
                 </>
               ) : (
-                t("assignModal.assignTo", { count: selectedInterns.size })
+                t(
+                  "assignModal.assignTo",
+                  'Assign to {{count}} intern(s)',
+                  { count: selectedInterns.size },
+                )
               )}
             </Button>
           </DialogFooter>
