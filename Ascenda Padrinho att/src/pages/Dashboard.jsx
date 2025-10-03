@@ -9,12 +9,14 @@ import SummaryCard from "../components/dashboard/SummaryCard";
 import InternStatusCard from "../components/dashboard/InternStatusCard";
 import { motion } from "framer-motion";
 import { eventBus, EventTypes } from "../components/utils/eventBus";
+import { useTranslation } from "@/i18n";
 
 export default function Dashboard() {
   const [interns, setInterns] = useState([]);
   const [courses, setCourses] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadData();
@@ -54,12 +56,18 @@ export default function Dashboard() {
     await Intern.update(intern.id, { status: newStatus });
 
     await Notification.create({
-      type: newStatus === 'paused' ? 'intern_paused' : 'intern_resumed',
-      title: `Intern ${newStatus === 'paused' ? 'Paused' : 'Resumed'}`,
-      body: `Learning system ${newStatus === 'paused' ? 'paused' : 'resumed'} for ${intern.full_name}`,
+      type: newStatus === "paused" ? "intern_paused" : "intern_resumed",
+      title:
+        newStatus === "paused"
+          ? t("dashboard.notifications.pausedTitle")
+          : t("dashboard.notifications.resumedTitle"),
+      body:
+        newStatus === "paused"
+          ? t("dashboard.notifications.pausedBody", { name: intern.full_name })
+          : t("dashboard.notifications.resumedBody", { name: intern.full_name }),
       target_id: intern.id,
-      target_kind: 'intern',
-      actor_name: user?.full_name || 'Manager'
+      target_kind: "intern",
+      actor_name: user?.full_name || t("common.manager"),
     });
 
     eventBus.emit(newStatus === 'paused' ? EventTypes.INTERN_PAUSED : EventTypes.INTERN_RESUMED, {
@@ -80,48 +88,50 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            Welcome back, {user?.full_name || 'Manager'}!
+            {t("dashboard.welcome", { name: user?.full_name || t("common.manager") })}
           </h1>
-          <p className="text-muted">Here's what's happening with your team today</p>
+          <p className="text-muted">{t("dashboard.subtitle")}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <SummaryCard
-            title="Total Interns"
+            title={t("dashboard.summary.totalInterns")}
             value={interns.length}
             icon={Users}
             gradient="bg-gradient-to-br from-brand to-blue-600"
-            trend="+2 this month"
+            trend={t("dashboard.summary.trend")}
             delay={0.1}
           />
           <SummaryCard
-            title="Courses Available"
+            title={t("dashboard.summary.courses")}
             value={courses.length}
             icon={BookOpen}
             gradient="bg-gradient-to-br from-brand2 to-pink-600"
             delay={0.2}
           />
           <SummaryCard
-            title="Pending Reviews"
+            title={t("dashboard.summary.reviews")}
             value={pendingTasks}
             icon={ClipboardCheck}
             gradient="bg-gradient-to-br from-brand2 to-yellow-600"
             delay={0.3}
           />
           <SummaryCard
-            title="Team Points"
+            title={t("dashboard.summary.points")}
             value={totalPoints}
             icon={Trophy}
             gradient="bg-gradient-to-br from-yellow-600 to-pink-600"
-            trend="+15%"
+            trend={t("dashboard.summary.pointsTrend")}
             delay={0.4}
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-primary">Intern Status & Well-being</h2>
-            <span className="text-sm text-muted">{interns.length} interns</span>
+            <h2 className="text-2xl font-bold text-primary">{t("dashboard.sectionTitle")}</h2>
+            <span className="text-sm text-muted">
+              {t("common.counts.interns", { count: interns.length })}
+            </span>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

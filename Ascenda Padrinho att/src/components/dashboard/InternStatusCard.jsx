@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor, getInternshipProgress } from "../utils/dates";
+import { useTranslation } from "@/i18n";
 
 const wellBeingVariants = {
   "Excellent": { icon: Smile, color: "text-success", bg: "bg-success/10" },
@@ -29,6 +30,7 @@ const wellBeingAliases = {
 };
 
 export default function InternStatusCard({ intern, onStatusToggle, index }) {
+  const { t } = useTranslation();
   const rawStatus = intern.well_being_status;
   const normalizedStatus = typeof rawStatus === "string"
     ? rawStatus.trim().toLowerCase()
@@ -40,11 +42,21 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
   const wellBeing = wellBeingVariants[canonicalStatus] || wellBeingVariants["Neutral"];
   const WellBeingIcon = wellBeing.icon;
   const isActive = intern.status === 'active';
-  
+  const wellBeingLabels = {
+    "Excellent": t("internStatus.labels.excellent", { defaultValue: "Excellent" }),
+    "Good": t("internStatus.labels.good", { defaultValue: "Good" }),
+    "Neutral": t("internStatus.labels.neutral", { defaultValue: "Neutral" }),
+    "Stressed": t("internStatus.labels.stressed", { defaultValue: "Stressed" }),
+    "Overwhelmed": t("internStatus.labels.overwhelmed", { defaultValue: "Overwhelmed" }),
+  };
+  const displayStatus = canonicalStatus
+    ? wellBeingLabels[canonicalStatus] || canonicalStatus
+    : intern.well_being_status || t("common.misc.unknown");
+
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
-  const progress = intern.start_date && intern.end_date 
-    ? getInternshipProgress(intern.start_date, intern.end_date) 
+  const progress = intern.start_date && intern.end_date
+    ? getInternshipProgress(intern.start_date, intern.end_date)
     : 0;
 
   const radialData = React.useMemo(() => [{
@@ -88,7 +100,9 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                   {intern.well_being_status && (
                     <div
                       className={`p-1.5 rounded-lg ${wellBeing.bg}`}
-                      title={`Well-being: ${canonicalStatus || intern.well_being_status || 'Unknown'}`}
+                      title={t("internStatus.tooltip", {
+                        status: displayStatus,
+                      })}
                     >
                       <WellBeingIcon className={`w-4 h-4 ${wellBeing.color}`} />
                     </div>
@@ -96,7 +110,7 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                 </div>
                 <div className="flex items-center gap-2 text-sm flex-wrap">
                   <Badge variant="outline" className="bg-surface2 text-secondary border-border">
-                    {intern.track || 'Learning Track'}
+                    {intern.track || t("internStatus.trackFallback")}
                   </Badge>
                   <span className="text-muted">•</span>
                   <span className="text-muted">{intern.level}</span>
@@ -107,8 +121,8 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RadialBarChart 
-                        data={radialData} 
+                      <RadialBarChart
+                        data={radialData}
                         startAngle={90} 
                         endAngle={-270}
                         innerRadius="70%"
@@ -123,10 +137,10 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                     </ResponsiveContainer>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-muted mb-1">Internship Progress</p>
+                    <p className="text-xs text-muted mb-1">{t("internStatus.internshipProgress")}</p>
                     <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
                       <Calendar className="w-3 h-3 mr-1" />
-                      {daysLeft} days left
+                      {t("internStatus.daysLeft", { count: daysLeft })}
                     </Badge>
                   </div>
                 </div>
@@ -134,11 +148,11 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
 
               <div className="flex items-center justify-between pt-2 border-t border-border">
                 <Label htmlFor={`status-${intern.id}`} className="text-sm text-secondary cursor-pointer">
-                  System Status
+                  {t("internStatus.systemStatus")}
                 </Label>
                 <div className="flex items-center gap-2">
                   <span className={`text-sm font-medium ${isActive ? 'text-success' : 'text-warning'}`}>
-                    {isActive ? 'Active' : 'Paused'}
+                    {isActive ? t("common.status.active") : t("common.status.paused")}
                   </span>
                   <Switch
                     id={`status-${intern.id}`}
