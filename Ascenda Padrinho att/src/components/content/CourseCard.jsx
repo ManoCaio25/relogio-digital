@@ -93,7 +93,11 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
               {assignmentCount > 0 && (
                 <Badge variant="outline" className="border-brand2/30 text-brand2 bg-brand2/10">
                   <Users className="w-3 h-3 mr-1" />
-                  {t("courseCard.active", { count: assignmentCount })}
+                  {t(
+                    "courseCard.active",
+                    '{{count}} active learner(s)',
+                    { count: assignmentCount },
+                  )}
                 </Badge>
               )}
             </div>

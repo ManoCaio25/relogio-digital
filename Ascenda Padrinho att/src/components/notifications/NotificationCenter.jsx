@@ -53,7 +53,11 @@ function NotificationItem({ notification, onMarkRead }) {
           )}
           {notification.actor_name && (
             <p className="text-xs text-muted">
-              {t("notifications.by", { name: notification.actor_name })}
+              {t(
+                "notifications.by",
+                'by {{name}}',
+                { name: notification.actor_name },
+              )}
             </p>
           )}
           <p className="text-xs text-muted mt-1">

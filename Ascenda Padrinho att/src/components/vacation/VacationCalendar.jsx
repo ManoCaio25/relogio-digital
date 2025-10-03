@@ -152,20 +152,34 @@ export default function VacationCalendar({ requests, interns }) {
               <AlertTriangle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h4 className="font-semibold text-error mb-2">
-                  {t("vacation.calendar.months.conflict", { count: conflicts.length })}
+                  {t(
+                    "vacation.calendar.months.conflict",
+                    '{{count}} conflicting task(s) this month',
+                    { count: conflicts.length },
+                  )}
                 </h4>
                 <div className="space-y-2 text-sm">
                   {conflicts.slice(0, 3).map((conflict, idx) => (
                     <p key={idx} className="text-secondary">
-                      {t("vacation.calendar.conflictDetail", {
-                        name: conflict.intern?.full_name,
-                        task: conflict.task.title,
-                        date: format(new Date(conflict.deadline), 'MMM d'),
-                      })}
+                      {t(
+                        "vacation.calendar.conflictDetail",
+                        '{{name}} has {{task}} due {{date}}',
+                        {
+                          name: conflict.intern?.full_name,
+                          task: conflict.task.title,
+                          date: format(new Date(conflict.deadline), 'MMM d'),
+                        },
+                      )}
                     </p>
                   ))}
                   {conflicts.length > 3 && (
-                    <p className="text-muted">{t("vacation.calendar.more", { count: conflicts.length - 3 })}</p>
+                    <p className="text-muted">
+                      {t(
+                        "vacation.calendar.more",
+                        'and {{count}} more',
+                        { count: conflicts.length - 3 },
+                      )}
+                    </p>
                   )}
                 </div>
               </div>

@@ -99,7 +99,11 @@ export default function ActiveAssignments({ internId }) {
         <CardHeader>
           <CardTitle className="text-primary flex items-center gap-2">
             <BookOpen className="w-5 h-5" />
-            {t("common.counts.assignments", { count: assignments.length })}
+            {t(
+              "common.counts.assignments",
+              '{{count}} active assignment(s)',
+              { count: assignments.length },
+            )}
           </CardTitle>
         </CardHeader>
       <CardContent>
@@ -151,13 +155,25 @@ export default function ActiveAssignments({ internId }) {
                   {assignment.assigned_date && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      <span>{t("assignments.assignedOn", { date: format(new Date(assignment.assigned_date), 'MMM d') })}</span>
+                      <span>
+                        {t(
+                          "assignments.assignedOn",
+                          'Assigned {{date}}',
+                          { date: format(new Date(assignment.assigned_date), 'MMM d') },
+                        )}
+                      </span>
                     </div>
                   )}
                   {assignment.due_date && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-error" />
-                      <span className="text-error">{t("assignments.dueOn", { date: format(new Date(assignment.due_date), 'MMM d') })}</span>
+                      <span className="text-error">
+                        {t(
+                          "assignments.dueOn",
+                          'Due {{date}}',
+                          { date: format(new Date(assignment.due_date), 'MMM d') },
+                        )}
+                      </span>
                     </div>
                   )}
                 </div>
