@@ -9,7 +9,7 @@ import SummaryCard from "../components/dashboard/SummaryCard";
 import InternStatusCard from "../components/dashboard/InternStatusCard";
 import { motion } from "framer-motion";
 import { eventBus, EventTypes } from "../components/utils/eventBus";
-import { useTranslation } from "@/i18n";
+import { useTranslation } from "../i18n";
 
 export default function Dashboard() {
   const [interns, setInterns] = useState([]);
@@ -56,18 +56,22 @@ export default function Dashboard() {
     await Intern.update(intern.id, { status: newStatus });
 
     await Notification.create({
-      type: newStatus === "paused" ? "intern_paused" : "intern_resumed",
+      type: newStatus === 'paused' ? 'intern_paused' : 'intern_resumed',
       title:
-        newStatus === "paused"
-          ? t("dashboard.notifications.pausedTitle")
-          : t("dashboard.notifications.resumedTitle"),
+        newStatus === 'paused'
+          ? t('dashboard.notifications.pausedTitle', 'Intern Paused')
+          : t('dashboard.notifications.resumedTitle', 'Intern Resumed'),
       body:
-        newStatus === "paused"
-          ? t("dashboard.notifications.pausedBody", { name: intern.full_name })
-          : t("dashboard.notifications.resumedBody", { name: intern.full_name }),
+        newStatus === 'paused'
+          ? t('dashboard.notifications.pausedBody', 'Learning system paused for {{name}}', {
+              name: intern.full_name,
+            })
+          : t('dashboard.notifications.resumedBody', 'Learning system resumed for {{name}}', {
+              name: intern.full_name,
+            }),
       target_id: intern.id,
-      target_kind: "intern",
-      actor_name: user?.full_name || t("common.manager"),
+      target_kind: 'intern',
+      actor_name: user?.full_name || t('layout.userFallback', 'Manager')
     });
 
     eventBus.emit(newStatus === 'paused' ? EventTypes.INTERN_PAUSED : EventTypes.INTERN_RESUMED, {
@@ -88,49 +92,55 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            {t("dashboard.welcome", { name: user?.full_name || t("common.manager") })}
+            {t('dashboard.title', 'Welcome back, {{name}}!', {
+              name: user?.full_name || 'Manager',
+            })}
           </h1>
-          <p className="text-muted">{t("dashboard.subtitle")}</p>
+          <p className="text-muted">
+            {t("dashboard.subtitle", "Here's what's happening with your team today")}
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <SummaryCard
-            title={t("dashboard.summary.totalInterns")}
+            title={t('dashboard.cards.interns.title', 'Total Interns')}
             value={interns.length}
             icon={Users}
             gradient="bg-gradient-to-br from-brand to-blue-600"
-            trend={t("dashboard.summary.trend")}
+            trend={t('dashboard.cards.interns.trend', '+2 this month')}
             delay={0.1}
           />
           <SummaryCard
-            title={t("dashboard.summary.courses")}
+            title={t('dashboard.cards.courses.title', 'Courses Available')}
             value={courses.length}
             icon={BookOpen}
             gradient="bg-gradient-to-br from-brand2 to-pink-600"
             delay={0.2}
           />
           <SummaryCard
-            title={t("dashboard.summary.reviews")}
+            title={t('dashboard.cards.reviews.title', 'Pending Reviews')}
             value={pendingTasks}
             icon={ClipboardCheck}
             gradient="bg-gradient-to-br from-brand2 to-yellow-600"
             delay={0.3}
           />
           <SummaryCard
-            title={t("dashboard.summary.points")}
+            title={t('dashboard.cards.points.title', 'Team Points')}
             value={totalPoints}
             icon={Trophy}
             gradient="bg-gradient-to-br from-yellow-600 to-pink-600"
-            trend={t("dashboard.summary.pointsTrend")}
+            trend={t('dashboard.cards.points.trend', '+15%')}
             delay={0.4}
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-primary">{t("dashboard.sectionTitle")}</h2>
+            <h2 className="text-2xl font-bold text-primary">
+              {t('dashboard.status.heading', 'Intern Status & Well-being')}
+            </h2>
             <span className="text-sm text-muted">
-              {t("common.counts.interns", { count: interns.length })}
+              {t('dashboard.status.count', '{{count}} interns', { count: interns.length })}
             </span>
           </div>
           

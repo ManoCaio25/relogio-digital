@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor, getInternshipProgress } from "../utils/dates";
-import { useTranslation } from "@/i18n";
+import { useTranslation } from "../../i18n";
 
 const wellBeingVariants = {
   "Excellent": { icon: Smile, color: "text-success", bg: "bg-success/10" },
@@ -42,21 +42,12 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
   const wellBeing = wellBeingVariants[canonicalStatus] || wellBeingVariants["Neutral"];
   const WellBeingIcon = wellBeing.icon;
   const isActive = intern.status === 'active';
-  const wellBeingLabels = {
-    "Excellent": t("internStatus.labels.excellent", { defaultValue: "Excellent" }),
-    "Good": t("internStatus.labels.good", { defaultValue: "Good" }),
-    "Neutral": t("internStatus.labels.neutral", { defaultValue: "Neutral" }),
-    "Stressed": t("internStatus.labels.stressed", { defaultValue: "Stressed" }),
-    "Overwhelmed": t("internStatus.labels.overwhelmed", { defaultValue: "Overwhelmed" }),
-  };
-  const displayStatus = canonicalStatus
-    ? wellBeingLabels[canonicalStatus] || canonicalStatus
-    : intern.well_being_status || t("common.misc.unknown");
-
+  const { t } = useTranslation();
+  
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
-  const progress = intern.start_date && intern.end_date
-    ? getInternshipProgress(intern.start_date, intern.end_date)
+  const progress = intern.start_date && intern.end_date 
+    ? getInternshipProgress(intern.start_date, intern.end_date) 
     : 0;
 
   const radialData = React.useMemo(() => [{
@@ -100,8 +91,8 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                   {intern.well_being_status && (
                     <div
                       className={`p-1.5 rounded-lg ${wellBeing.bg}`}
-                      title={t("internStatus.tooltip", {
-                        status: displayStatus,
+                      title={t('interns.card.progressTitle', 'Well-being: {{status}}', {
+                        status: canonicalStatus || intern.well_being_status || 'Unknown',
                       })}
                     >
                       <WellBeingIcon className={`w-4 h-4 ${wellBeing.color}`} />
@@ -110,7 +101,7 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                 </div>
                 <div className="flex items-center gap-2 text-sm flex-wrap">
                   <Badge variant="outline" className="bg-surface2 text-secondary border-border">
-                    {intern.track || t("internStatus.trackFallback")}
+                    {intern.track || t('interns.card.trackFallback', 'Learning Track')}
                   </Badge>
                   <span className="text-muted">•</span>
                   <span className="text-muted">{intern.level}</span>
@@ -121,8 +112,8 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RadialBarChart
-                        data={radialData}
+                      <RadialBarChart 
+                        data={radialData} 
                         startAngle={90} 
                         endAngle={-270}
                         innerRadius="70%"
@@ -137,10 +128,12 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                     </ResponsiveContainer>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-muted mb-1">{t("internStatus.internshipProgress")}</p>
+                    <p className="text-xs text-muted mb-1">
+                      {t('dashboard.status.progressLabel', 'Internship Progress')}
+                    </p>
                     <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
                       <Calendar className="w-3 h-3 mr-1" />
-                      {t("internStatus.daysLeft", { count: daysLeft })}
+                      {t('dashboard.status.daysLeft', '{{count}} days left', { count: daysLeft })}
                     </Badge>
                   </div>
                 </div>
@@ -148,11 +141,13 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
 
               <div className="flex items-center justify-between pt-2 border-t border-border">
                 <Label htmlFor={`status-${intern.id}`} className="text-sm text-secondary cursor-pointer">
-                  {t("internStatus.systemStatus")}
+                  {t('dashboard.status.systemStatus', 'System Status')}
                 </Label>
                 <div className="flex items-center gap-2">
                   <span className={`text-sm font-medium ${isActive ? 'text-success' : 'text-warning'}`}>
-                    {isActive ? t("common.status.active") : t("common.status.paused")}
+                    {isActive
+                      ? t('dashboard.status.active', 'Active')
+                      : t('dashboard.status.paused', 'Paused')}
                   </span>
                   <Switch
                     id={`status-${intern.id}`}

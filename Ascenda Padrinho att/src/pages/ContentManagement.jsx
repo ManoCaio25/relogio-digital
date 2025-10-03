@@ -6,7 +6,7 @@ import CourseCard from "../components/content/CourseCard";
 import CourseEditModal from "../components/content/CourseEditModal";
 import PreviewDrawer from "../components/media/PreviewDrawer";
 import AssignCourseModal from "../components/courses/AssignCourseModal";
-import { useTranslation } from "@/i18n";
+import { useTranslation } from "../i18n";
 
 export default function ContentManagement() {
   const [courses, setCourses] = useState([]);
@@ -69,14 +69,16 @@ export default function ContentManagement() {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            {t("content.title")}
+            {t('content.title', 'Content Management')}
           </h1>
-          <p className="text-muted">{t("content.subtitle")}</p>
+          <p className="text-muted">
+            {t('content.subtitle', 'Create and manage training materials for your team')}
+          </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
-            <CourseUploadForm
+            <CourseUploadForm 
               onSuccess={handleCourseCreate}
               onPreview={handleFormPreview}
             />
@@ -84,13 +86,17 @@ export default function ContentManagement() {
 
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-primary">{t("content.libraryTitle")}</h2>
-              <span className="text-sm text-muted">{t("common.misc.courseLibraryCount", { count: courses.length })}</span>
+              <h2 className="text-2xl font-bold text-primary">
+                {t('content.libraryTitle', 'Course Library')}
+              </h2>
+              <span className="text-sm text-muted">
+                {t('content.courseCount', '{{count}} courses', { count: courses.length })}
+              </span>
             </div>
 
             <div className="grid gap-6">
               {courses.map((course, index) => (
-                <CourseCard
+                <CourseCard 
                   key={course.id} 
                   course={course} 
                   index={index}
@@ -103,7 +109,9 @@ export default function ContentManagement() {
 
             {courses.length === 0 && (
               <div className="text-center py-12 bg-surface2 border border-border rounded-xl">
-                <p className="text-muted">{t("content.noCourses")}</p>
+                <p className="text-muted">
+                  {t('content.empty', 'No courses yet. Create your first one!')}
+                </p>
               </div>
             )}
           </div>

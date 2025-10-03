@@ -14,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import { User } from "@/entities/User";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import ThemeToggle from "./components/theme/ThemeToggle";
-import LanguageToggle from "./components/theme/LanguageToggle";
 import NotificationBell from "./components/notifications/NotificationBell";
+import LanguageToggle from "./components/i18n/LanguageToggle";
+import { useTranslation } from "./i18n";
 import {
   Sidebar,
   SidebarContent,
@@ -30,39 +31,39 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { LanguageProvider, useTranslation } from "@/i18n";
-const navigationItems = [
-  {
-    titleKey: "layout.nav.dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-  },
-  {
-    titleKey: "layout.nav.interns",
-    url: createPageUrl("Interns"),
-    icon: Users,
-  },
-  {
-    titleKey: "layout.nav.content",
-    url: createPageUrl("ContentManagement"),
-    icon: BookOpen,
-  },
-  {
-    titleKey: "layout.nav.vacation",
-    url: createPageUrl("VacationRequests"),
-    icon: Calendar,
-  },
-  {
-    titleKey: "layout.nav.reports",
-    url: createPageUrl("Reports"),
-    icon: BarChart3,
-  },
-];
 
 function LayoutContent() {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
   const { t } = useTranslation();
+
+  const navigationItems = React.useMemo(() => [
+    {
+      title: t("layout.navItems.dashboard", "Dashboard"),
+      url: createPageUrl("Dashboard"),
+      icon: LayoutDashboard,
+    },
+    {
+      title: t("layout.navItems.interns", "Team Overview"),
+      url: createPageUrl("Interns"),
+      icon: Users,
+    },
+    {
+      title: t("layout.navItems.content", "Content Management"),
+      url: createPageUrl("ContentManagement"),
+      icon: BookOpen,
+    },
+    {
+      title: t("layout.navItems.vacation", "Vacation Requests"),
+      url: createPageUrl("VacationRequests"),
+      icon: Calendar,
+    },
+    {
+      title: t("layout.navItems.reports", "Reports"),
+      url: createPageUrl("Reports"),
+      icon: BarChart3,
+    },
+  ], [t]);
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -204,34 +205,34 @@ function LayoutContent() {
                 </div>
               </div>
               <div>
-                <h2 className="font-bold text-primary">{t("common.appName")}</h2>
-                <p className="text-xs text-muted">{t("common.managerPortal")}</p>
+                <h2 className="font-bold text-primary">{t("layout.appName", "Ascenda")}</h2>
+                <p className="text-xs text-muted">{t("layout.subtitle", "Manager Portal")}</p>
               </div>
             </div>
           </SidebarHeader>
-
+          
           <SidebarContent className="p-3">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-muted uppercase tracking-wider px-3 py-2">
-                {t("common.navigation")}
+                {t("layout.navigation", "Navigation")}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => {
                     const isActive = location.pathname === item.url;
                     return (
-                      <SidebarMenuItem key={item.titleKey}>
-                        <SidebarMenuButton
-                          asChild
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton 
+                          asChild 
                           className={`transition-all duration-200 rounded-xl mb-1 ${
-                            isActive
-                              ? 'bg-brand text-white hover:bg-brand'
+                            isActive 
+                              ? 'bg-brand text-white hover:bg-brand' 
                               : 'hover:bg-surface2 text-secondary hover:text-primary'
                           }`}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                             <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{t(item.titleKey)}</span>
+                            <span className="font-medium">{item.title}</span>
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -243,7 +244,7 @@ function LayoutContent() {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border p-4 space-y-3">
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <ThemeToggle />
               <LanguageToggle />
               <NotificationBell />
@@ -253,12 +254,12 @@ function LayoutContent() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-brand to-brand2 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
-                      {user.full_name?.charAt(0) || t("common.manager").charAt(0)}
+                      {user.full_name?.charAt(0) || t("layout.userFallback", "Manager").charAt(0)}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-primary text-sm truncate">
-                      {user.full_name || t("common.manager")}
+                      {user.full_name || t("layout.userFallback", "Manager")}
                     </p>
                     <p className="text-xs text-muted truncate">
                       {user.email}
@@ -272,7 +273,7 @@ function LayoutContent() {
                   className="w-full text-secondary hover:text-primary hover:bg-surface2"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  {t("common.actions.logout")}
+                  {t("layout.logout", "Logout")}
                 </Button>
               </div>
             )}
@@ -301,10 +302,8 @@ function LayoutContent() {
 
 export default function Layout() {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <LayoutContent />
-      </ThemeProvider>
-    </LanguageProvider>
+    <ThemeProvider>
+      <LayoutContent />
+    </ThemeProvider>
   );
 }
