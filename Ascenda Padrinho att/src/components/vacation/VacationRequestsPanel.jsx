@@ -153,6 +153,46 @@ export default function VacationRequestsPanel() {
     }
   }, [emojiEditor, emojiValue, isUpdatingEmoji, closeEmojiEditor]);
 
+  const openEmojiEditor = useCallback((intern) => {
+    if (!intern) return;
+    setEmojiEditor(intern);
+    setEmojiValue(intern.avatar_url || "");
+  }, []);
+
+  const closeEmojiEditor = useCallback(() => {
+    setEmojiEditor(null);
+    setEmojiValue("");
+    setIsUpdatingEmoji(false);
+  }, []);
+
+  const saveEmoji = useCallback(async () => {
+    if (!emojiEditor || isUpdatingEmoji) return;
+
+    const nextValue = emojiValue.trim();
+    const currentValue = emojiEditor.avatar_url || '';
+    if (nextValue === currentValue) {
+      return;
+    }
+
+    setIsUpdatingEmoji(true);
+
+    try {
+      await Intern.update(emojiEditor.id, { avatar_url: nextValue || null });
+      setInterns((prev) =>
+        prev.map((item) =>
+          String(item.id) === String(emojiEditor.id)
+            ? { ...item, avatar_url: nextValue || null }
+            : item
+        )
+      );
+      closeEmojiEditor();
+    } catch (error) {
+      console.error('Error updating emoji:', error);
+    } finally {
+      setIsUpdatingEmoji(false);
+    }
+  }, [emojiEditor, emojiValue, isUpdatingEmoji, closeEmojiEditor]);
+
   const handleApprove = useCallback(async (request) => {
     if (processingId) return;
     
@@ -242,6 +282,12 @@ export default function VacationRequestsPanel() {
     approved: "bg-green-500/20 text-success border-green-500/30",
     rejected: "bg-red-500/20 text-error border-red-500/30"
   };
+
+  const trimmedEmojiValue = emojiValue.trim();
+  const previewEmoji = trimmedEmojiValue || emojiEditor?.avatar_url || '👤';
+  const emojiHasChanges = emojiEditor
+    ? trimmedEmojiValue !== (emojiEditor.avatar_url || '')
+    : Boolean(trimmedEmojiValue);
 
   const trimmedEmojiValue = emojiValue.trim();
   const previewEmoji = trimmedEmojiValue || emojiEditor?.avatar_url || '👤';
