@@ -284,7 +284,7 @@ function LayoutContent() {
           <header className="bg-surface border-b border-border px-6 py-4 md:hidden shadow-e1">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-surface2 p-2 rounded-lg transition-colors duration-200 text-secondary" />
-              <h1 className="text-xl font-bold text-primary">Ascenda</h1>
+              <h1 className="text-xl font-bold text-primary">{t("common.appName")}</h1>
               <div className="ml-auto flex gap-2">
                 <NotificationBell />
               </div>

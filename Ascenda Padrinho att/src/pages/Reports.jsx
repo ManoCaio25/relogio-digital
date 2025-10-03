@@ -31,9 +31,9 @@ export default function Reports() {
     setCourses(coursesData);
   };
 
-  const performanceData = interns.slice(0, 10).map(intern => ({
-    name: intern.full_name?.split(' ')[0] || 'Unknown',
-    points: intern.points || 0
+  const performanceData = interns.slice(0, 10).map((intern) => ({
+    name: intern.full_name?.split(" ")[0] || t("common.misc.unknown"),
+    points: intern.points || 0,
   }));
 
   const taskStatusData = [

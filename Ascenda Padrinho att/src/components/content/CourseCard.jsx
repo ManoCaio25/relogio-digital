@@ -5,9 +5,23 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, Clock, Users, TrendingUp, Pencil, Eye, Youtube, FileText, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { CourseAssignment } from "@/entities/CourseAssignment";
+import { useTranslation } from "@/i18n";
 
 export default function CourseCard({ course, index, onEdit, onPreview, onAssign }) {
   const [assignmentCount, setAssignmentCount] = useState(0);
+  const { t } = useTranslation();
+  const categoryLabels = React.useMemo(() => ({
+    "Technical": t("courseForm.categories.technical"),
+    "Leadership": t("courseForm.categories.leadership"),
+    "Communication": t("courseForm.categories.communication"),
+    "Design": t("courseForm.categories.design"),
+    "Business": t("courseForm.categories.business"),
+  }), [t]);
+  const difficultyLabels = React.useMemo(() => ({
+    "Beginner": t("courseForm.difficulties.beginner"),
+    "Intermediate": t("courseForm.difficulties.intermediate"),
+    "Advanced": t("courseForm.difficulties.advanced"),
+  }), [t]);
 
   useEffect(() => {
     const loadAssignments = async () => {
@@ -59,27 +73,27 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
 
             <div className="flex flex-wrap gap-2">
               <Badge className={categoryColors[course.category] + " border"}>
-                {course.category}
+                {categoryLabels[course.category] || course.category}
               </Badge>
               <Badge className={difficultyColors[course.difficulty] + " border"}>
-                {course.difficulty}
+                {difficultyLabels[course.difficulty] || course.difficulty}
               </Badge>
               {course.youtube_video_id && (
                 <Badge variant="outline" className="border-error/30 text-error bg-error/10">
                   <Youtube className="w-3 h-3 mr-1" />
-                  YouTube
+                  {t("courseCard.youtube")}
                 </Badge>
               )}
               {course.file_url && (
                 <Badge variant="outline" className="border-brand/30 text-brand bg-brand/10">
                   <FileText className="w-3 h-3 mr-1" />
-                  {course.file_name || 'File'}
+                  {course.file_name || t("common.misc.file")}
                 </Badge>
               )}
               {assignmentCount > 0 && (
                 <Badge variant="outline" className="border-brand2/30 text-brand2 bg-brand2/10">
                   <Users className="w-3 h-3 mr-1" />
-                  {assignmentCount} active
+                  {t("courseCard.active", { count: assignmentCount })}
                 </Badge>
               )}
             </div>
@@ -115,7 +129,7 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
                 className="border-border hover:bg-surface2"
               >
                 <Pencil className="w-4 h-4 mr-2" />
-                Edit
+                {t("courseCard.edit")}
               </Button>
               <Button
                 variant="outline"
@@ -124,7 +138,7 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
                 className="border-brand2/30 hover:bg-brand2/10 text-brand2"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
-                Assign
+                {t("courseCard.assign")}
               </Button>
               {hasMedia && (
                 <Button
@@ -134,7 +148,7 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
                   className="col-span-2 border-brand/30 hover:bg-brand/10 text-brand"
                 >
                   <Eye className="w-4 h-4 mr-2" />
-                  Preview
+                  {t("courseCard.preview")}
                 </Button>
               )}
             </div>

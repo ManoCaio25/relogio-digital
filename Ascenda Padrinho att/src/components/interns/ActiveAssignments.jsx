@@ -8,11 +8,13 @@ import { Course } from "@/entities/Course";
 import { BookOpen, Calendar, Clock, CheckCircle2, PlayCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { useTranslation } from "@/i18n";
 
 export default function ActiveAssignments({ internId }) {
   const [assignments, setAssignments] = useState([]);
   const [courses, setCourses] = useState({});
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadAssignments = async () => {
@@ -63,7 +65,7 @@ export default function ActiveAssignments({ internId }) {
     return (
       <Card className="border-border bg-surface shadow-e1">
         <CardHeader>
-          <CardTitle className="text-primary">Active Course Assignments</CardTitle>
+          <CardTitle className="text-primary">{t("assignments.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -78,10 +80,10 @@ export default function ActiveAssignments({ internId }) {
     return (
       <Card className="border-border bg-surface shadow-e1">
         <CardHeader>
-          <CardTitle className="text-primary">Active Course Assignments</CardTitle>
+          <CardTitle className="text-primary">{t("assignments.title")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted text-center py-8">No active course assignments</p>
+          <p className="text-muted text-center py-8">{t("assignments.none")}</p>
         </CardContent>
       </Card>
     );
@@ -93,13 +95,13 @@ export default function ActiveAssignments({ internId }) {
   };
 
   return (
-    <Card className="border-border bg-surface shadow-e1">
-      <CardHeader>
-        <CardTitle className="text-primary flex items-center gap-2">
-          <BookOpen className="w-5 h-5" />
-          Active Course Assignments ({assignments.length})
-        </CardTitle>
-      </CardHeader>
+      <Card className="border-border bg-surface shadow-e1">
+        <CardHeader>
+          <CardTitle className="text-primary flex items-center gap-2">
+            <BookOpen className="w-5 h-5" />
+            {t("common.counts.assignments", { count: assignments.length })}
+          </CardTitle>
+        </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {assignments.map((assignment, index) => {
@@ -123,14 +125,16 @@ export default function ActiveAssignments({ internId }) {
                     <p className="text-sm text-muted line-clamp-2">{course.description}</p>
                   </div>
                   <Badge className={`${colors.bg} ${colors.text} border ${colors.border} shrink-0`}>
-                    {assignment.status === 'assigned' ? 'Assigned' : 'In Progress'}
+                    {assignment.status === 'assigned'
+                      ? t("assignments.assigned")
+                      : t("assignments.inProgress")}
                   </Badge>
                 </div>
 
                 {assignment.progress > 0 && (
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-xs text-muted mb-1">
-                      <span>Progress</span>
+                      <span>{t("assignments.progress")}</span>
                       <span>{assignment.progress}%</span>
                     </div>
                     <Progress value={assignment.progress} className="h-2" />
@@ -147,13 +151,13 @@ export default function ActiveAssignments({ internId }) {
                   {assignment.assigned_date && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      <span>Assigned {format(new Date(assignment.assigned_date), 'MMM d')}</span>
+                      <span>{t("assignments.assignedOn", { date: format(new Date(assignment.assigned_date), 'MMM d') })}</span>
                     </div>
                   )}
                   {assignment.due_date && (
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-error" />
-                      <span className="text-error">Due {format(new Date(assignment.due_date), 'MMM d')}</span>
+                      <span className="text-error">{t("assignments.dueOn", { date: format(new Date(assignment.due_date), 'MMM d') })}</span>
                     </div>
                   )}
                 </div>
@@ -171,7 +175,7 @@ export default function ActiveAssignments({ internId }) {
                     className="w-full bg-brand hover:bg-brand/90 text-white"
                   >
                     <PlayCircle className="w-4 h-4 mr-2" />
-                    Start Course
+                    {t("assignments.startCourse")}
                   </Button>
                 )}
 
@@ -183,7 +187,7 @@ export default function ActiveAssignments({ internId }) {
                     className="w-full border-success hover:bg-success/10 text-success"
                   >
                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Mark as Completed
+                    {t("assignments.markCompleted")}
                   </Button>
                 )}
               </motion.div>
