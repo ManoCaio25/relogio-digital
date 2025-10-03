@@ -1,4 +1,4 @@
-export const seedDataVersion = '2024-10-07-roster';
+export const seedDataVersion = '2024-10-09-roster';
 
 export const users = [
   {
@@ -115,6 +115,32 @@ export const interns = [
     ]
   },
   {
+    id: 'iasmin',
+    full_name: 'Iasmin Marozzi',
+    avatar: '/avatars/iasmin.jpg',
+    avatar_url: '🧑‍💼',
+    email: 'iasmin.marozzi@ascenda.com',
+    level: 'Apprentice',
+    status: 'active',
+    track: 'SAP HR + Google',
+    cohort: '2024.3',
+    mentor_name: 'Helena Prado',
+    points: 560,
+    avg_score_pct: 77,
+    well_being_status: 'Good',
+    start_date: '2024-05-13T00:00:00.000Z',
+    end_date: '2025-04-11T00:00:00.000Z',
+    skills: ['SAP HR', 'Google Workspace'],
+    performance_history: [
+      { date: '2024-05-01', score: 70 },
+      { date: '2024-06-01', score: 74 },
+      { date: '2024-07-01', score: 76 },
+      { date: '2024-08-01', score: 78 },
+      { date: '2024-09-01', score: 80 },
+      { date: '2024-10-01', score: 82 }
+    ]
+  },
+  {
     id: 'lucas',
     full_name: 'Lucas Oliveira',
     avatar: '/avatars/lucas.jpg',
@@ -155,7 +181,8 @@ export const courses = [
     completion_rate: 68,
     published: true,
     youtube_url: 'https://www.youtube.com/watch?v=dpw9EHDh2bM',
-    youtube_video_id: 'dpw9EHDh2bM'
+    youtube_video_id: 'dpw9EHDh2bM',
+    training_type: 'webDevelopment'
   },
   {
     id: 2,
@@ -169,7 +196,8 @@ export const courses = [
     completion_rate: 74,
     published: true,
     file_url: '/docs/data-storytelling.pdf',
-    file_name: 'data-storytelling.pdf'
+    file_name: 'data-storytelling.pdf',
+    training_type: 'google'
   },
   {
     id: 3,
@@ -181,7 +209,34 @@ export const courses = [
     created_date: '2024-03-18T14:00:00.000Z',
     enrolled_count: 28,
     completion_rate: 61,
-    published: true
+    published: true,
+    training_type: 'sapHrPmo'
+  },
+  {
+    id: 4,
+    title: 'SAP HR Processes Essentials',
+    description: 'Master key SAP HR workflows and integrations for people operations teams.',
+    category: 'Business',
+    difficulty: 'Intermediate',
+    duration_hours: 5,
+    created_date: '2024-06-24T11:00:00.000Z',
+    enrolled_count: 31,
+    completion_rate: 69,
+    published: true,
+    training_type: 'sapHr'
+  },
+  {
+    id: 5,
+    title: 'PMO Foundations for SAP Projects',
+    description: 'Establish governance and delivery rituals tailored for SAP transformation programs.',
+    category: 'Business',
+    difficulty: 'Advanced',
+    duration_hours: 7,
+    created_date: '2024-07-15T13:00:00.000Z',
+    enrolled_count: 24,
+    completion_rate: 64,
+    published: true,
+    training_type: 'sap'
   }
 ];
 
@@ -217,6 +272,28 @@ export const courseAssignments = [
     assigned_date: '2024-04-02T10:00:00.000Z',
     started_date: '2024-04-05T10:00:00.000Z',
     completed_date: '2024-05-15T10:00:00.000Z'
+  },
+  {
+    id: 4,
+    intern_id: 'iasmin',
+    course_id: 4,
+    status: 'assigned',
+    progress: 0,
+    assigned_by: 'marina.costa@ascenda.com',
+    assigned_date: '2024-08-18T09:30:00.000Z',
+    due_date: '2024-10-20T00:00:00.000Z',
+    notes: 'Foque nos cenários de integração com Google Workspace.'
+  },
+  {
+    id: 5,
+    intern_id: 'ana',
+    course_id: 5,
+    status: 'assigned',
+    progress: 0,
+    assigned_by: 'marina.costa@ascenda.com',
+    assigned_date: '2024-08-22T08:15:00.000Z',
+    due_date: '2024-10-05T00:00:00.000Z',
+    notes: 'Vamos utilizar este conteúdo para retomar o plano de PMO.'
   }
 ];
 

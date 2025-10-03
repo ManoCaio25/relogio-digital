@@ -12,6 +12,7 @@ import { User } from "@/entities/User";
 import { Loader2, UserPlus, Calendar } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import { eventBus, EventTypes } from "../utils/eventBus";
+import { getLevelLabel, getTrackLabel } from "@/utils/labels";
 import { useTranslation } from "@/i18n";
 
 export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }) {
@@ -75,11 +76,18 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
         const intern = interns.find(i => i.id === internId);
         await Notification.create({
           type: 'course_assigned',
-          title: 'New Course Assigned',
-          body: `"${course.title}" has been assigned to ${intern?.full_name || 'intern'}`,
+          title: t('assignModal.notificationTitle', 'New Course Assigned'),
+          body: t(
+            'assignModal.notificationBody',
+            '"{{course}}" has been assigned to {{name}}',
+            {
+              course: course.title,
+              name: intern?.full_name || t('common.misc.unknown', 'Unknown'),
+            }
+          ),
           target_id: course.id,
           target_kind: 'course',
-          actor_name: user?.full_name || 'Manager'
+          actor_name: user?.full_name || t('common.manager', 'Manager')
         });
       }
 
@@ -135,10 +143,19 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
                       className="border-border"
                     />
                     <Avatar src={intern.avatar_url} alt={intern.full_name} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-primary truncate">{intern.full_name}</p>
-                      <p className="text-xs text-muted">{intern.track} • {intern.level}</p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-primary truncate">{intern.full_name}</p>
+                    <p className="text-xs text-muted">
+                      {getTrackLabel(
+                        intern.track,
+                        t,
+                        t('internStatus.trackFallback', 'Learning Track')
+                      )}
+                      {' '}
+                      •{' '}
+                      {getLevelLabel(intern.level, t, intern.level)}
+                    </p>
+                  </div>
                   </label>
                 ))
               )}

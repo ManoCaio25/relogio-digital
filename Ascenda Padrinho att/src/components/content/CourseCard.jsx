@@ -6,6 +6,7 @@ import { BookOpen, Clock, Users, TrendingUp, Pencil, Eye, Youtube, FileText, Use
 import { motion } from "framer-motion";
 import { CourseAssignment } from "@/entities/CourseAssignment";
 import { useTranslation } from "@/i18n";
+import { getTrainingTypeLabel } from "@/utils/labels";
 
 export default function CourseCard({ course, index, onEdit, onPreview, onAssign }) {
   const [assignmentCount, setAssignmentCount] = useState(0);
@@ -48,7 +49,19 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
     "Business": "bg-green-500/20 text-success border-green-500/30"
   };
 
+  const trainingTypeColors = {
+    sap: "bg-emerald-500/20 text-success border-emerald-500/30",
+    sapHr: "bg-teal-500/20 text-teal-500 border-teal-500/30",
+    sapHrPmo: "bg-cyan-500/20 text-cyan-500 border-cyan-500/30",
+    webDevelopment: "bg-indigo-500/20 text-indigo-500 border-indigo-500/30",
+    google: "bg-red-500/20 text-error border-red-500/30",
+  };
+
   const hasMedia = course.youtube_video_id || course.file_url;
+  const trainingTypeLabel = React.useMemo(
+    () => getTrainingTypeLabel(course.training_type, t),
+    [course.training_type, t]
+  );
 
   return (
     <motion.div
@@ -72,6 +85,13 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
             </div>
 
             <div className="flex flex-wrap gap-2">
+              {trainingTypeLabel && (
+                <Badge
+                  className={`${trainingTypeColors[course.training_type] || 'bg-brand/10 text-brand border-brand/20'} border`}
+                >
+                  {trainingTypeLabel}
+                </Badge>
+              )}
               <Badge className={categoryColors[course.category] + " border"}>
                 {categoryLabels[course.category] || course.category}
               </Badge>

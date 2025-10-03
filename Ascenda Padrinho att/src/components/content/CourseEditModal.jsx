@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
 import { Loader2, Youtube } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
+import { useTrainingTypeOptions } from "@/utils/labels";
 
 export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -23,10 +24,16 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
     difficulty: "Beginner",
     duration_hours: "",
     youtube_url: "",
-    youtube_video_id: ""
+    youtube_video_id: "",
+    training_type: "webDevelopment",
   });
   const [isSaving, setIsSaving] = useState(false);
   const { t } = useTranslation();
+  const allTrainingOptions = useTrainingTypeOptions(t);
+  const trainingOptions = useMemo(
+    () => allTrainingOptions.filter(option => option.value !== "all"),
+    [allTrainingOptions]
+  );
 
   useEffect(() => {
     if (course) {
@@ -37,7 +44,8 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
         difficulty: course.difficulty || "Beginner",
         duration_hours: course.duration_hours?.toString() || "",
         youtube_url: course.youtube_url || "",
-        youtube_video_id: course.youtube_video_id || ""
+        youtube_video_id: course.youtube_video_id || "",
+        training_type: course.training_type || "webDevelopment",
       });
     }
   }, [course]);
@@ -56,6 +64,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
         description: formData.description,
         category: formData.category,
         difficulty: formData.difficulty,
+        training_type: formData.training_type,
         duration_hours: parseFloat(formData.duration_hours) || 0
       };
 
@@ -108,7 +117,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 lg:grid-cols-4">
             <div>
               <Label htmlFor="edit-category" className="text-secondary">{t("courseForm.categoryLabel")}</Label>
               <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
@@ -135,6 +144,25 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
                   <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
                   <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
                   <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-training-type" className="text-secondary">{t("courseForm.trainingTypeLabel")}</Label>
+              <Select
+                value={formData.training_type}
+                onValueChange={(value) => setFormData({ ...formData, training_type: value })}
+              >
+                <SelectTrigger className="bg-surface2 border-border text-primary">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-surface border-border">
+                  {trainingOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

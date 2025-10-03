@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor } from "../utils/dates";
+import { getLevelLabel } from "@/utils/labels";
 import { useTranslation } from "../../i18n";
 
 export default function InternCard({ intern, onClick, onChatClick, index }) {
@@ -30,13 +31,16 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
 
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
-  const levelLabels = React.useMemo(() => ({
-    "Novice": t("internsPage.levels.novice"),
-    "Apprentice": t("internsPage.levels.apprentice"),
-    "Journeyman": t("internsPage.levels.journeyman"),
-    "Expert": t("internsPage.levels.expert"),
-    "Master": t("internsPage.levels.master"),
-  }), [t]);
+  const levelLabels = React.useMemo(
+    () => ({
+      "Novice": getLevelLabel("Novice", t, "Novice"),
+      "Apprentice": getLevelLabel("Apprentice", t, "Apprentice"),
+      "Journeyman": getLevelLabel("Journeyman", t, "Journeyman"),
+      "Expert": getLevelLabel("Expert", t, "Expert"),
+      "Master": getLevelLabel("Master", t, "Master"),
+    }),
+    [t]
+  );
 
   const handleChatClick = (e) => {
     e.stopPropagation();
@@ -79,34 +83,34 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <Badge className={`${levelColors[intern.level]} border`}>
-                    {intern.level}
+                    {levelLabels[intern.level] || intern.level}
                   </Badge>
                   {daysLeft !== null && daysLeftColors && (
-                    <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
-                      <Calendar className="w-3 h-3 mr-1" />
-                  {t('interns.card.daysLeft', '{{count}}d left', { count: daysLeft })}
-                    </Badge>
-                  )}
-                </div>
+                  <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {t('internCard.daysLeftShort', '{{count}}d left', { count: daysLeft })}
+                  </Badge>
+                )}
               </div>
-              
-              <div className="flex items-center gap-4 text-sm">
+            </div>
+
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <span className="text-muted">{t('internCard.points', 'Points:')}</span>
+                <span className="font-bold text-brand2">
+                  {intern.points}
+                </span>
+              </div>
+              {avgScore > 0 && (
                 <div className="flex items-center gap-1">
-                  <span className="text-muted">{t('interns.card.points', 'Points')}:</span>
-                  <span className="font-bold text-brand2">
-                    {intern.points}
+                  <TrendingUp className="w-4 h-4 text-success" />
+                  <span className="text-success font-medium">
+                    {t('internCard.average', '{{value}}% avg', {
+                      value: avgScore.toFixed(0),
+                    })}
                   </span>
                 </div>
-                {avgScore > 0 && (
-                  <div className="flex items-center gap-1">
-                    <TrendingUp className="w-4 h-4 text-success" />
-                    <span className="text-success font-medium">
-                      {t('interns.card.avgScore', '{{value}}% avg', {
-                        value: avgScore.toFixed(0),
-                      })}
-                    </span>
-                  </div>
-                )}
+              )}
               </div>
 
               {sparklineData.length > 0 && (
@@ -146,7 +150,7 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                 className="w-full mt-2 border-border hover:bg-surface2 text-secondary hover:text-primary"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
-                {t('interns.card.chat', 'Chat')}
+                {t('internCard.chat', 'Chat')}
               </Button>
             </div>
           </div>

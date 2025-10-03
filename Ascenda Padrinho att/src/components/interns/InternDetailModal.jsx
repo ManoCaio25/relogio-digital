@@ -9,18 +9,32 @@ import Avatar from "../ui/Avatar";
 import { Calendar, Trophy, Target, CalendarCheck } from "lucide-react";
 import { format } from "date-fns";
 import { getDaysLeft, getDaysLeftBadgeColor } from "../utils/dates";
+import { getLevelLabel, getTrackLabel } from "@/utils/labels";
 import { useTranslation } from "@/i18n";
 
 export default function InternDetailModal({ intern, isOpen, onClose }) {
   const [tasks, setTasks] = React.useState([]);
   const { t } = useTranslation();
-  const levelLabels = React.useMemo(() => ({
-    "Novice": t("internsPage.levels.novice"),
-    "Apprentice": t("internsPage.levels.apprentice"),
-    "Journeyman": t("internsPage.levels.journeyman"),
-    "Expert": t("internsPage.levels.expert"),
-    "Master": t("internsPage.levels.master"),
-  }), [t]);
+  const levelLabels = React.useMemo(
+    () => ({
+      "Novice": getLevelLabel("Novice", t, "Novice"),
+      "Apprentice": getLevelLabel("Apprentice", t, "Apprentice"),
+      "Journeyman": getLevelLabel("Journeyman", t, "Journeyman"),
+      "Expert": getLevelLabel("Expert", t, "Expert"),
+      "Master": getLevelLabel("Master", t, "Master"),
+    }),
+    [t]
+  );
+
+  const trackLabel = React.useMemo(
+    () =>
+      getTrackLabel(
+        intern?.track,
+        t,
+        t('internStatus.trackFallback', 'Learning Track')
+      ),
+    [intern?.track, t]
+  );
 
   React.useEffect(() => {
     const loadTasks = async () => {
@@ -62,7 +76,7 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
                     {levelLabels[intern.level] || intern.level}
                   </Badge>
                   <Badge variant="outline" className="text-muted">
-                    {intern.track}
+                    {trackLabel}
                   </Badge>
                 </div>
             </div>

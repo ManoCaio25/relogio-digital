@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
+import { useTrainingTypeOptions } from "@/utils/labels";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [formData, setFormData] = useState({
@@ -25,12 +26,18 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
     duration_hours: "",
     file_url: "",
     youtube_url: "",
-    youtube_video_id: ""
+    youtube_video_id: "",
+    training_type: "webDevelopment",
   });
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
   const { t } = useTranslation();
+  const allTrainingOptions = useTrainingTypeOptions(t);
+  const trainingOptions = useMemo(
+    () => allTrainingOptions.filter(option => option.value !== "all"),
+    [allTrainingOptions]
+  );
 
   const handleFileChange = React.useCallback(async (e) => {
     const selectedFile = e.target.files[0];
@@ -79,6 +86,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         description: formData.description,
         category: formData.category,
         difficulty: formData.difficulty,
+        training_type: formData.training_type,
         duration_hours: parseFloat(formData.duration_hours) || 0,
         enrolled_count: 0,
         completion_rate: 0,
@@ -107,7 +115,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         duration_hours: "",
         file_url: "",
         youtube_url: "",
-        youtube_video_id: ""
+        youtube_video_id: "",
+        training_type: "webDevelopment",
       });
       setFile(null);
       setPreviewData(null);
@@ -152,7 +161,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="category" className="text-secondary">{t("courseForm.categoryLabel")}</Label>
               <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
@@ -179,6 +188,25 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                   <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
                   <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
                   <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="training-type" className="text-secondary">{t("courseForm.trainingTypeLabel")}</Label>
+              <Select
+                value={formData.training_type}
+                onValueChange={(value) => setFormData({ ...formData, training_type: value })}
+              >
+                <SelectTrigger className="bg-surface2 border-border text-primary">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-surface border-border">
+                  {trainingOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
