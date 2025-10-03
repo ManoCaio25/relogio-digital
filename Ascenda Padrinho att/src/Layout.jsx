@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   LayoutDashboard, 
@@ -58,7 +58,7 @@ const navigationItems = [
   },
 ];
 
-function LayoutContent({ children }) {
+function LayoutContent() {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
 
@@ -288,7 +288,7 @@ function LayoutContent({ children }) {
           </header>
 
           <div className="flex-1 overflow-auto">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>
@@ -296,10 +296,10 @@ function LayoutContent({ children }) {
   );
 }
 
-export default function Layout({ children }) {
+export default function Layout() {
   return (
     <ThemeProvider>
-      <LayoutContent>{children}</LayoutContent>
+      <LayoutContent />
     </ThemeProvider>
   );
 }
