@@ -39,27 +39,27 @@ function LayoutContent() {
 
   const navigationItems = React.useMemo(() => [
     {
-      title: t("layout.navItems.dashboard", "Dashboard"),
+      title: t("layout.nav.dashboard", "Dashboard"),
       url: createPageUrl("Dashboard"),
       icon: LayoutDashboard,
     },
     {
-      title: t("layout.navItems.interns", "Team Overview"),
+      title: t("layout.nav.interns", "Team Overview"),
       url: createPageUrl("Interns"),
       icon: Users,
     },
     {
-      title: t("layout.navItems.content", "Content Management"),
+      title: t("layout.nav.content", "Content Management"),
       url: createPageUrl("ContentManagement"),
       icon: BookOpen,
     },
     {
-      title: t("layout.navItems.vacation", "Vacation Requests"),
+      title: t("layout.nav.vacation", "Vacation Requests"),
       url: createPageUrl("VacationRequests"),
       icon: Calendar,
     },
     {
-      title: t("layout.navItems.reports", "Reports"),
+      title: t("layout.nav.reports", "Reports"),
       url: createPageUrl("Reports"),
       icon: BarChart3,
     },
@@ -205,8 +205,8 @@ function LayoutContent() {
                 </div>
               </div>
               <div>
-                <h2 className="font-bold text-primary">{t("layout.appName", "Ascenda")}</h2>
-                <p className="text-xs text-muted">{t("layout.subtitle", "Manager Portal")}</p>
+                <h2 className="font-bold text-primary">{t("common.appName", "Ascenda")}</h2>
+                <p className="text-xs text-muted">{t("common.managerPortal", "Manager Portal")}</p>
               </div>
             </div>
           </SidebarHeader>
@@ -214,7 +214,7 @@ function LayoutContent() {
           <SidebarContent className="p-3">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-muted uppercase tracking-wider px-3 py-2">
-                {t("layout.navigation", "Navigation")}
+                {t("common.navigation", "Navigation")}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -254,12 +254,12 @@ function LayoutContent() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-brand to-brand2 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
-                      {user.full_name?.charAt(0) || t("layout.userFallback", "Manager").charAt(0)}
+                      {user.full_name?.charAt(0) || t("common.manager", "Manager").charAt(0)}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-primary text-sm truncate">
-                      {user.full_name || t("layout.userFallback", "Manager")}
+                      {user.full_name || t("common.manager", "Manager")}
                     </p>
                     <p className="text-xs text-muted truncate">
                       {user.email}
@@ -273,7 +273,7 @@ function LayoutContent() {
                   className="w-full text-secondary hover:text-primary hover:bg-surface2"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  {t("layout.logout", "Logout")}
+                  {t("common.actions.logout", "Logout")}
                 </Button>
               </div>
             )}
