@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "@/i18n";
 
 export default function Interns() {
   const [interns, setInterns] = useState([]);
@@ -23,6 +24,7 @@ export default function Interns() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadInterns();
@@ -71,9 +73,9 @@ export default function Interns() {
         >
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-              Team Overview
+              {t("internsPage.title")}
             </h1>
-            <p className="text-muted">Manage and track your team's progress</p>
+            <p className="text-muted">{t("internsPage.subtitle")}</p>
           </div>
         </motion.div>
 
@@ -81,7 +83,7 @@ export default function Interns() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted" />
             <Input
-              placeholder="Search interns..."
+              placeholder={t("common.placeholders.searchInterns")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-surface border-border text-primary placeholder:text-muted focus:border-brand"
@@ -91,28 +93,28 @@ export default function Interns() {
           <Select value={filterLevel} onValueChange={setFilterLevel}>
             <SelectTrigger className="w-full md:w-40 bg-surface border-border text-primary">
               <Filter className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Level" />
+              <SelectValue placeholder={t("common.filters.level")} />
             </SelectTrigger>
             <SelectContent className="bg-surface border-border">
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="Novice">Novice</SelectItem>
-              <SelectItem value="Apprentice">Apprentice</SelectItem>
-              <SelectItem value="Journeyman">Journeyman</SelectItem>
-              <SelectItem value="Expert">Expert</SelectItem>
-              <SelectItem value="Master">Master</SelectItem>
+              <SelectItem value="all">{t("common.filters.allLevels")}</SelectItem>
+              <SelectItem value="Novice">{t("internsPage.levels.novice")}</SelectItem>
+              <SelectItem value="Apprentice">{t("internsPage.levels.apprentice")}</SelectItem>
+              <SelectItem value="Journeyman">{t("internsPage.levels.journeyman")}</SelectItem>
+              <SelectItem value="Expert">{t("internsPage.levels.expert")}</SelectItem>
+              <SelectItem value="Master">{t("internsPage.levels.master")}</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-full md:w-40 bg-surface border-border text-primary">
               <Filter className="w-4 h-4 mr-2" />
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t("common.filters.status")} />
             </SelectTrigger>
             <SelectContent className="bg-surface border-border">
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="paused">Paused</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="all">{t("common.filters.allStatus")}</SelectItem>
+              <SelectItem value="active">{t("common.status.active")}</SelectItem>
+              <SelectItem value="paused">{t("common.status.paused")}</SelectItem>
+              <SelectItem value="completed">{t("common.status.completed")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -131,7 +133,7 @@ export default function Interns() {
 
         {filteredInterns.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted">No interns found matching your filters</p>
+            <p className="text-muted">{t("internsPage.noResults")}</p>
           </div>
         )}
 

@@ -7,8 +7,10 @@ import { motion } from "framer-motion";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor } from "../utils/dates";
+import { useTranslation } from "@/i18n";
 
 export default function InternCard({ intern, onClick, onChatClick, index }) {
+  const { t } = useTranslation();
   const avgScore = intern.performance_history?.length > 0
     ? intern.performance_history.reduce((sum, p) => sum + p.score, 0) / intern.performance_history.length
     : 0;
@@ -28,6 +30,13 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
 
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
+  const levelLabels = React.useMemo(() => ({
+    "Novice": t("internsPage.levels.novice"),
+    "Apprentice": t("internsPage.levels.apprentice"),
+    "Journeyman": t("internsPage.levels.journeyman"),
+    "Expert": t("internsPage.levels.expert"),
+    "Master": t("internsPage.levels.master"),
+  }), [t]);
 
   const handleChatClick = (e) => {
     e.stopPropagation();
@@ -70,20 +79,20 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                 </h3>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <Badge className={`${levelColors[intern.level]} border`}>
-                    {intern.level}
+                    {levelLabels[intern.level] || intern.level}
                   </Badge>
                   {daysLeft !== null && daysLeftColors && (
                     <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
                       <Calendar className="w-3 h-3 mr-1" />
-                      {daysLeft}d left
+                      {t("internCard.daysLeftShort", { count: daysLeft })}
                     </Badge>
                   )}
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
-                  <span className="text-muted">Points:</span>
+                  <span className="text-muted">{t("internCard.points")}</span>
                   <span className="font-bold text-brand2">
                     {intern.points}
                   </span>
@@ -92,7 +101,7 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                   <div className="flex items-center gap-1">
                     <TrendingUp className="w-4 h-4 text-success" />
                     <span className="text-success font-medium">
-                      {avgScore.toFixed(0)}% avg
+                      {t("internCard.average", { value: avgScore.toFixed(0) })}
                     </span>
                   </div>
                 )}
@@ -135,7 +144,7 @@ export default function InternCard({ intern, onClick, onChatClick, index }) {
                 className="w-full mt-2 border-border hover:bg-surface2 text-secondary hover:text-primary"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Chat
+                {t("internCard.chat")}
               </Button>
             </div>
           </div>
