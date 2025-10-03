@@ -42,7 +42,6 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
   const wellBeing = wellBeingVariants[canonicalStatus] || wellBeingVariants["Neutral"];
   const WellBeingIcon = wellBeing.icon;
   const isActive = intern.status === 'active';
-  const { t } = useTranslation();
   
   const daysLeft = intern.end_date ? getDaysLeft(intern.end_date) : null;
   const daysLeftColors = daysLeft !== null ? getDaysLeftBadgeColor(daysLeft) : null;
