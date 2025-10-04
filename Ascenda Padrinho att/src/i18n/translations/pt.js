@@ -253,31 +253,13 @@ const pt = {
     noCourses: "Ainda não há cursos. Crie o primeiro!",
     empty: "Ainda não há cursos. Crie o primeiro!",
     addCourse: "Adicionar novo curso",
-    resultsCount: "Exibindo {{count}} curso{{suffix}}",
     filters: {
       trainingType: "Tipo de treinamento",
       trainingTypes: {
         all: "Todos os tipos",
       },
-      searchLabel: "Buscar cursos",
-      searchPlaceholder: "Busque por título ou descrição",
-      clear: "Limpar filtros",
-      activeLabel: "Filtrado por",
     },
-    filteredCount: "{{count}} curso{{suffix}} corresponde a este filtro",
-    stats: {
-      totalHoursLabel: "Horas em catálogo",
-      totalHoursHint: "Horas de aprendizado disponíveis",
-      averageCompletionLabel: "Média de conclusão",
-      averageCompletionHint: "Entre os cursos publicados",
-      activeLearnersLabel: "Aprendizes ativos",
-      activeLearnersValue: "{{count}}",
-      activeLearnersHint: "Atualmente matriculados",
-    },
-    tips: {
-      title: "Compartilhe jornadas envolventes",
-      body: "Explique o valor do curso, inclua materiais úteis e faça uma pré-visualização antes de publicar para entregar experiências de aprendizagem encantadoras.",
-    },
+    filteredCount: "{{count}} curso{{suffix}} corresponde a este filtro"
   },
   courseForm: {
     titleLabel: "Título do curso *",
