@@ -1,19 +1,14 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Course } from "@/entities/Course";
 import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
 import CourseUploadForm from "../components/content/CourseUploadForm";
 import CourseCard from "../components/content/CourseCard";
 import CourseEditModal from "../components/content/CourseEditModal";
 import PreviewDrawer from "../components/media/PreviewDrawer";
 import AssignCourseModal from "../components/courses/AssignCourseModal";
+import LibraryFilterCard from "../components/content/LibraryFilterCard";
 import { useTranslation } from "../i18n";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useTrainingTypeOptions } from "@/utils/labels";
 
 export default function ContentManagement() {
@@ -25,6 +20,7 @@ export default function ContentManagement() {
   const [assigningCourse, setAssigningCourse] = useState(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [trainingFilter, setTrainingFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const { t } = useTranslation();
   const trainingOptions = useTrainingTypeOptions(t);
 
@@ -71,72 +67,157 @@ export default function ContentManagement() {
     loadCourses();
   }, [loadCourses]);
 
-  const filteredCourses = useMemo(
-    () =>
-      courses.filter((course) =>
-        trainingFilter === "all"
-          ? true
-          : course.training_type === trainingFilter
-      ),
-    [courses, trainingFilter]
+  const filteredCourses = useMemo(() => {
+    const normalizedTerm = searchTerm.trim().toLowerCase();
+
+    return courses.filter((course) => {
+      const matchesTraining =
+        trainingFilter === "all" || course.training_type === trainingFilter;
+      const matchesSearch =
+        normalizedTerm.length === 0 ||
+        [course.title, course.description]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(normalizedTerm));
+
+      return matchesTraining && matchesSearch;
+    });
+  }, [courses, trainingFilter, searchTerm]);
+
+  const courseStats = useMemo(() => {
+    if (!courses.length) {
+      return {
+        totalHours: 0,
+        averageCompletion: 0,
+        activeLearners: 0,
+      };
+    }
+
+    const totalHours = courses.reduce(
+      (acc, course) => acc + (Number(course.duration_hours) || 0),
+      0
+    );
+
+    const completionValues = courses
+      .map((course) => Number(course.completion_rate) || 0)
+      .filter((value) => value > 0);
+    const averageCompletion =
+      completionValues.length > 0
+        ? completionValues.reduce((acc, value) => acc + value, 0) /
+          completionValues.length
+        : 0;
+
+    const activeLearners = courses.reduce(
+      (acc, course) => acc + (Number(course.enrolled_count) || 0),
+      0
+    );
+
+    return {
+      totalHours,
+      averageCompletion,
+      activeLearners,
+    };
+  }, [courses]);
+
+  const activeTrainingOption = trainingOptions.find(
+    (option) => option.value === trainingFilter
   );
 
+  const hasActiveFilters =
+    trainingFilter !== "all" || searchTerm.trim().length > 0;
+
+  const handleClearFilters = useCallback(() => {
+    setTrainingFilter("all");
+    setSearchTerm("");
+  }, []);
+
   return (
-    <div className="min-h-screen p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(55,110,255,0.12),_transparent_55%)] p-6 md:p-10">
+      <div className="mx-auto flex max-w-7xl flex-col gap-10">
+        <motion.section
+          initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-surface/90 via-surface2/90 to-surface/95 p-8 shadow-e3"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-            {t('content.title', 'Content Management')}
-          </h1>
-          <p className="text-muted">
-            {t('content.subtitle', 'Create and manage training materials for your team')}
-          </p>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <CourseUploadForm 
-              onSuccess={handleCourseCreate}
-              onPreview={handleFormPreview}
-            />
-          </div>
-
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <h2 className="text-2xl font-bold text-primary">
-                {t('content.libraryTitle', 'Course Library')}
-              </h2>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted">
-                  {t('content.courseCount', '{{count}} courses', { count: courses.length })}
-                </span>
-                <Select value={trainingFilter} onValueChange={setTrainingFilter}>
-                  <SelectTrigger className="w-48 bg-surface2 border-border text-primary">
-                    <SelectValue placeholder={t('content.filters.trainingType', 'Training type')} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-surface border-border">
-                    {trainingOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-brand via-brand2/70 to-brand" />
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-4">
+              <span className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
+                <Sparkles className="h-4 w-4" />
+                {t('content.heroBadge', 'Learning hub')}
+              </span>
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold text-primary md:text-4xl">
+                  {t('content.title', 'Content Management')}
+                </h1>
+                <p className="max-w-2xl text-base text-muted md:text-lg">
+                  {t(
+                    'content.subtitle',
+                    'Create and manage training materials for your team'
+                  )}
+                </p>
               </div>
             </div>
 
-            {trainingFilter !== "all" && (
-              <p className="text-xs text-muted">
-                {t(
-                  'content.filteredCount',
-                  '{{count}} course(s) match this filter',
-                  { count: filteredCourses.length },
-                )}
-              </p>
-            )}
+            <div className="grid w-full gap-4 sm:grid-cols-3 lg:w-auto">
+              <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                <p className="text-xs uppercase tracking-wide text-muted">
+                  {t('content.stats.totalHoursLabel', 'Catalog hours')}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {new Intl.NumberFormat().format(
+                    Math.round(courseStats.totalHours)
+                  )}
+                </p>
+                <p className="text-xs text-muted">
+                  {t('content.stats.totalHoursHint', 'Hours of learning available')}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                <p className="text-xs uppercase tracking-wide text-muted">
+                  {t('content.stats.averageCompletionLabel', 'Avg. completion')}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {courseStats.averageCompletion.toFixed(0)}%
+                </p>
+                <p className="text-xs text-muted">
+                  {t('content.stats.averageCompletionHint', 'Across published courses')}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                <p className="text-xs uppercase tracking-wide text-muted">
+                  {t('content.stats.activeLearnersLabel', 'Active learners')}
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {t('content.stats.activeLearnersValue', '{{count}}', {
+                    count: new Intl.NumberFormat().format(
+                      courseStats.activeLearners
+                    ),
+                  })}
+                </p>
+                <p className="text-xs text-muted">
+                  {t('content.stats.activeLearnersHint', 'Currently enrolled')}
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        <div className="grid grid-cols-12 gap-6 xl:gap-10">
+          <div className="col-span-12 space-y-6 lg:col-span-8">
+            <LibraryFilterCard
+              t={t}
+              searchTerm={searchTerm}
+              onSearchTermChange={setSearchTerm}
+              onClearFilters={handleClearFilters}
+              hasActiveFilters={hasActiveFilters}
+              trainingOptions={trainingOptions}
+              trainingFilter={trainingFilter}
+              onTrainingFilterChange={setTrainingFilter}
+              coursesCount={courses.length}
+              filteredCount={filteredCourses.length}
+              activeTrainingOption={activeTrainingOption}
+            />
 
             <div className="grid gap-6">
               {filteredCourses.map((course, index) => (
@@ -152,35 +233,66 @@ export default function ContentManagement() {
             </div>
 
             {filteredCourses.length === 0 && (
-              <div className="text-center py-12 bg-surface2 border border-border rounded-xl">
-                <p className="text-muted">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center"
+              >
+                <p className="text-sm text-muted">
                   {t('content.empty', 'No courses yet. Create your first one!')}
                 </p>
-              </div>
+              </motion.div>
             )}
+          </div>
+
+          <div className="col-span-12 lg:col-span-4">
+            <div className="space-y-6 lg:sticky lg:top-10 lg:h-fit">
+              <CourseUploadForm
+                onSuccess={handleCourseCreate}
+                onPreview={handleFormPreview}
+              />
+
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="rounded-3xl border border-border/60 bg-surface2/80 p-6 shadow-e1"
+              >
+                <h3 className="text-lg font-semibold text-primary">
+                  {t('content.tips.title', 'Share engaging learning journeys')}
+                </h3>
+                <p className="mt-2 text-sm text-muted">
+                  {t(
+                    'content.tips.body',
+                    'Highlight why the course matters, include helpful materials, and preview before publishing to craft delightful learning experiences.'
+                  )}
+                </p>
+              </motion.div>
+            </div>
           </div>
         </div>
 
-        <CourseEditModal
-          course={editingCourse}
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSave={handleSaveEdit}
-        />
-
-        <PreviewDrawer
-          isOpen={isPreviewOpen}
-          onClose={() => setIsPreviewOpen(false)}
-          course={previewCourse}
-        />
-
-        <AssignCourseModal
-          course={assigningCourse}
-          isOpen={isAssignModalOpen}
-          onClose={() => setIsAssignModalOpen(false)}
-          onSuccess={handleAssignSuccess}
-        />
       </div>
+
+      <CourseEditModal
+        course={editingCourse}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSaveEdit}
+      />
+
+      <PreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        course={previewCourse}
+      />
+
+      <AssignCourseModal
+        course={assigningCourse}
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        onSuccess={handleAssignSuccess}
+      />
     </div>
   );
 }
