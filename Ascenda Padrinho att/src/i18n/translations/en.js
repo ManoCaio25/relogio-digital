@@ -247,11 +247,37 @@ const en = {
   content: {
     title: "Content Management",
     subtitle: "Create and manage training materials for your team",
+    heroBadge: "Learning hub",
     libraryTitle: "Course Library",
-    courseCount: "{{count}} courses",
+    courseCount: "{{count}} course{{suffix}}",
     noCourses: "No courses yet. Create your first one!",
     empty: "No courses yet. Create your first one!",
-    addCourse: "Add New Course"
+    addCourse: "Add new course",
+    resultsCount: "Showing {{count}} course{{suffix}}",
+    filters: {
+      trainingType: "Training type",
+      trainingTypes: {
+        all: "All training types",
+      },
+      searchLabel: "Search courses",
+      searchPlaceholder: "Search by title or description",
+      clear: "Clear filters",
+      activeLabel: "Filtered by",
+    },
+    filteredCount: "{{count}} course{{suffix}} match this filter",
+    stats: {
+      totalHoursLabel: "Catalog hours",
+      totalHoursHint: "Hours of learning available",
+      averageCompletionLabel: "Avg. completion",
+      averageCompletionHint: "Across published courses",
+      activeLearnersLabel: "Active learners",
+      activeLearnersValue: "{{count}}",
+      activeLearnersHint: "Currently enrolled",
+    },
+    tips: {
+      title: "Share engaging learning journeys",
+      body: "Highlight why the course matters, include helpful materials, and preview before publishing to craft delightful learning experiences.",
+    },
   },
   courseForm: {
     titleLabel: "Course Title *",
@@ -284,8 +310,9 @@ const en = {
     }
   },
   courseCard: {
+    label: "Featured course",
     youtube: "YouTube",
-    active: "{{count}} active",
+    active: "{{count}} active learner{{suffix}}",
     edit: "Edit",
     assign: "Assign",
     preview: "Preview"
