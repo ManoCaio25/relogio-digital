@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Course } from "@/entities/Course";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Search, Filter, XCircle } from "lucide-react";
 import CourseUploadForm from "../components/content/CourseUploadForm";
 import CourseCard from "../components/content/CourseCard";
 import CourseEditModal from "../components/content/CourseEditModal";
@@ -10,6 +10,9 @@ import AssignCourseModal from "../components/courses/AssignCourseModal";
 import LibraryFilterCard from "../components/content/LibraryFilterCard";
 import { useTranslation } from "../i18n";
 import { useTrainingTypeOptions } from "@/utils/labels";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function ContentManagement() {
   const [courses, setCourses] = useState([]);
@@ -125,37 +128,74 @@ export default function ContentManagement() {
   const hasActiveFilters =
     trainingFilter !== "all" || searchTerm.trim().length > 0;
 
-  const handleClearFilters = useCallback(() => {
-    setTrainingFilter("all");
-    setSearchTerm("");
-  }, []);
-
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(55,110,255,0.12),_transparent_55%)] p-6 md:p-10">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10">
-        <motion.section
-          initial={{ opacity: 0, y: -12 }}
+    <div className="min-h-screen p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-surface/90 via-surface2/90 to-surface/95 p-8 shadow-e3"
         >
-          <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-brand via-brand2/70 to-brand" />
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-4">
-              <span className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand">
-                <Sparkles className="h-4 w-4" />
-                {t('content.heroBadge', 'Learning hub')}
-              </span>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-primary md:text-4xl">
-                  {t('content.title', 'Content Management')}
-                </h1>
-                <p className="max-w-2xl text-base text-muted md:text-lg">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
+            {t('content.title', 'Content Management')}
+          </h1>
+          <p className="text-muted">
+            {t('content.subtitle', 'Create and manage training materials for your team')}
+          </p>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+            <CourseUploadForm 
+              onSuccess={handleCourseCreate}
+              onPreview={handleFormPreview}
+            />
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <h2 className="text-2xl font-bold text-primary">
+                {t('content.libraryTitle', 'Course Library')}
+              </h2>
+              <div className="w-full lg:w-auto space-y-2">
+                <p className="text-sm text-muted">
                   {t(
-                    'content.subtitle',
-                    'Create and manage training materials for your team'
+                    'content.courseCount',
+                    '{{count}} course{{suffix}}',
+                    {
+                      count: courses.length,
+                      suffix: courses.length === 1 ? '' : 's',
+                    },
                   )}
                 </p>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                    {t('content.filters.trainingType', 'Training type')}
+                  </p>
+                  <div
+                    className="mt-2 flex flex-wrap gap-2 rounded-2xl border border-border bg-surface2/80 p-2"
+                    role="group"
+                    aria-label={t('content.filters.trainingType', 'Training type')}
+                  >
+                    {trainingOptions.map((option) => {
+                      const isActive = trainingFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setTrainingFilter(option.value)}
+                          className={`rounded-full border px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                            isActive
+                              ? 'border-brand bg-brand text-white shadow-e1'
+                              : 'border-border/60 bg-surface text-secondary hover:border-brand/60 hover:text-primary'
+                          }`}
+                          aria-pressed={isActive}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -203,98 +243,193 @@ export default function ContentManagement() {
           </div>
         </motion.section>
 
-        <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-12 lg:col-span-8">
-            <div className="space-y-6">
-              <LibraryFilterCard
-                t={t}
-                searchTerm={searchTerm}
-                onSearchTermChange={setSearchTerm}
-                onClearFilters={handleClearFilters}
-                hasActiveFilters={hasActiveFilters}
-                trainingOptions={trainingOptions}
-                trainingFilter={trainingFilter}
-                onTrainingFilterChange={setTrainingFilter}
-                coursesCount={courses.length}
-                filteredCount={filteredCourses.length}
-                activeTrainingOption={activeTrainingOption}
-              />
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] xl:gap-10">
+          <div className="space-y-6 lg:sticky lg:top-10 lg:h-fit">
+            <CourseUploadForm
+              onSuccess={handleCourseCreate}
+              onPreview={handleFormPreview}
+            />
 
-              <div className="grid gap-6">
-                {filteredCourses.map((course, index) => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
-                    index={index}
-                    onEdit={handleEdit}
-                    onPreview={handlePreview}
-                    onAssign={handleAssign}
-                  />
-                ))}
-              </div>
-
-              {filteredCourses.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center"
-                >
-                  <p className="text-sm text-muted">
-                    {t('content.empty', 'No courses yet. Create your first one!')}
-                  </p>
-                </motion.div>
-              )}
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="rounded-3xl border border-border/60 bg-surface2/80 p-6 shadow-e1"
+            >
+              <h3 className="text-lg font-semibold text-primary">
+                {t('content.tips.title', 'Share engaging learning journeys')}
+              </h3>
+              <p className="mt-2 text-sm text-muted">
+                {t(
+                  'content.filteredCount',
+                  '{{count}} course{{suffix}} match this filter',
+                  {
+                    count: filteredCourses.length,
+                    suffix: filteredCourses.length === 1 ? '' : 's',
+                  },
+                )}
+              </p>
+            </motion.div>
           </div>
 
-          <div className="col-span-12 lg:col-span-4">
-            <div className="space-y-6 lg:sticky lg:top-10 lg:h-fit">
-              <CourseUploadForm
-                onSuccess={handleCourseCreate}
-                onPreview={handleFormPreview}
-              />
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+              className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                <Filter className="h-4 w-4" />
+                {t('content.libraryTitle', 'Course Library')}
+              </div>
+              <div className="mt-4 flex flex-col gap-6 md:gap-8">
+                <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="course-search"
+                      className="text-xs font-medium uppercase tracking-wide text-muted"
+                    >
+                      {t('content.filters.searchLabel', 'Search courses')}
+                    </label>
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+                      <Input
+                        id="course-search"
+                        value={searchTerm}
+                        onChange={(event) => setSearchTerm(event.target.value)}
+                        placeholder={t(
+                          'content.filters.searchPlaceholder',
+                          'Search by title or description'
+                        )}
+                        className="h-11 rounded-2xl border-border/60 bg-surface2/70 pl-10 text-sm text-primary placeholder:text-muted"
+                      />
+                    </div>
+                  </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="rounded-3xl border border-border/60 bg-surface2/80 p-6 shadow-e1"
-              >
-                <h3 className="text-lg font-semibold text-primary">
-                  {t('content.tips.title', 'Share engaging learning journeys')}
-                </h3>
-                <p className="mt-2 text-sm text-muted">
-                  {t(
-                    'content.tips.body',
-                    'Highlight why the course matters, include helpful materials, and preview before publishing to craft delightful learning experiences.'
+                  {hasActiveFilters && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="justify-center gap-2 rounded-full border border-transparent bg-surface2/70 px-4 py-2 text-sm text-secondary hover:border-border/60 hover:bg-surface2"
+                      onClick={() => {
+                        setTrainingFilter("all");
+                        setSearchTerm("");
+                      }}
+                    >
+                      <XCircle className="h-4 w-4" />
+                      {t('content.filters.clear', 'Clear filters')}
+                    </Button>
                   )}
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted">
+                    {t('content.filters.trainingType', 'Training type')}
+                  </p>
+                  <div
+                    className="mt-2 flex flex-wrap gap-2 rounded-2xl border border-border/60 bg-surface2/60 p-2"
+                    role="group"
+                    aria-label={t('content.filters.trainingType', 'Training type')}
+                  >
+                    {trainingOptions.map((option) => {
+                      const isActive = trainingFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setTrainingFilter(option.value)}
+                          className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                            isActive
+                              ? 'border-brand bg-brand text-white shadow-e2'
+                              : 'border-transparent bg-transparent text-secondary hover:border-brand/40 hover:bg-brand/5 hover:text-primary'
+                          }`}
+                          aria-pressed={isActive}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
+                  <Badge className="rounded-full border border-brand/30 bg-brand/10 text-brand">
+                    {t(
+                      'content.courseCount',
+                      '{{count}} course{{suffix}}',
+                      {
+                        count: courses.length,
+                        suffix: courses.length === 1 ? '' : 's',
+                      }
+                    )}
+                  </Badge>
+                  <span>
+                    {t(
+                      'content.resultsCount',
+                      'Showing {{count}} course{{suffix}}',
+                      {
+                        count: filteredCourses.length,
+                        suffix: filteredCourses.length === 1 ? '' : 's',
+                      }
+                    )}
+                  </span>
+                  {trainingFilter !== "all" && activeTrainingOption && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-surface2 px-3 py-1 text-xs text-secondary">
+                      {t('content.filters.activeLabel', 'Filtered by')} {activeTrainingOption.label}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="grid gap-6">
+              {filteredCourses.map((course, index) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  index={index}
+                  onEdit={handleEdit}
+                  onPreview={handlePreview}
+                  onAssign={handleAssign}
+                />
+              ))}
+            </div>
+
+            {filteredCourses.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center"
+              >
+                <p className="text-sm text-muted">
+                  {t('content.empty', 'No courses yet. Create your first one!')}
                 </p>
               </motion.div>
-            </div>
+            )}
           </div>
         </div>
 
+        <CourseEditModal
+          course={editingCourse}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSaveEdit}
+        />
+
+        <PreviewDrawer
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          course={previewCourse}
+        />
+
+        <AssignCourseModal
+          course={assigningCourse}
+          isOpen={isAssignModalOpen}
+          onClose={() => setIsAssignModalOpen(false)}
+          onSuccess={handleAssignSuccess}
+        />
       </div>
-
-      <CourseEditModal
-        course={editingCourse}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleSaveEdit}
-      />
-
-      <PreviewDrawer
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        course={previewCourse}
-      />
-
-      <AssignCourseModal
-        course={assigningCourse}
-        isOpen={isAssignModalOpen}
-        onClose={() => setIsAssignModalOpen(false)}
-        onSuccess={handleAssignSuccess}
-      />
     </div>
   );
 }
