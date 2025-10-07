@@ -145,7 +145,7 @@ export default function ContentManagement() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
-            <CourseUploadForm 
+            <CourseUploadForm
               onSuccess={handleCourseCreate}
               onPreview={handleFormPreview}
             />
@@ -197,51 +197,50 @@ export default function ContentManagement() {
                   </div>
                 </div>
               </div>
+              <div className="grid w-full gap-4 sm:grid-cols-3 lg:w-auto">
+                <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    {t('content.stats.totalHoursLabel', 'Catalog hours')}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-primary">
+                    {new Intl.NumberFormat().format(
+                      Math.round(courseStats.totalHours)
+                    )}
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('content.stats.totalHoursHint', 'Hours of learning available')}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    {t('content.stats.averageCompletionLabel', 'Avg. completion')}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-primary">
+                    {courseStats.averageCompletion.toFixed(0)}%
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('content.stats.averageCompletionHint', 'Across published courses')}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    {t('content.stats.activeLearnersLabel', 'Active learners')}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-primary">
+                    {t('content.stats.activeLearnersValue', '{{count}}', {
+                      count: new Intl.NumberFormat().format(
+                        courseStats.activeLearners
+                      ),
+                    })}
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('content.stats.activeLearnersHint', 'Currently enrolled')}
+                  </p>
+                </div>
+              </div>
             </div>
-
-            <div className="grid w-full gap-4 sm:grid-cols-3 lg:w-auto">
-              <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
-                <p className="text-xs uppercase tracking-wide text-muted">
-                  {t('content.stats.totalHoursLabel', 'Catalog hours')}
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-primary">
-                  {new Intl.NumberFormat().format(
-                    Math.round(courseStats.totalHours)
-                  )}
-                </p>
-                <p className="text-xs text-muted">
-                  {t('content.stats.totalHoursHint', 'Hours of learning available')}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
-                <p className="text-xs uppercase tracking-wide text-muted">
-                  {t('content.stats.averageCompletionLabel', 'Avg. completion')}
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-primary">
-                  {courseStats.averageCompletion.toFixed(0)}%
-                </p>
-                <p className="text-xs text-muted">
-                  {t('content.stats.averageCompletionHint', 'Across published courses')}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
-                <p className="text-xs uppercase tracking-wide text-muted">
-                  {t('content.stats.activeLearnersLabel', 'Active learners')}
-                </p>
-                <p className="mt-2 text-2xl font-semibold text-primary">
-                  {t('content.stats.activeLearnersValue', '{{count}}', {
-                    count: new Intl.NumberFormat().format(
-                      courseStats.activeLearners
-                    ),
-                  })}
-                </p>
-                <p className="text-xs text-muted">
-                  {t('content.stats.activeLearnersHint', 'Currently enrolled')}
-                </p>
-              </div>
             </div>
           </div>
-        </motion.section>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] xl:gap-10">
           <div className="space-y-6 lg:sticky lg:top-10 lg:h-fit">
