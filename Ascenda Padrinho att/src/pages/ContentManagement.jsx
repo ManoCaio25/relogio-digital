@@ -241,7 +241,6 @@ export default function ContentManagement() {
               </div>
             </div>
           </div>
-        </motion.section>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] xl:gap-10">
           <div className="space-y-6 lg:sticky lg:top-10 lg:h-fit">
