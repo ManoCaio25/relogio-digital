@@ -217,6 +217,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 id="duration"
                 type="number"
                 step="0.5"
+                min = "0"
+                max = "24"
                 value={formData.duration_hours}
                 onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
                 placeholder="5.5"
