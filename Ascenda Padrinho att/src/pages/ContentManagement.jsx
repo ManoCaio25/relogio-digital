@@ -236,12 +236,29 @@ export default function ContentManagement() {
             </div>
           </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] xl:gap-10">
-          <div className="space-y-6 lg:sticky lg:top-10 lg:h-fit">
-            <CourseUploadForm
-              onSuccess={handleCourseCreate}
-              onPreview={handleFormPreview}
-            />
+function LibrarySummary({
+  stats,
+  heading,
+  description,
+  caption,
+  hoursLabel,
+  hoursHint,
+  completionLabel,
+  completionHint,
+  learnersLabel,
+  learnersHint,
+}) {
+  return (
+    <section className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+            <Filter className="h-4 w-4" />
+            {heading}
+          </div>
+          <h2 className="text-2xl font-bold text-primary">{description}</h2>
+          <p className="text-sm text-muted">{caption}</p>
+        </div>
 
           <div className="space-y-8">
             <motion.div
@@ -431,6 +448,7 @@ export default function ContentManagement() {
                 />
               ))}
             </div>
+          </div>
 
             {filteredCourses.length === 0 && (
               <div className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center">
