@@ -1,7 +1,9 @@
 import { createEntityStore } from './store';
-import { tasks as initialTasks } from './data';
+import { tasks as initialTasks, seedDataVersion } from './data';
 
-const store = createEntityStore('ascenda_tasks', initialTasks);
+const store = createEntityStore('ascenda_tasks', initialTasks, {
+  version: seedDataVersion,
+});
 
 export const Task = {
   list(sort, limit) {

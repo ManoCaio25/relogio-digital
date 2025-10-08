@@ -1,7 +1,9 @@
 import { createEntityStore } from './store';
-import { vacationRequests as initialRequests } from './data';
+import { vacationRequests as initialRequests, seedDataVersion } from './data';
 
-const store = createEntityStore('ascenda_vacation_requests', initialRequests);
+const store = createEntityStore('ascenda_vacation_requests', initialRequests, {
+  version: seedDataVersion,
+});
 
 export const VacationRequest = {
   list(sort, limit) {

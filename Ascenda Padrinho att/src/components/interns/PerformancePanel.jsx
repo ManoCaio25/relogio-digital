@@ -1,49 +1,50 @@
 import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  ComposedChart, 
-  Area, 
-  Line, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  ComposedChart,
+  Area,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   ReferenceLine,
   Brush
 } from "recharts";
 import { Download, TrendingUp, Target, Award, Clock } from "lucide-react";
 import { format } from "date-fns";
+import { useTranslation } from "@/i18n";
 
-function PerfTooltip({ active, payload }) {
+function PerfTooltip({ active, payload, t }) {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0].payload;
-  
+
   return (
     <div className="bg-surface border border-border rounded-lg p-3 shadow-e2">
       <p className="text-sm font-semibold text-primary mb-2">
-        {format(new Date(data.month), 'MMMM yyyy')}
+        {format(data.date, 'MMMM yyyy')}
       </p>
       <div className="space-y-1 text-xs">
         <div className="flex items-center justify-between gap-4">
-          <span className="text-muted">Score:</span>
+          <span className="text-muted">{t("performance.tooltip.score")}</span>
           <span className="font-medium text-primary">{data.score}%</span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-muted">Completion:</span>
+          <span className="text-muted">{t("performance.tooltip.completion")}</span>
           <span className="font-medium text-brand">{data.completion}%</span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-muted">Points:</span>
+          <span className="text-muted">{t("performance.tooltip.points")}</span>
           <span className="font-medium text-brand2">{data.points}</span>
         </div>
         {data.hours && (
           <div className="flex items-center justify-between gap-4">
-            <span className="text-muted">Hours:</span>
+            <span className="text-muted">{t("performance.tooltip.hours")}</span>
             <span className="font-medium text-success">{data.hours}h</span>
           </div>
         )}
@@ -53,18 +54,30 @@ function PerfTooltip({ active, payload }) {
 }
 
 export default function PerformancePanel({ intern }) {
+  const { t } = useTranslation();
   const chartData = useMemo(() => {
     if (!intern.performance_history || intern.performance_history.length === 0) {
       return [];
     }
-    
-    return intern.performance_history.map(point => ({
-      month: point.month,
-      score: point.score,
-      completion: point.completion || point.score * 0.9,
-      points: point.points || Math.floor(point.score * 5),
-      hours: point.hours || Math.floor(point.score / 10)
-    }));
+
+    return intern.performance_history
+      .map(point => {
+        const rawDate = point.date ?? point.month;
+        const dateValue = rawDate instanceof Date ? rawDate : new Date(rawDate);
+
+        if (Number.isNaN(dateValue?.getTime?.())) {
+          return null;
+        }
+
+        return {
+          date: dateValue,
+          score: point.score,
+          completion: point.completion || point.score * 0.9,
+          points: point.points || Math.floor(point.score * 5),
+          hours: point.hours || Math.floor(point.score / 10)
+        };
+      })
+      .filter(Boolean);
   }, [intern.performance_history]);
 
   const stats = useMemo(() => {
@@ -88,7 +101,7 @@ export default function PerformancePanel({ intern }) {
   const exportCSV = React.useCallback(() => {
     const headers = ['Month', 'Score', 'Completion', 'Points', 'Hours'];
     const rows = chartData.map(d => [
-      format(new Date(d.month), 'yyyy-MM'),
+      format(d.date, 'yyyy-MM'),
       d.score,
       d.completion,
       d.points,
@@ -113,7 +126,7 @@ export default function PerformancePanel({ intern }) {
     return (
       <Card className="border-border bg-surface">
         <CardContent className="p-6 text-center">
-          <p className="text-muted">No performance data available yet</p>
+          <p className="text-muted">{t("internDetails.noPerformance")}</p>
         </CardContent>
       </Card>
     );
@@ -125,7 +138,7 @@ export default function PerformancePanel({ intern }) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-primary flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
-            Performance Insights
+            {t("performance.title")}
           </CardTitle>
           <Button
             variant="outline"
@@ -134,7 +147,7 @@ export default function PerformancePanel({ intern }) {
             className="border-border"
           >
             <Download className="w-4 h-4 mr-2" />
-            Export CSV
+            {t("performance.export")}
           </Button>
         </div>
       </CardHeader>
@@ -143,7 +156,7 @@ export default function PerformancePanel({ intern }) {
           <div className="bg-surface2 rounded-xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-4 h-4 text-brand" />
-              <span className="text-xs text-muted">Current Score</span>
+              <span className="text-xs text-muted">{t("performance.currentScore")}</span>
             </div>
             <p className="text-2xl font-bold text-primary">{stats.currentScore}%</p>
           </div>
@@ -151,7 +164,7 @@ export default function PerformancePanel({ intern }) {
           <div className="bg-surface2 rounded-xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-success" />
-              <span className="text-xs text-muted">3-Mo Avg</span>
+              <span className="text-xs text-muted">{t("performance.average")}</span>
             </div>
             <p className="text-2xl font-bold text-primary">{stats.avgScore}%</p>
           </div>
@@ -159,7 +172,7 @@ export default function PerformancePanel({ intern }) {
           <div className="bg-surface2 rounded-xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Award className="w-4 h-4 text-brand2" />
-              <span className="text-xs text-muted">Completed</span>
+              <span className="text-xs text-muted">{t("performance.completed")}</span>
             </div>
             <p className="text-2xl font-bold text-primary">{stats.completedCourses}</p>
           </div>
@@ -167,7 +180,7 @@ export default function PerformancePanel({ intern }) {
           <div className="bg-surface2 rounded-xl p-4 border border-border">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-warning" />
-              <span className="text-xs text-muted">Study Hours</span>
+              <span className="text-xs text-muted">{t("performance.studyHours")}</span>
             </div>
             <p className="text-2xl font-bold text-primary">{stats.totalHours}h</p>
           </div>
@@ -185,55 +198,55 @@ export default function PerformancePanel({ intern }) {
               
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
               
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="date"
                 stroke="var(--text-muted)"
                 tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-                tickFormatter={(month) => format(new Date(month), 'MMM')}
+                tickFormatter={(value) => format(value, 'MMM')}
               />
               
-              <YAxis 
+              <YAxis
                 yAxisId="left"
                 stroke="var(--text-muted)"
                 tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
                 domain={[0, 100]}
-                label={{ value: 'Score %', angle: -90, position: 'insideLeft', fill: 'var(--text-muted)' }}
+                label={{ value: t("performance.scoreSeries"), angle: -90, position: 'insideLeft', fill: 'var(--text-muted)' }}
               />
-              
-              <YAxis 
+
+              <YAxis
                 yAxisId="right"
                 orientation="right"
                 stroke="var(--text-muted)"
                 tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-                label={{ value: 'Points', angle: 90, position: 'insideRight', fill: 'var(--text-muted)' }}
+                label={{ value: t("performance.pointsSeries"), angle: 90, position: 'insideRight', fill: 'var(--text-muted)' }}
               />
-              
-              <Tooltip content={<PerfTooltip />} />
-              
-              <Legend 
+
+              <Tooltip content={<PerfTooltip t={t} />} />
+
+              <Legend
                 wrapperStyle={{ paddingTop: '20px' }}
                 iconType="line"
               />
-              
-              <ReferenceLine 
-                yAxisId="left" 
-                y={85} 
-                stroke="var(--success)" 
+
+              <ReferenceLine
+                yAxisId="left"
+                y={85}
+                stroke="var(--success)"
                 strokeDasharray="4 4"
-                label={{ value: 'Target 85%', fill: 'var(--success)', fontSize: 12 }}
+                label={{ value: t("performance.target"), fill: 'var(--success)', fontSize: 12 }}
               />
-              
-              <Area 
+
+              <Area
                 yAxisId="left"
                 type="monotone"
                 dataKey="completion"
                 fill="url(#completionGradient)"
                 stroke="var(--brand)"
                 strokeWidth={2}
-                name="Completion %"
+                name={t("performance.completionSeries")}
               />
-              
-              <Line 
+
+              <Line
                 yAxisId="left"
                 type="monotone"
                 dataKey="score"
@@ -241,24 +254,24 @@ export default function PerformancePanel({ intern }) {
                 strokeWidth={2}
                 dot={{ fill: 'var(--brand-2)', r: 4 }}
                 activeDot={{ r: 6 }}
-                name="Score %"
+                name={t("performance.scoreSeries")}
               />
-              
-              <Bar 
+
+              <Bar
                 yAxisId="right"
                 dataKey="points"
                 fill="var(--brand-2)"
                 opacity={0.6}
                 barSize={12}
-                name="Points"
+                name={t("performance.pointsSeries")}
               />
               
-              <Brush 
-                dataKey="month"
+              <Brush
+                dataKey="date"
                 height={20}
                 stroke="var(--brand)"
                 fill="var(--surface-2)"
-                tickFormatter={(month) => format(new Date(month), 'MMM')}
+                tickFormatter={(value) => format(value, 'MMM')}
               />
             </ComposedChart>
           </ResponsiveContainer>

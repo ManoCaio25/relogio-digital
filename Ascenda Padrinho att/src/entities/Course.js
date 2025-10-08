@@ -1,7 +1,9 @@
 import { createEntityStore } from './store';
-import { courses as initialCourses } from './data';
+import { courses as initialCourses, seedDataVersion } from './data';
 
-const store = createEntityStore('ascenda_courses', initialCourses);
+const store = createEntityStore('ascenda_courses', initialCourses, {
+  version: seedDataVersion,
+});
 
 export const Course = {
   list(sort, limit) {
