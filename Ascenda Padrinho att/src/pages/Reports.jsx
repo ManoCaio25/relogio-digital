@@ -8,11 +8,13 @@ import { Download } from "lucide-react";
 import { motion } from "framer-motion";
 import TeamPerformanceChart from "../components/reports/TeamPerformanceChart";
 import TaskCompletionChart from "../components/reports/TaskCompletionChart";
+import { useTranslation } from "../i18n";
 
 export default function Reports() {
   const [interns, setInterns] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [courses, setCourses] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadData();
@@ -29,9 +31,9 @@ export default function Reports() {
     setCourses(coursesData);
   };
 
-  const performanceData = interns.slice(0, 10).map(intern => ({
-    name: intern.full_name?.split(' ')[0] || 'Unknown',
-    points: intern.points || 0
+  const performanceData = interns.slice(0, 10).map((intern) => ({
+    name: intern.full_name?.split(" ")[0] || t("common.misc.unknown"),
+    points: intern.points || 0,
   }));
 
   const taskStatusData = [
@@ -76,16 +78,18 @@ export default function Reports() {
         >
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
-              Reports & Analytics
+              {t('reports.title', 'Reports & Analytics')}
             </h1>
-            <p className="text-muted">Insights into your team's performance and progress</p>
+            <p className="text-muted">
+              {t('reports.subtitle', "Insights into your team's performance and progress")}
+            </p>
           </div>
           <Button
             onClick={downloadReport}
             className="bg-brand hover:bg-brand/90 text-white"
           >
             <Download className="w-4 h-4 mr-2" />
-            Export Report
+            {t('reports.export', 'Export Report')}
           </Button>
         </motion.div>
 
@@ -93,7 +97,7 @@ export default function Reports() {
           <Card className="border-border bg-surface shadow-e1">
             <CardHeader>
               <CardTitle className="text-primary">
-                Team Performance (Top 10)
+                {t('reports.charts.teamPerformance', 'Team Performance (Top 10)')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -106,7 +110,7 @@ export default function Reports() {
           <Card className="border-border bg-surface shadow-e1">
             <CardHeader>
               <CardTitle className="text-primary">
-                Task Distribution
+                {t('reports.charts.taskDistribution', 'Task Distribution')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -120,25 +124,25 @@ export default function Reports() {
         <Card className="border-border bg-surface shadow-e1">
           <CardHeader>
             <CardTitle className="text-primary">
-              Key Metrics Summary
+              {t('reports.metrics.title', 'Key Metrics Summary')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center p-4 bg-surface2 rounded-xl border border-border">
-                <p className="text-sm text-muted mb-2">Total Interns</p>
+                <p className="text-sm text-muted mb-2">{t('reports.metrics.totalInterns', 'Total Interns')}</p>
                 <p className="text-3xl font-bold text-primary">{interns.length}</p>
               </div>
               <div className="text-center p-4 bg-surface2 rounded-xl border border-border">
-                <p className="text-sm text-muted mb-2">Active Tasks</p>
+                <p className="text-sm text-muted mb-2">{t('reports.metrics.activeTasks', 'Active Tasks')}</p>
                 <p className="text-3xl font-bold text-primary">{tasks.length}</p>
               </div>
               <div className="text-center p-4 bg-surface2 rounded-xl border border-border">
-                <p className="text-sm text-muted mb-2">Available Courses</p>
+                <p className="text-sm text-muted mb-2">{t('reports.metrics.availableCourses', 'Available Courses')}</p>
                 <p className="text-3xl font-bold text-primary">{courses.length}</p>
               </div>
               <div className="text-center p-4 bg-surface2 rounded-xl border border-border">
-                <p className="text-sm text-muted mb-2">Avg. Points</p>
+                <p className="text-sm text-muted mb-2">{t('reports.metrics.avgPoints', 'Avg. Points')}</p>
                 <p className="text-3xl font-bold text-primary">
                   {interns.length > 0 ? Math.round(interns.reduce((sum, i) => sum + i.points, 0) / interns.length) : 0}
                 </p>

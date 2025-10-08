@@ -1,11 +1,14 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { useTranslation } from "../../i18n";
 
 export default function TeamPerformanceChart({ data }) {
+  const { t } = useTranslation();
+
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-muted">
-        <p>No performance data available</p>
+        <p>{t('reports.charts.performanceEmpty', 'No performance data available')}</p>
       </div>
     );
   }
@@ -35,14 +38,14 @@ export default function TeamPerformanceChart({ data }) {
           labelStyle={{ color: 'var(--text-secondary)' }}
           cursor={{ fill: 'var(--surface-2)', opacity: 0.3 }}
         />
-        <Legend 
+        <Legend
           wrapperStyle={{ color: 'var(--text-secondary)' }}
         />
-        <Bar 
-          dataKey="points" 
-          fill="var(--brand)" 
+        <Bar
+          dataKey="points"
+          fill="var(--brand)"
           radius={[8, 8, 0, 0]}
-          name="Points"
+          name={t('reports.charts.legendPoints', 'Points')}
         />
       </BarChart>
     </ResponsiveContainer>
