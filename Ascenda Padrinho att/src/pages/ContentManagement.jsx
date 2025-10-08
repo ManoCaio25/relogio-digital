@@ -6,6 +6,15 @@ import CourseCard from "../components/content/CourseCard";
 import CourseEditModal from "../components/content/CourseEditModal";
 import PreviewDrawer from "../components/media/PreviewDrawer";
 import AssignCourseModal from "../components/courses/AssignCourseModal";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Upload } from "lucide-react";
 
 export default function ContentManagement() {
   const [courses, setCourses] = useState([]);
@@ -15,6 +24,7 @@ export default function ContentManagement() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [assigningCourse, setAssigningCourse] = useState(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const loadCourses = useCallback(async () => {
     const data = await Course.list('-created_date');
@@ -28,6 +38,7 @@ export default function ContentManagement() {
   const handleCourseCreate = useCallback(async (courseData) => {
     await Course.create(courseData);
     loadCourses();
+    setIsCreateModalOpen(false);
   }, [loadCourses]);
 
   const handleEdit = useCallback((course) => {
@@ -72,39 +83,55 @@ export default function ContentManagement() {
           <p className="text-muted">Create and manage training materials for your team</p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <CourseUploadForm 
-              onSuccess={handleCourseCreate}
-              onPreview={handleFormPreview}
-            />
-          </div>
-
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-primary">Course Library</h2>
-              <span className="text-sm text-muted">{courses.length} courses</span>
-            </div>
-
-            <div className="grid gap-6">
-              {courses.map((course, index) => (
-                <CourseCard 
-                  key={course.id} 
-                  course={course} 
-                  index={index}
-                  onEdit={handleEdit}
-                  onPreview={handlePreview}
-                  onAssign={handleAssign}
-                />
-              ))}
-            </div>
-
-            {courses.length === 0 && (
-              <div className="text-center py-12 bg-surface2 border border-border rounded-xl">
-                <p className="text-muted">No courses yet. Create your first one!</p>
+        <div className="space-y-6">
+          <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-primary">Course Library</h2>
+                <span className="text-sm text-muted">{courses.length} courses</span>
               </div>
-            )}
+              <DialogTrigger asChild>
+                <Button className="bg-brand hover:bg-brand/90 text-white">
+                  Add New Course
+                </Button>
+              </DialogTrigger>
+            </div>
+
+            <DialogContent className="max-w-2xl bg-surface border-border text-primary max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-primary">
+                  <Upload className="w-5 h-5" />
+                  Add New Course
+                </DialogTitle>
+              </DialogHeader>
+              <div className="p-6 pt-4">
+                <CourseUploadForm
+                  onSuccess={handleCourseCreate}
+                  onPreview={handleFormPreview}
+                  layout="plain"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <div className="grid gap-6">
+            {courses.map((course, index) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                index={index}
+                onEdit={handleEdit}
+                onPreview={handlePreview}
+                onAssign={handleAssign}
+              />
+            ))}
           </div>
+
+          {courses.length === 0 && (
+            <div className="text-center py-12 bg-surface2 border border-border rounded-xl">
+              <p className="text-muted">No courses yet. Create your first one!</p>
+            </div>
+          )}
         </div>
 
         <CourseEditModal
@@ -126,6 +153,7 @@ export default function ContentManagement() {
           onClose={() => setIsAssignModalOpen(false)}
           onSuccess={handleAssignSuccess}
         />
+
       </div>
     </div>
   );
