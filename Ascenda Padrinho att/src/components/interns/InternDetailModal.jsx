@@ -9,9 +9,32 @@ import Avatar from "../ui/Avatar";
 import { Calendar, Trophy, Target, CalendarCheck } from "lucide-react";
 import { format } from "date-fns";
 import { getDaysLeft, getDaysLeftBadgeColor } from "../utils/dates";
+import { getLevelLabel, getTrackLabel } from "@/utils/labels";
+import { useTranslation } from "@/i18n";
 
 export default function InternDetailModal({ intern, isOpen, onClose }) {
   const [tasks, setTasks] = React.useState([]);
+  const { t } = useTranslation();
+  const levelLabels = React.useMemo(
+    () => ({
+      "Novice": getLevelLabel("Novice", t, "Novice"),
+      "Apprentice": getLevelLabel("Apprentice", t, "Apprentice"),
+      "Journeyman": getLevelLabel("Journeyman", t, "Journeyman"),
+      "Expert": getLevelLabel("Expert", t, "Expert"),
+      "Master": getLevelLabel("Master", t, "Master"),
+    }),
+    [t]
+  );
+
+  const trackLabel = React.useMemo(
+    () =>
+      getTrackLabel(
+        intern?.track,
+        t,
+        t('internStatus.trackFallback', 'Learning Track')
+      ),
+    [intern?.track, t]
+  );
 
   React.useEffect(() => {
     const loadTasks = async () => {
@@ -39,7 +62,7 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
           <DialogTitle className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand to-brand2 p-0.5 shrink-0">
               <div className="w-full h-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
-                <Avatar 
+                <Avatar
                   src={intern.avatar_url} 
                   alt={intern.full_name}
                   size={60}
@@ -48,14 +71,14 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
             </div>
             <div className="min-w-0">
               <h2 className="text-2xl font-bold text-primary truncate">{intern.full_name}</h2>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <Badge className="bg-surface2 text-secondary border-border">
-                  {intern.level}
-                </Badge>
-                <Badge variant="outline" className="text-muted">
-                  {intern.track}
-                </Badge>
-              </div>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <Badge className="bg-surface2 text-secondary border-border">
+                    {levelLabels[intern.level] || intern.level}
+                  </Badge>
+                  <Badge variant="outline" className="text-muted">
+                    {trackLabel}
+                  </Badge>
+                </div>
             </div>
           </DialogTitle>
         </DialogHeader>
@@ -65,7 +88,7 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
             <div className="bg-surface2 border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Trophy className="w-5 h-5 text-brand2" />
-                <span className="text-sm text-muted">Total Points</span>
+                <span className="text-sm text-muted">{t("internDetails.totalPoints")}</span>
               </div>
               <p className="text-2xl font-bold text-brand2">
                 {intern.points}
@@ -75,7 +98,7 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
             <div className="bg-surface2 border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-5 h-5 text-success" />
-                <span className="text-sm text-muted">Tasks Done</span>
+                <span className="text-sm text-muted">{t("internDetails.tasksDone")}</span>
               </div>
               <p className="text-2xl font-bold text-primary">
                 {completedTasks}/{tasks.length}
@@ -85,7 +108,7 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
             <div className="bg-surface2 border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-5 h-5 text-brand" />
-                <span className="text-sm text-muted">Start Date</span>
+                <span className="text-sm text-muted">{t("internDetails.startDate")}</span>
               </div>
               <p className="text-lg font-semibold text-primary">
                 {intern.start_date ? format(new Date(intern.start_date), 'MMM d, yyyy') : 'N/A'}
@@ -95,7 +118,7 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
             <div className="bg-surface2 border border-border rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <CalendarCheck className="w-5 h-5 text-warning" />
-                <span className="text-sm text-muted">End Date</span>
+                <span className="text-sm text-muted">{t("internDetails.endDate")}</span>
               </div>
               <div>
                 <p className="text-lg font-semibold text-primary mb-1">
@@ -103,7 +126,11 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
                 </p>
                 {daysLeft !== null && daysLeftColors && (
                   <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border} text-xs`}>
-                    {daysLeft} days left
+                    {t(
+                      "internDetails.daysLeft",
+                      '{{count}} day(s) left',
+                      { count: daysLeft },
+                    )}
                   </Badge>
                 )}
               </div>
@@ -112,19 +139,19 @@ export default function InternDetailModal({ intern, isOpen, onClose }) {
 
           <Tabs defaultValue="performance" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-surface2">
-              <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="courses">Active Courses</TabsTrigger>
+              <TabsTrigger value="performance">{t("internDetails.tabs.performance")}</TabsTrigger>
+              <TabsTrigger value="courses">{t("internDetails.tabs.courses")}</TabsTrigger>
             </TabsList>
             <TabsContent value="performance" className="space-y-4 mt-4">
               <PerformancePanel intern={intern} />
-              
+
               {intern.skills && intern.skills.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-primary">Skills</h3>
+                  <h3 className="text-lg font-semibold mb-3 text-primary">{t("internDetails.skills")}</h3>
                   <div className="flex flex-wrap gap-2">
                     {intern.skills.map((skill, idx) => (
-                      <Badge 
-                        key={idx} 
+                      <Badge
+                        key={idx}
                         className="bg-surface2 text-secondary border-border"
                       >
                         {skill}

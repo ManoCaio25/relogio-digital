@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCheck, BookOpen, MessageCircle, Calendar, X, Bell } from "lucide-react";
 import { format, isToday, isThisWeek } from "date-fns";
+import { useTranslation } from "@/i18n";
 
 const NotificationIcon = ({ type }) => {
   const icons = {
@@ -20,10 +21,11 @@ const NotificationIcon = ({ type }) => {
 };
 
 function NotificationItem({ notification, onMarkRead }) {
+  const { t } = useTranslation();
   return (
     <div className={`p-4 rounded-xl border transition-all ${
-      notification.read 
-        ? 'border-border bg-surface2 opacity-70' 
+      notification.read
+        ? 'border-border bg-surface2 opacity-70'
         : 'border-brand/30 bg-brand/5'
     }`}>
       <div className="flex items-start gap-3">
@@ -51,7 +53,11 @@ function NotificationItem({ notification, onMarkRead }) {
           )}
           {notification.actor_name && (
             <p className="text-xs text-muted">
-              By {notification.actor_name}
+              {t(
+                "notifications.by",
+                'by {{name}}',
+                { name: notification.actor_name },
+              )}
             </p>
           )}
           <p className="text-xs text-muted mt-1">
@@ -63,14 +69,15 @@ function NotificationItem({ notification, onMarkRead }) {
   );
 }
 
-export default function NotificationCenter({ 
-  isOpen, 
-  onClose, 
-  notifications, 
+export default function NotificationCenter({
+  isOpen,
+  onClose,
+  notifications,
   onMarkAllRead,
   onMarkRead,
-  onRefresh 
+  onRefresh
 }) {
+  const { t } = useTranslation();
   const groupedNotifications = React.useMemo(() => {
     const groups = {
       today: [],
@@ -109,7 +116,7 @@ export default function NotificationCenter({
       <SheetContent className="w-full sm:max-w-md bg-surface border-border">
         <SheetHeader className="border-b border-border pb-4">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-primary">Notifications</SheetTitle>
+            <SheetTitle className="text-primary">{t("notifications.title")}</SheetTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -117,7 +124,7 @@ export default function NotificationCenter({
               className="text-brand hover:text-brand/80"
             >
               <CheckCheck className="w-4 h-4 mr-2" />
-              Mark all read
+              {t("notifications.markAllRead")}
             </Button>
           </div>
         </SheetHeader>
@@ -125,11 +132,11 @@ export default function NotificationCenter({
         <div className="mt-6 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)]">
           {groupedNotifications.today.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-muted mb-3">Today</h3>
+              <h3 className="text-sm font-semibold text-muted mb-3">{t("notifications.today")}</h3>
               <div className="space-y-2">
                 {groupedNotifications.today.map(notif => (
-                  <NotificationItem 
-                    key={notif.id} 
+                  <NotificationItem
+                    key={notif.id}
                     notification={notif}
                     onMarkRead={onMarkRead}
                   />
@@ -140,11 +147,11 @@ export default function NotificationCenter({
 
           {groupedNotifications.thisWeek.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-muted mb-3">This Week</h3>
+              <h3 className="text-sm font-semibold text-muted mb-3">{t("notifications.thisWeek")}</h3>
               <div className="space-y-2">
                 {groupedNotifications.thisWeek.map(notif => (
-                  <NotificationItem 
-                    key={notif.id} 
+                  <NotificationItem
+                    key={notif.id}
                     notification={notif}
                     onMarkRead={onMarkRead}
                   />
@@ -155,11 +162,11 @@ export default function NotificationCenter({
 
           {groupedNotifications.older.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-muted mb-3">Earlier</h3>
+              <h3 className="text-sm font-semibold text-muted mb-3">{t("notifications.earlier")}</h3>
               <div className="space-y-2">
                 {groupedNotifications.older.map(notif => (
-                  <NotificationItem 
-                    key={notif.id} 
+                  <NotificationItem
+                    key={notif.id}
                     notification={notif}
                     onMarkRead={onMarkRead}
                   />
@@ -171,7 +178,7 @@ export default function NotificationCenter({
           {notifications.length === 0 && (
             <div className="text-center py-12">
               <Bell className="w-12 h-12 mx-auto mb-3 text-muted opacity-30" />
-              <p className="text-muted">No notifications yet</p>
+              <p className="text-muted">{t("notifications.none")}</p>
             </div>
           )}
         </div>
