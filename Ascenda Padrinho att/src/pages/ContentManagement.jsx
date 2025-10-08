@@ -433,15 +433,11 @@ export default function ContentManagement() {
             </div>
 
             {filteredCourses.length === 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center"
-              >
+              <div className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center">
                 <p className="text-sm text-muted">
                   {t("content.empty", "No courses yet. Create your first one!")}
                 </p>
-              </motion.div>
+              </div>
             )}
           </section>
         </div>
