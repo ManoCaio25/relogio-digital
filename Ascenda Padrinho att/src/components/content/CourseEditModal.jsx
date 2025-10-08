@@ -54,7 +54,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
         description: formData.description,
         category: formData.category,
         difficulty: formData.difficulty,
-        duration_hours: parseFloat(formData.duration_hours) || 0
+        duration_hours: Math.max(0, parseFloat(formData.duration_hours) || 0)
       };
 
       if (formData.youtube_video_id) {
@@ -143,8 +143,26 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
                 id="edit-duration"
                 type="number"
                 step="0.5"
+                min="0"
+                inputMode="decimal"
                 value={formData.duration_hours}
-                onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
+                onChange={(event) => {
+                  const { value } = event.target;
+
+                  if (value === "") {
+                    setFormData({ ...formData, duration_hours: "" });
+                    return;
+                  }
+
+                  if (/^\d*\.?\d*$/.test(value)) {
+                    setFormData({ ...formData, duration_hours: value });
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (["-", "+", "e", "E"].includes(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
                 className="bg-surface2 border-border text-primary"
               />
             </div>
