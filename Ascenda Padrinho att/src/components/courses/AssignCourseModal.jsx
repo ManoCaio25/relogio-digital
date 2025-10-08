@@ -12,6 +12,8 @@ import { User } from "@/entities/User";
 import { Loader2, UserPlus, Calendar } from "lucide-react";
 import Avatar from "../ui/Avatar";
 import { eventBus, EventTypes } from "../utils/eventBus";
+import { getLevelLabel, getTrackLabel } from "@/utils/labels";
+import { useTranslation } from "@/i18n";
 
 export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }) {
   const [interns, setInterns] = useState([]);
@@ -20,6 +22,7 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
   const [notes, setNotes] = useState("");
   const [isAssigning, setIsAssigning] = useState(false);
   const [user, setUser] = useState(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadData = async () => {
@@ -73,11 +76,18 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
         const intern = interns.find(i => i.id === internId);
         await Notification.create({
           type: 'course_assigned',
-          title: 'New Course Assigned',
-          body: `"${course.title}" has been assigned to ${intern?.full_name || 'intern'}`,
+          title: t('assignModal.notificationTitle', 'New Course Assigned'),
+          body: t(
+            'assignModal.notificationBody',
+            '"{{course}}" has been assigned to {{name}}',
+            {
+              course: course.title,
+              name: intern?.full_name || t('common.misc.unknown', 'Unknown'),
+            }
+          ),
           target_id: course.id,
           target_kind: 'course',
-          actor_name: user?.full_name || 'Manager'
+          actor_name: user?.full_name || t('common.manager', 'Manager')
         });
       }
 
@@ -107,16 +117,20 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-brand" />
-            Assign "{course.title}" to Interns
+            {t(
+              "assignModal.title",
+              'Assign "{{course}}" to interns',
+              { course: course.title },
+            )}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleAssign} className="space-y-6">
           <div>
-            <Label className="text-secondary mb-3 block">Select Interns *</Label>
+            <Label className="text-secondary mb-3 block">{t("assignModal.selectInterns")}</Label>
             <div className="space-y-2 max-h-64 overflow-y-auto border border-border rounded-lg p-3 bg-surface2">
               {interns.length === 0 ? (
-                <p className="text-muted text-sm text-center py-4">No active interns available</p>
+                <p className="text-muted text-sm text-center py-4">{t("assignModal.noneAvailable")}</p>
               ) : (
                 interns.map(intern => (
                   <label
@@ -129,23 +143,36 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
                       className="border-border"
                     />
                     <Avatar src={intern.avatar_url} alt={intern.full_name} size={36} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-primary truncate">{intern.full_name}</p>
-                      <p className="text-xs text-muted">{intern.track} • {intern.level}</p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-primary truncate">{intern.full_name}</p>
+                    <p className="text-xs text-muted">
+                      {getTrackLabel(
+                        intern.track,
+                        t,
+                        t('internStatus.trackFallback', 'Learning Track')
+                      )}
+                      {' '}
+                      •{' '}
+                      {getLevelLabel(intern.level, t, intern.level)}
+                    </p>
+                  </div>
                   </label>
                 ))
               )}
             </div>
             <p className="text-xs text-muted mt-2">
-              {selectedInterns.size} intern{selectedInterns.size !== 1 ? 's' : ''} selected
+              {t(
+                "assignModal.selectedCount",
+                '{{count}} intern(s) selected',
+                { count: selectedInterns.size },
+              )}
             </p>
           </div>
 
           <div>
             <Label htmlFor="due-date" className="text-secondary flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Due Date (Optional)
+              {t("assignModal.dueDate")}
             </Label>
             <Input
               id="due-date"
@@ -158,12 +185,12 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
           </div>
 
           <div>
-            <Label htmlFor="notes" className="text-secondary">Notes (Optional)</Label>
+            <Label htmlFor="notes" className="text-secondary">{t("assignModal.notes")}</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any special instructions or context..."
+              placeholder={t("common.placeholders.notes")}
               className="bg-surface2 border-border text-primary h-24"
             />
           </div>
@@ -175,7 +202,7 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               onClick={onClose}
               className="border-border"
             >
-              Cancel
+              {t("common.actions.cancel")}
             </Button>
             <Button
               type="submit"
@@ -185,10 +212,14 @@ export default function AssignCourseModal({ course, isOpen, onClose, onSuccess }
               {isAssigning ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Assigning...
+                  {t("assignModal.assigning")}
                 </>
               ) : (
-                `Assign to ${selectedInterns.size} Intern${selectedInterns.size !== 1 ? 's' : ''}`
+                t(
+                  "assignModal.assignTo",
+                  'Assign to {{count}} intern(s)',
+                  { count: selectedInterns.size },
+                )
               )}
             </Button>
           </DialogFooter>

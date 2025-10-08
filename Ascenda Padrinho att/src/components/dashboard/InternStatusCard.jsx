@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
 import Avatar from "../ui/Avatar";
 import { getDaysLeft, getDaysLeftBadgeColor, getInternshipProgress } from "../utils/dates";
+import { getLevelLabel, getTrackLabel } from "@/utils/labels";
+import { useTranslation } from "../../i18n";
 
 const wellBeingVariants = {
   "Excellent": { icon: Smile, color: "text-success", bg: "bg-success/10" },
@@ -29,6 +31,7 @@ const wellBeingAliases = {
 };
 
 export default function InternStatusCard({ intern, onStatusToggle, index }) {
+  const { t } = useTranslation();
   const rawStatus = intern.well_being_status;
   const normalizedStatus = typeof rawStatus === "string"
     ? rawStatus.trim().toLowerCase()
@@ -52,6 +55,21 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
     value: progress,
     fill: progress > 66 ? 'var(--error)' : progress > 33 ? 'var(--warning)' : 'var(--success)'
   }], [progress]);
+
+  const trackLabel = React.useMemo(
+    () =>
+      getTrackLabel(
+        intern.track,
+        t,
+        t('internStatus.trackFallback', 'Learning Track')
+      ),
+    [intern.track, t]
+  );
+
+  const levelLabel = React.useMemo(
+    () => getLevelLabel(intern.level, t, intern.level || ''),
+    [intern.level, t]
+  );
 
   return (
     <motion.div
@@ -88,7 +106,9 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                   {intern.well_being_status && (
                     <div
                       className={`p-1.5 rounded-lg ${wellBeing.bg}`}
-                      title={`Well-being: ${canonicalStatus || intern.well_being_status || 'Unknown'}`}
+                      title={t('interns.card.progressTitle', 'Well-being: {{status}}', {
+                        status: canonicalStatus || intern.well_being_status || 'Unknown',
+                      })}
                     >
                       <WellBeingIcon className={`w-4 h-4 ${wellBeing.color}`} />
                     </div>
@@ -96,10 +116,10 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                 </div>
                 <div className="flex items-center gap-2 text-sm flex-wrap">
                   <Badge variant="outline" className="bg-surface2 text-secondary border-border">
-                    {intern.track || 'Learning Track'}
+                    {trackLabel}
                   </Badge>
                   <span className="text-muted">•</span>
-                  <span className="text-muted">{intern.level}</span>
+                  <span className="text-muted">{levelLabel}</span>
                 </div>
               </div>
 
@@ -123,10 +143,12 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
                     </ResponsiveContainer>
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs text-muted mb-1">Internship Progress</p>
+                    <p className="text-xs text-muted mb-1">
+                      {t('dashboard.status.progressLabel', 'Internship Progress')}
+                    </p>
                     <Badge className={`${daysLeftColors.bg} ${daysLeftColors.text} border ${daysLeftColors.border}`}>
                       <Calendar className="w-3 h-3 mr-1" />
-                      {daysLeft} days left
+                      {t('dashboard.status.daysLeft', '{{count}} days left', { count: daysLeft })}
                     </Badge>
                   </div>
                 </div>
@@ -134,11 +156,13 @@ export default function InternStatusCard({ intern, onStatusToggle, index }) {
 
               <div className="flex items-center justify-between pt-2 border-t border-border">
                 <Label htmlFor={`status-${intern.id}`} className="text-sm text-secondary cursor-pointer">
-                  System Status
+                  {t('dashboard.status.systemStatus', 'System Status')}
                 </Label>
                 <div className="flex items-center gap-2">
                   <span className={`text-sm font-medium ${isActive ? 'text-success' : 'text-warning'}`}>
-                    {isActive ? 'Active' : 'Paused'}
+                    {isActive
+                      ? t('dashboard.status.active', 'Active')
+                      : t('dashboard.status.paused', 'Paused')}
                   </span>
                   <Switch
                     id={`status-${intern.id}`}

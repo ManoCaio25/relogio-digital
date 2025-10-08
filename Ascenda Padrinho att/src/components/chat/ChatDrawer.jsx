@@ -4,23 +4,34 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { ChatMessage } from "@/entities/ChatMessage";
-import { format } from "date-fns";
 import { eventBus, EventTypes } from "../utils/eventBus";
+import { useLanguage, useTranslation } from "@/i18n";
 
 export default function ChatDrawer({ isOpen, onClose, intern }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+
+  const timeFormatter = React.useMemo(
+    () =>
+      new Intl.DateTimeFormat(language === "pt" ? "pt-BR" : "en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+    [language]
+  );
 
   const loadMessages = useCallback(async () => {
     if (!intern) return;
     const data = await ChatMessage.filter({ intern_id: intern.id }, '-created_date');
     setMessages(data.reverse());
     
-    const unreadMessages = data.filter(m => m.from === 'intern' && !m.read);
+    const unreadMessages = data.filter((m) => m.from === "intern" && !m.read);
     await Promise.all(
-      unreadMessages.map(m => ChatMessage.update(m.id, { read: true }))
+      unreadMessages.map((m) => ChatMessage.update(m.id, { read: true }))
     );
   }, [intern]);
 
@@ -61,7 +72,7 @@ export default function ChatDrawer({ isOpen, onClose, intern }) {
   }, [newMessage, intern, isSending, loadMessages]);
 
   const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend(e);
     }
@@ -79,7 +90,7 @@ export default function ChatDrawer({ isOpen, onClose, intern }) {
             </div>
             <div>
               <SheetTitle className="text-primary">{intern.full_name}</SheetTitle>
-              <p className="text-xs text-muted">Chat conversation</p>
+              <p className="text-xs text-muted">{t("chat.title")}</p>
             </div>
           </div>
         </SheetHeader>
@@ -88,20 +99,22 @@ export default function ChatDrawer({ isOpen, onClose, intern }) {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.from === 'manager' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.from === "manager" ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-[80%] rounded-xl p-3 ${
-                  message.from === 'manager'
-                    ? 'bg-brand text-white'
-                    : 'bg-surface2 text-primary border border-border'
+                  message.from === "manager"
+                    ? "bg-brand text-white"
+                    : "bg-surface2 text-primary border border-border"
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                 <p className={`text-xs mt-1 ${
-                  message.from === 'manager' ? 'text-white/70' : 'text-muted'
+                  message.from === "manager" ? "text-white/70" : "text-muted"
                 }`}>
-                  {format(new Date(message.created_date), 'h:mm a')}
+                  {timeFormatter.format(new Date(message.created_date))}
                 </p>
               </div>
             </div>
@@ -110,7 +123,7 @@ export default function ChatDrawer({ isOpen, onClose, intern }) {
           
           {messages.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-muted">No messages yet. Start the conversation!</p>
+              <p className="text-muted">{t("chat.empty")}</p>
             </div>
           )}
         </div>
@@ -121,7 +134,7 @@ export default function ChatDrawer({ isOpen, onClose, intern }) {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+              placeholder={t("chat.placeholder")}
               className="bg-surface2 border-border text-primary placeholder:text-muted resize-none"
               rows={2}
             />

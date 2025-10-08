@@ -1,7 +1,9 @@
 import { createEntityStore } from './store';
-import { courseAssignments as initialAssignments } from './data';
+import { courseAssignments as initialAssignments, seedDataVersion } from './data';
 
-const store = createEntityStore('ascenda_course_assignments', initialAssignments);
+const store = createEntityStore('ascenda_course_assignments', initialAssignments, {
+  version: seedDataVersion,
+});
 
 export const CourseAssignment = {
   list(sort, limit) {
