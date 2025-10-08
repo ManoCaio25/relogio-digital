@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,7 +76,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         description: formData.description,
         category: formData.category,
         difficulty: formData.difficulty,
-        duration_hours: parseFloat(formData.duration_hours) || 0,
+        duration_hours: Math.max(0, parseFloat(formData.duration_hours) || 0),
         enrolled_count: 0,
         completion_rate: 0,
         published: true
@@ -117,15 +116,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   }, [formData, file, onSuccess]);
 
   return (
-    <Card className="border-border bg-surface shadow-e1">
-      <CardHeader>
-        <CardTitle className="text-primary flex items-center gap-2">
-          <Upload className="w-5 h-5" />
-          Add New Course
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="title" className="text-secondary">Course Title *</Label>
             <Input
@@ -183,15 +174,31 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
 
             <div>
               <Label htmlFor="duration" className="text-secondary">Duration (hours)</Label>
-              <Input
-                id="duration"
-                type="number"
-                step="0.5"
-                value={formData.duration_hours}
-                onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
-                placeholder="5.5"
-                className="bg-surface2 border-border text-primary placeholder:text-muted"
-              />
+            <Input
+              id="duration"
+              type="number"
+              step="0.5"
+              min="0"
+              value={formData.duration_hours}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "") {
+                  setFormData({ ...formData, duration_hours: "" });
+                  return;
+                }
+
+                if (value === "-") {
+                  return;
+                }
+
+                const parsed = parseFloat(value);
+                if (!Number.isNaN(parsed) && parsed >= 0) {
+                  setFormData({ ...formData, duration_hours: value });
+                }
+              }}
+              placeholder="5.5"
+              className="bg-surface2 border-border text-primary placeholder:text-muted"
+            />
             </div>
           </div>
 
@@ -266,7 +273,5 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             )}
           </Button>
         </form>
-      </CardContent>
-    </Card>
   );
 }
