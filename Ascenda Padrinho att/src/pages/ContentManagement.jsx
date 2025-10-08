@@ -1,9 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Sparkles, Search, Filter, XCircle } from "lucide-react";
 
 import { Course } from "@/entities/Course";
@@ -137,18 +133,22 @@ export default function ContentManagement() {
     };
   }, [courses]);
 
-  const activeTrainingOption = useMemo(
-    () => trainingOptions.find((option) => option.value === trainingFilter),
-    [trainingOptions, trainingFilter],
+  const activeTrainingOption = trainingOptions.find(
+    (option) => option.value === trainingFilter,
   );
 
   const hasActiveFilters =
     trainingFilter !== "all" || searchTerm.trim().length > 0;
 
   return (
-    <main className="min-h-screen bg-surface/30 px-6 py-8 md:px-10">
+    <div className="min-h-screen bg-surface/30 px-6 py-8 md:px-10">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
-        <header className="space-y-2">
+        <motion.header
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-2"
+        >
           <h1 className="text-3xl font-bold text-primary md:text-4xl">
             {t("content.title", "Content Management")}
           </h1>
@@ -158,99 +158,186 @@ export default function ContentManagement() {
               "Create and manage training materials for your team",
             )}
           </p>
-        </header>
+        </motion.header>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.55fr)] xl:gap-12">
-          <aside className="space-y-6 lg:sticky lg:top-10 lg:self-start">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
             <CourseUploadForm
               onSuccess={handleCourseCreate}
               onPreview={handleFormPreview}
             />
 
-            <div className="rounded-3xl border border-border/60 bg-surface2/90 p-6 shadow-e1">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="rounded-3xl border border-border/60 bg-surface2/80 p-6 shadow-e1"
+            >
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 h-5 w-5 text-brand" />
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-primary">
-                    {t("content.tips.title", "Share engaging learning journeys")}
-                  </h2>
-                  <p className="text-sm text-muted">
+                <div>
+                  <h3 className="text-lg font-semibold text-primary">
+                    {t('content.tips.title', 'Share engaging learning journeys')}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted">
                     {t(
-                      "content.filteredCount",
-                      "{{count}} course{{suffix}} match this filter",
+                      'content.filteredCount',
+                      '{{count}} course{{suffix}} match this filter',
                       {
                         count: filteredCourses.length,
-                        suffix: filteredCourses.length === 1 ? "" : "s",
+                        suffix: filteredCourses.length === 1 ? '' : 's',
                       },
                     )}
                   </p>
                 </div>
               </div>
+              <div className="grid w-full gap-4 sm:grid-cols-3 lg:w-auto">
+                <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    {t('content.stats.totalHoursLabel', 'Catalog hours')}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-primary">
+                    {new Intl.NumberFormat().format(
+                      Math.round(courseStats.totalHours)
+                    )}
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('content.stats.totalHoursHint', 'Hours of learning available')}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    {t('content.stats.averageCompletionLabel', 'Avg. completion')}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-primary">
+                    {courseStats.averageCompletion.toFixed(0)}%
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('content.stats.averageCompletionHint', 'Across published courses')}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-border/50 bg-surface/70 p-4">
+                  <p className="text-xs uppercase tracking-wide text-muted">
+                    {t('content.stats.activeLearnersLabel', 'Active learners')}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-primary">
+                    {t('content.stats.activeLearnersValue', '{{count}}', {
+                      count: new Intl.NumberFormat().format(
+                        courseStats.activeLearners
+                      ),
+                    })}
+                  </p>
+                  <p className="text-xs text-muted">
+                    {t('content.stats.activeLearnersHint', 'Currently enrolled')}
+                  </p>
+                </div>
+              </div>
             </div>
-          </aside>
+            </div>
+          </div>
 
-          <div className="flex flex-col gap-8">
-            <section className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm">
+function LibrarySummary({
+  stats,
+  heading,
+  description,
+  caption,
+  hoursLabel,
+  hoursHint,
+  completionLabel,
+  completionHint,
+  learnersLabel,
+  learnersHint,
+}) {
+  return (
+    <section className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+            <Filter className="h-4 w-4" />
+            {heading}
+          </div>
+          <h2 className="text-2xl font-bold text-primary">{description}</h2>
+          <p className="text-sm text-muted">{caption}</p>
+        </div>
+
+          <div className="space-y-8">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm"
+            >
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-2">
                   <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
                     <Filter className="h-4 w-4" />
-                    {t("content.libraryTitle", "Course Library")}
+                    {t('content.libraryTitle', 'Course Library')}
                   </div>
                   <h2 className="text-2xl font-bold text-primary">
-                    {t(
-                      "content.librarySubtitle",
-                      "Curate and publish impactful learning",
-                    )}
+                    {t('content.librarySubtitle', 'Curate and publish impactful learning')}
                   </h2>
                   <p className="text-sm text-muted">
-                    {t("content.courseCount", "{{count}} course{{suffix}} ready for your team", {
-                      count: courses.length,
-                      suffix: courses.length === 1 ? "" : "s",
-                    })}
+                    {t(
+                      'content.courseCount',
+                      '{{count}} course{{suffix}} ready for your team',
+                      {
+                        count: courses.length,
+                        suffix: courses.length === 1 ? '' : 's',
+                      },
+                    )}
                   </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:min-w-[24rem] xl:grid-cols-3">
-                  <StatCard
-                    label={t("content.stats.totalHoursLabel", "Catalog hours")}
-                    value={new Intl.NumberFormat().format(
-                      Math.round(courseStats.totalHours),
-                    )}
-                    hint={t(
-                      "content.stats.totalHoursHint",
-                      "Hours of learning available",
-                    )}
-                  />
-                  <StatCard
-                    label={t(
-                      "content.stats.averageCompletionLabel",
-                      "Avg. completion",
-                    )}
-                    value={`${courseStats.averageCompletion.toFixed(0)}%`}
-                    hint={t(
-                      "content.stats.averageCompletionHint",
-                      "Across published courses",
-                    )}
-                  />
-                  <StatCard
-                    label={t(
-                      "content.stats.activeLearnersLabel",
-                      "Active learners",
-                    )}
-                    value={new Intl.NumberFormat().format(
-                      courseStats.activeLearners,
-                    )}
-                    hint={t(
-                      "content.stats.activeLearnersHint",
-                      "Currently enrolled",
-                    )}
-                  />
+                  <div className="rounded-2xl border border-border/50 bg-surface2/80 p-4">
+                    <p className="text-xs uppercase tracking-wide text-muted">
+                      {t('content.stats.totalHoursLabel', 'Catalog hours')}
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-primary">
+                      {new Intl.NumberFormat().format(
+                        Math.round(courseStats.totalHours)
+                      )}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {t('content.stats.totalHoursHint', 'Hours of learning available')}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-border/50 bg-surface2/80 p-4">
+                    <p className="text-xs uppercase tracking-wide text-muted">
+                      {t('content.stats.averageCompletionLabel', 'Avg. completion')}
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-primary">
+                      {courseStats.averageCompletion.toFixed(0)}%
+                    </p>
+                    <p className="text-xs text-muted">
+                      {t('content.stats.averageCompletionHint', 'Across published courses')}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-border/50 bg-surface2/80 p-4">
+                    <p className="text-xs uppercase tracking-wide text-muted">
+                      {t('content.stats.activeLearnersLabel', 'Active learners')}
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-primary">
+                      {t('content.stats.activeLearnersValue', '{{count}}', {
+                        count: new Intl.NumberFormat().format(
+                          courseStats.activeLearners
+                        ),
+                      })}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {t('content.stats.activeLearnersHint', 'Currently enrolled')}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </section>
+            </motion.div>
 
-            <section className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm"
+            >
               <div className="flex flex-col gap-6">
                 <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
                   <div className="space-y-2">
@@ -294,16 +381,15 @@ export default function ContentManagement() {
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-muted">
-                      {t("content.filters.trainingType", "Training type")}
+                      {t('content.filters.trainingType', 'Training type')}
                     </p>
                     <div
-                      role="group"
-                      aria-label={t("content.filters.trainingType", "Training type")}
                       className="mt-2 flex flex-wrap gap-2 rounded-2xl border border-border/60 bg-surface2/60 p-2"
+                      role="group"
+                      aria-label={t('content.filters.trainingType', 'Training type')}
                     >
                       {trainingOptions.map((option) => {
                         const isActive = trainingFilter === option.value;
-
                         return (
                           <button
                             key={option.value}
@@ -311,8 +397,8 @@ export default function ContentManagement() {
                             onClick={() => setTrainingFilter(option.value)}
                             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
                               isActive
-                                ? "border-brand bg-brand text-white shadow-e2"
-                                : "border-transparent bg-transparent text-secondary hover:border-brand/40 hover:bg-brand/5 hover:text-primary"
+                                ? 'border-brand bg-brand text-white shadow-e2'
+                                : 'border-transparent bg-transparent text-secondary hover:border-brand/40 hover:bg-brand/5 hover:text-primary'
                             }`}
                             aria-pressed={isActive}
                           >
@@ -325,7 +411,10 @@ export default function ContentManagement() {
 
                   <div className="flex flex-wrap items-center gap-3 text-xs text-muted">
                     <Badge className="rounded-full border border-brand/30 bg-brand/10 text-brand">
-                      {t("content.courseCount", "{{count}} course{{suffix}}", {
+                      {t(
+                        'content.courseCount',
+                      '{{count}} course{{suffix}}',
+                      {
                         count: courses.length,
                         suffix: courses.length === 1 ? "" : "s",
                       })}
@@ -333,31 +422,42 @@ export default function ContentManagement() {
                     <span>
                       {t("content.resultsCount", "Showing {{count}} course{{suffix}}", {
                         count: filteredCourses.length,
-                        suffix: filteredCourses.length === 1 ? "" : "s",
-                      })}
-                    </span>
+                        suffix: filteredCourses.length === 1 ? '' : 's',
+                      }
+                    )}
+                  </span>
                     {trainingFilter !== "all" && activeTrainingOption && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-surface2 px-3 py-1 text-xs text-secondary">
-                        {t("content.filters.activeLabel", "Filtered by")} {" "}
-                        {activeTrainingOption.label}
+                        {t('content.filters.activeLabel', 'Filtered by')} {activeTrainingOption.label}
                       </span>
                     )}
                   </div>
                 </div>
               </div>
-            </section>
+            </motion.section>
 
-            <CourseList
-              courses={filteredCourses}
-              onEdit={handleEdit}
-              onPreview={handlePreview}
-              onAssign={handleAssign}
-              emptyMessage={t(
-                "content.empty",
-                "No courses yet. Create your first one!",
-              )}
-            />
+            <div className="grid gap-6">
+              {filteredCourses.map((course, index) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  index={index}
+                  onEdit={handleEdit}
+                  onPreview={handlePreview}
+                  onAssign={handleAssign}
+                />
+              ))}
+            </div>
           </div>
+
+            {filteredCourses.length === 0 && (
+              <div className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center">
+                <p className="text-sm text-muted">
+                  {t("content.empty", "No courses yet. Create your first one!")}
+                </p>
+              </div>
+            )}
+          </section>
         </div>
       </div>
 
@@ -380,31 +480,6 @@ export default function ContentManagement() {
         onClose={() => setIsAssignModalOpen(false)}
         onSuccess={handleAssignSuccess}
       />
-    </main>
-  );
-}
-
-function CourseList({ courses, onEdit, onPreview, onAssign, emptyMessage }) {
-  if (courses.length === 0) {
-    return (
-      <div className="rounded-3xl border border-dashed border-border/60 bg-surface/60 p-12 text-center">
-        <p className="text-sm text-muted">{emptyMessage}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid gap-6">
-      {courses.map((course, index) => (
-        <CourseCard
-          key={course.id}
-          course={course}
-          index={index}
-          onEdit={onEdit}
-          onPreview={onPreview}
-          onAssign={onAssign}
-        />
-      ))}
     </div>
   );
 }
