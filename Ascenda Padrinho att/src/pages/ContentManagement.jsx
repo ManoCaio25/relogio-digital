@@ -465,7 +465,6 @@ export default function ContentManagement() {
 }
 
 /*
-=============================== RESUMO DO QUE FOI CORRIGIDO (para seu caderno) ===============================
 
 1) Tags JSX balanceadas:
    - Havia um erro “Expected corresponding JSX closing tag for <motion.div>” porque um bloco abriu com <motion.div>
