@@ -6,7 +6,6 @@ import { cn } from "@/utils";
 const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
 
 const SelectContext = React.createContext(null);
-let selectIdCounter = 0;
 const selectRegistry = new Map();
 
 function useSelectContext() {
@@ -57,10 +56,38 @@ export function Select({
   const isOpenControlled = openProp !== undefined;
   const open = isOpenControlled ? openProp : openState;
 
-  const selectIdRef = React.useRef(null);
-  if (selectIdRef.current === null) {
-    selectIdRef.current = `select-${++selectIdCounter}`;
-  }
+  const reactId = React.useId();
+  const selectId = React.useMemo(() => {
+    if (id) return id;
+    const sanitized = reactId.replace(/:/g, "");
+    return `select-${sanitized}`;
+  }, [id, reactId]);
+
+  const updateTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    updateTriggerRect();
+  }, [updateTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => updateTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [updateTriggerRect]);
 
   const updateTriggerRect = React.useCallback(() => {
     if (!triggerRef.current) return;
@@ -227,10 +254,10 @@ export function Select({
 }
 
 export const SelectTrigger = React.forwardRef(function SelectTrigger(
-  { className, children, onClick, onKeyDown, ...props },
+  { className, children, onClick, onKeyDown, id: _ignoredId, ...props },
   forwardedRef,
 ) {
-  const { open, setOpen, triggerRef, updateTriggerRect } = useSelectContext();
+  const { open, setOpen, triggerRef, updateTriggerRect, selectId } = useSelectContext();
 
   const assignRef = React.useCallback(
     (node) => {
@@ -275,6 +302,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     <button
       type="button"
       ref={assignRef}
+      id={selectId}
       data-state={open ? "open" : "closed"}
       onClick={handleToggle}
       onKeyDown={handleKeyDown}
@@ -307,6 +335,7 @@ export const SelectValue = ({ placeholder, className }) => {
 
 export function SelectContent({ className, children, position = "popper", sideOffset = 6, viewportClassName }) {
   const {
+    selectId,
     open,
     setOpen,
     triggerRef,
@@ -395,6 +424,7 @@ export function SelectContent({ className, children, position = "popper", sideOf
       )}
       data-placement={shouldOpenUpwards ? "top" : "bottom"}
       role="listbox"
+      aria-labelledby={selectId}
       tabIndex={-1}
     >
       <div className={cn("max-h-full overflow-y-auto p-1", viewportClassName)}>{children}</div>

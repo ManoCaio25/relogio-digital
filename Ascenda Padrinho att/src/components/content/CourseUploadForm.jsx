@@ -163,10 +163,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="category">{t("courseForm.categoryLabel")}</Label>
               <Select
+                id="category"
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
-                <SelectTrigger id="category">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
@@ -182,10 +183,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="difficulty">{t("courseForm.difficultyLabel")}</Label>
               <Select
+                id="difficulty"
                 value={formData.difficulty}
                 onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
               >
-                <SelectTrigger id="difficulty">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
@@ -199,10 +201,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="training-type">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
+                id="training-type"
                 value={formData.training_type}
                 onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
-                <SelectTrigger id="training-type">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
