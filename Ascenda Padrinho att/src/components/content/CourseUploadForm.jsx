@@ -128,47 +128,49 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   }, [formData, file, onSuccess]);
 
   return (
-    <Card className="border-border bg-surface shadow-e1">
-      <CardHeader>
-        <CardTitle className="text-primary flex items-center gap-2">
-          <Upload className="w-5 h-5" />
+    <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
+          <Upload className="h-5 w-5" />
           {t("content.addCourse")}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="title" className="text-secondary">{t("courseForm.titleLabel")}</Label>
+      <CardContent className="pt-0">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="title">{t("courseForm.titleLabel")}</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder={t("common.placeholders.courseTitleExample")}
               required
-              className="bg-surface2 border-border text-primary placeholder:text-muted"
             />
           </div>
 
-          <div>
-            <Label htmlFor="description" className="text-secondary">{t("courseForm.descriptionLabel")}</Label>
+          <div className="space-y-2">
+            <Label htmlFor="description">{t("courseForm.descriptionLabel")}</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder={t("common.placeholders.courseDescription")}
               required
-              className="bg-surface2 border-border text-primary placeholder:text-muted h-24"
+              className="min-h-[6rem]"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="category" className="text-secondary">{t("courseForm.categoryLabel")}</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                <SelectTrigger className="bg-surface2 border-border text-primary">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="category">{t("courseForm.categoryLabel")}</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
+                <SelectTrigger id="category">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-surface border-border">
+                <SelectContent position="popper" sideOffset={6}>
                   <SelectItem value="Technical">{t("courseForm.categories.technical")}</SelectItem>
                   <SelectItem value="Leadership">{t("courseForm.categories.leadership")}</SelectItem>
                   <SelectItem value="Communication">{t("courseForm.categories.communication")}</SelectItem>
@@ -178,13 +180,16 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="difficulty" className="text-secondary">{t("courseForm.difficultyLabel")}</Label>
-              <Select value={formData.difficulty} onValueChange={(value) => setFormData({ ...formData, difficulty: value })}>
-                <SelectTrigger className="bg-surface2 border-border text-primary">
+            <div className="space-y-2">
+              <Label htmlFor="difficulty">{t("courseForm.difficultyLabel")}</Label>
+              <Select
+                value={formData.difficulty}
+                onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
+              >
+                <SelectTrigger id="difficulty">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-surface border-border">
+                <SelectContent position="popper" sideOffset={6}>
                   <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
                   <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
                   <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
@@ -192,16 +197,16 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="training-type" className="text-secondary">{t("courseForm.trainingTypeLabel")}</Label>
+            <div className="space-y-2">
+              <Label htmlFor="training-type">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
                 value={formData.training_type}
                 onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
-                <SelectTrigger className="bg-surface2 border-border text-primary">
+                <SelectTrigger id="training-type">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-surface border-border">
+                <SelectContent position="popper" sideOffset={6}>
                   {trainingOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -211,8 +216,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="duration" className="text-secondary">{t("courseForm.durationLabel")}</Label>
+            <div className="space-y-2">
+              <Label htmlFor="duration">{t("courseForm.durationLabel")}</Label>
               <Input
                 id="duration"
                 type="number"
@@ -222,22 +227,20 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 value={formData.duration_hours}
                 onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
                 placeholder="5.5"
-                className="bg-surface2 border-border text-primary placeholder:text-muted"
               />
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="youtube" className="text-secondary flex items-center gap-2">
-              <Youtube className="w-4 h-4 text-error" />
-              {t("courseForm.youtubeLabel")}
+          <div className="space-y-2">
+            <Label htmlFor="youtube" className="flex items-center gap-2">
+              <Youtube className="h-4 w-4 text-error" />
+              <span>{t("courseForm.youtubeLabel")}</span>
             </Label>
             <Input
               id="youtube"
               value={formData.youtube_url}
               onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
               placeholder={t("common.placeholders.youtubeUrl")}
-              className="bg-surface2 border-border text-primary placeholder:text-muted"
             />
             <YouTubePreview
               url={formData.youtube_url}
@@ -245,21 +248,19 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             />
           </div>
 
-          <div>
-            <Label htmlFor="file" className="text-secondary">{t("courseForm.materialsLabel")}</Label>
-            <div className="mt-2">
-              <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:border-brand transition-colors bg-surface2">
-                <div className="text-center">
-                  <Upload className="w-8 h-8 mx-auto mb-2 text-brand" />
-                  <span className="text-sm text-muted">
-                    {file ? file.name : t("common.placeholders.uploadPrompt")}
+          <div className="space-y-2">
+            <Label htmlFor="file">{t("courseForm.materialsLabel")}</Label>
+            <div className="rounded-2xl border-2 border-dashed border-border/60 bg-surface2/70 p-4">
+              <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-transparent bg-transparent text-center transition-colors hover:border-brand/60">
+                <Upload className="h-8 w-8 text-brand" />
+                <span className="text-sm text-muted">
+                  {file ? file.name : t("common.placeholders.uploadPrompt")}
+                </span>
+                {file && (
+                  <span className="text-xs text-muted">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
                   </span>
-                  {file && (
-                    <span className="text-xs text-muted block mt-1">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  )}
-                </div>
+                )}
                 <input
                   id="file"
                   type="file"
