@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectViewport,
 } from "@/components/ui/select";
 import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
@@ -38,6 +39,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
     () => allTrainingOptions.filter(option => option.value !== "all"),
     [allTrainingOptions]
   );
+  const selectContentClassName =
+    "z-[9999] rounded-xl border border-border/60 bg-surface p-0 shadow-e3 w-[var(--radix-select-trigger-width)] min-w-[12rem]";
 
   const handleFileChange = React.useCallback(async (e) => {
     const selectedFile = e.target.files[0];

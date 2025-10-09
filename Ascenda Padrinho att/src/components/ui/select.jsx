@@ -42,6 +42,42 @@ export function Select({ value, defaultValue, onValueChange, children, className
 
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
+  const isOpenControlled = openProp !== undefined;
+  const open = isOpenControlled ? openProp : openState;
+
+  const selectIdRef = React.useRef(null);
+  if (selectIdRef.current === null) {
+    selectIdRef.current = `select-${++selectIdCounter}`;
+  }
+
+  const close = React.useCallback(() => {
+    if (!isOpenControlled) {
+      setOpenState(false);
+    }
+    onOpenChange?.(false);
+  }, [isOpenControlled, onOpenChange]);
+
+  React.useEffect(() => {
+    selectRegistry.set(selectIdRef.current, close);
+    return () => {
+      selectRegistry.delete(selectIdRef.current);
+    };
+  }, [close]);
+
+  const setOpen = React.useCallback((nextOpen) => {
+    const resolve = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
+    if (resolve) {
+      selectRegistry.forEach((closeFn, id) => {
+        if (id !== selectIdRef.current) {
+          closeFn();
+        }
+      });
+    }
+    if (!isOpenControlled) {
+      setOpenState(resolve);
+    }
+    onOpenChange?.(resolve);
+  }, [isOpenControlled, onOpenChange, open]);
 
   const selectIdRef = React.useRef(null);
   if (selectIdRef.current === null) {
