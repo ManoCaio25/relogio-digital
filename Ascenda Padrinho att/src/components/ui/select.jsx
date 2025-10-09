@@ -79,7 +79,6 @@ const getTextFromChildren = (children) => {
 };
 
 export function Select({
-  id,
   value,
   defaultValue,
   onValueChange,
@@ -112,6 +111,58 @@ export function Select({
     return `select-${sanitized}`;
   }, [id, reactId]);
 
+  const updateTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    updateTriggerRect();
+  }, [updateTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => updateTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [updateTriggerRect]);
+
+  const updateTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    updateTriggerRect();
+  }, [updateTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => updateTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [updateTriggerRect]);
+
   const close = React.useCallback(() => {
     if (!isOpenControlled) {
       setOpenState(false);
@@ -129,9 +180,9 @@ export function Select({
   const setOpen = React.useCallback(
     (nextOpen) => {
       const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
-      if (resolved && selectId) {
+      if (resolved) {
         selectRegistry.forEach((closeFn, id) => {
-          if (id !== selectId) {
+          if (id !== currentId) {
             closeFn();
           }
         });
@@ -141,7 +192,7 @@ export function Select({
       }
       onOpenChange?.(resolved);
     },
-    [isOpenControlled, onOpenChange, open, selectId],
+    [isOpenControlled, onOpenChange, open],
   );
 
   const registerOption = React.useCallback((optionValue, label) => {
@@ -177,6 +228,22 @@ export function Select({
   );
 
   React.useEffect(() => {
+    if (!open) return;
+    updateTriggerRect();
+
+    const handleResize = () => updateTriggerRect();
+    const handleScroll = () => updateTriggerRect();
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [open, updateTriggerRect]);
+
+  React.useEffect(() => {
     if (!open) {
       setHighlightedIndex(-1);
       return;
@@ -195,7 +262,6 @@ export function Select({
 
   const contextValue = React.useMemo(
     () => ({
-      selectId,
       open,
       setOpen,
       value: currentValue,
@@ -212,7 +278,6 @@ export function Select({
       optionRefs,
     }),
     [
-      selectId,
       open,
       setOpen,
       currentValue,
@@ -238,7 +303,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   { className, children, onClick, onKeyDown, id: _ignoredId, ...props },
   forwardedRef,
 ) {
-  const { open, setOpen, triggerRef, measureTriggerRect, selectId } = useSelectContext();
+  const { open, setOpen, triggerRef, updateTriggerRect, selectId } = useSelectContext();
 
   const assignRef = React.useCallback(
     (node) => {
@@ -249,17 +314,17 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         forwardedRef.current = node;
       }
       if (node) {
-        measureTriggerRect();
+        updateTriggerRect();
       }
     },
-    [forwardedRef, triggerRef, measureTriggerRect],
+    [forwardedRef, triggerRef, updateTriggerRect],
   );
 
   const handleToggle = React.useCallback(
     (event) => {
       onClick?.(event);
       if (event.defaultPrevented) return;
-      measureTriggerRect();
+      updateTriggerRect();
       setOpen((prev) => !prev);
     },
     [onClick, setOpen, measureTriggerRect],
