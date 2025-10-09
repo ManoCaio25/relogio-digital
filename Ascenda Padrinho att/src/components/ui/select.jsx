@@ -171,7 +171,7 @@ export function Select({
   }, [isOpenControlled, onOpenChange]);
 
   React.useEffect(() => {
-    selectRegistry.set(selectIdRef.current, close);
+    selectRegistry.set(selectId, close);
     return () => {
       selectRegistry.delete(selectId);
     };
@@ -369,12 +369,21 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   );
 });
 
-export const SelectValue = ({ placeholder, className }) => {
+export const SelectValue = ({ placeholder, className, children }) => {
   const { selectedLabel } = useSelectContext();
-  const hasValue = Boolean(selectedLabel);
+
+  const fallbackLabel = React.useMemo(() => {
+    if (children == null) return "";
+    return getTextFromChildren(children);
+  }, [children]);
+
+  const hasContextValue = Boolean(selectedLabel);
+  const hasFallbackValue = Boolean(fallbackLabel);
+  const content = hasContextValue ? selectedLabel : children ?? fallbackLabel;
+
   return (
-    <span className={cn("truncate", !hasValue && "text-muted", className)}>
-      {hasValue ? selectedLabel : placeholder || "Select"}
+    <span className={cn("truncate", !(hasContextValue || hasFallbackValue) && "text-muted", className)}>
+      {hasContextValue || hasFallbackValue ? content : placeholder || "Select"}
     </span>
   );
 };

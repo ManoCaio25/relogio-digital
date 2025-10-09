@@ -34,6 +34,33 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
     () => allTrainingOptions.filter(option => option.value !== "all"),
     [allTrainingOptions]
   );
+  const categoryOptions = useMemo(
+    () => [
+      { value: "Technical", label: t("courseForm.categories.technical") },
+      { value: "Leadership", label: t("courseForm.categories.leadership") },
+      { value: "Communication", label: t("courseForm.categories.communication") },
+      { value: "Design", label: t("courseForm.categories.design") },
+      { value: "Business", label: t("courseForm.categories.business") },
+    ],
+    [t],
+  );
+  const difficultyOptions = useMemo(
+    () => [
+      { value: "Beginner", label: t("courseForm.difficulties.beginner") },
+      { value: "Intermediate", label: t("courseForm.difficulties.intermediate") },
+      { value: "Advanced", label: t("courseForm.difficulties.advanced") },
+    ],
+    [t],
+  );
+  const selectedCategoryLabel = useMemo(() => {
+    return categoryOptions.find((option) => option.value === formData.category)?.label ?? "";
+  }, [categoryOptions, formData.category]);
+  const selectedDifficultyLabel = useMemo(() => {
+    return difficultyOptions.find((option) => option.value === formData.difficulty)?.label ?? "";
+  }, [difficultyOptions, formData.difficulty]);
+  const selectedTrainingLabel = useMemo(() => {
+    return trainingOptions.find((option) => option.value === formData.training_type)?.label ?? "";
+  }, [formData.training_type, trainingOptions]);
 
   useEffect(() => {
     if (course) {
