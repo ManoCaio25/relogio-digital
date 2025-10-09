@@ -29,8 +29,17 @@ const getTextFromChildren = (children) => {
     .trim();
 };
 
-export function Select({ value, defaultValue, onValueChange, children, className }) {
-  const [openState, setOpenState] = React.useState(false);
+export function Select({
+  value,
+  defaultValue,
+  onValueChange,
+  children,
+  className,
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+}) {
+  const [openState, setOpenState] = React.useState(defaultOpen);
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? null);
   const [selectedLabel, setSelectedLabel] = React.useState("");
   const [options, setOptions] = React.useState({});
@@ -42,6 +51,7 @@ export function Select({ value, defaultValue, onValueChange, children, className
 
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
+
   const isOpenControlled = openProp !== undefined;
   const open = isOpenControlled ? openProp : openState;
 
@@ -64,50 +74,23 @@ export function Select({ value, defaultValue, onValueChange, children, className
     };
   }, [close]);
 
-  const setOpen = React.useCallback((nextOpen) => {
-    const resolve = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
-    if (resolve) {
-      selectRegistry.forEach((closeFn, id) => {
-        if (id !== selectIdRef.current) {
-          closeFn();
-        }
-      });
-    }
-    if (!isOpenControlled) {
-      setOpenState(resolve);
-    }
-    onOpenChange?.(resolve);
-  }, [isOpenControlled, onOpenChange, open]);
-
-  const selectIdRef = React.useRef(null);
-  if (selectIdRef.current === null) {
-    selectIdRef.current = `select-${++selectIdCounter}`;
-  }
-
-  const close = React.useCallback(() => {
-    setOpenState(false);
-  }, []);
-
-  React.useEffect(() => {
-    selectRegistry.set(selectIdRef.current, close);
-    return () => {
-      selectRegistry.delete(selectIdRef.current);
-    };
-  }, [close]);
-
-  const setOpen = React.useCallback((nextOpen) => {
-    setOpenState((prev) => {
-      const valueToSet = typeof nextOpen === "function" ? nextOpen(prev) : nextOpen;
-      if (valueToSet) {
+  const setOpen = React.useCallback(
+    (nextOpen) => {
+      const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
+      if (resolved) {
         selectRegistry.forEach((closeFn, id) => {
           if (id !== selectIdRef.current) {
             closeFn();
           }
         });
       }
-      return valueToSet;
-    });
-  }, []);
+      if (!isOpenControlled) {
+        setOpenState(resolved);
+      }
+      onOpenChange?.(resolved);
+    },
+    [isOpenControlled, onOpenChange, open],
+  );
 
   const registerOption = React.useCallback((optionValue, label) => {
     setOptions((prev) => ({ ...prev, [optionValue]: label }));
@@ -157,7 +140,7 @@ export function Select({ value, defaultValue, onValueChange, children, className
   );
 
   React.useEffect(() => {
-    if (!openState) return;
+    if (!open) return;
     updateTriggerRect();
     const handleResize = () => updateTriggerRect();
     const handleScroll = () => updateTriggerRect();
@@ -169,28 +152,28 @@ export function Select({ value, defaultValue, onValueChange, children, className
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll, true);
     };
-  }, [openState, updateTriggerRect]);
+  }, [open, updateTriggerRect]);
 
   React.useEffect(() => {
-    if (!openState) {
+    if (!open) {
       setHighlightedIndex(-1);
       return;
     }
     const currentIndex = optionOrder.indexOf(currentValue);
     setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
-  }, [openState, optionOrder, currentValue]);
+  }, [open, optionOrder, currentValue]);
 
   React.useEffect(() => {
-    if (!openState || highlightedIndex < 0) return;
+    if (!open || highlightedIndex < 0) return;
     const valueAtIndex = optionOrder[highlightedIndex];
     if (!valueAtIndex) return;
     const node = optionRefs.current.get(valueAtIndex);
     node?.focus();
-  }, [openState, highlightedIndex, optionOrder]);
+  }, [open, highlightedIndex, optionOrder]);
 
   const contextValue = React.useMemo(
     () => ({
-      open: openState,
+      open,
       setOpen,
       value: currentValue,
       selectedLabel,
@@ -206,7 +189,7 @@ export function Select({ value, defaultValue, onValueChange, children, className
       optionRefs,
     }),
     [
-      openState,
+      open,
       setOpen,
       currentValue,
       selectedLabel,
