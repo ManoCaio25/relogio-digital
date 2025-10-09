@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/utils";
 
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+
 const SelectContext = React.createContext(null);
 let selectIdCounter = 0;
 const selectRegistry = new Map();
@@ -60,6 +62,32 @@ export function Select({
     selectIdRef.current = `select-${++selectIdCounter}`;
   }
 
+  const updateTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    updateTriggerRect();
+  }, [updateTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => updateTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [updateTriggerRect]);
+
   const close = React.useCallback(() => {
     if (!isOpenControlled) {
       setOpenState(false);
@@ -79,7 +107,7 @@ export function Select({
       const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
       if (resolved) {
         selectRegistry.forEach((closeFn, id) => {
-          if (id !== selectIdRef.current) {
+          if (id !== currentId) {
             closeFn();
           }
         });
@@ -114,19 +142,6 @@ export function Select({
     }
   }, [currentValue, options]);
 
-  const updateTriggerRect = React.useCallback(() => {
-    if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    setTriggerRect({
-      top: rect.top,
-      left: rect.left,
-      width: rect.width,
-      height: rect.height,
-      right: rect.right,
-      bottom: rect.bottom,
-    });
-  }, []);
-
   const selectValue = React.useCallback(
     (nextValue, label) => {
       if (!isControlled) {
@@ -142,6 +157,7 @@ export function Select({
   React.useEffect(() => {
     if (!open) return;
     updateTriggerRect();
+
     const handleResize = () => updateTriggerRect();
     const handleScroll = () => updateTriggerRect();
 
@@ -224,13 +240,17 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       } else if (forwardedRef) {
         forwardedRef.current = node;
       }
+      if (node) {
+        updateTriggerRect();
+      }
     },
-    [forwardedRef, triggerRef],
+    [forwardedRef, triggerRef, updateTriggerRect],
   );
 
   const handleToggle = React.useCallback(
     (event) => {
       onClick?.(event);
+      if (event.defaultPrevented) return;
       updateTriggerRect();
       setOpen((prev) => !prev);
     },
@@ -266,8 +286,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       aria-expanded={open}
       {...props}
     >
-      <div className="flex flex-1 items-center gap-2 overflow-hidden">{children}</div>
-      <ChevronDown className="ml-2 h-4 w-4 text-muted" aria-hidden="true" />
+      <div className="flex flex-1 items-center gap-2 overflow-hidden text-left">{children}</div>
+      <ChevronDown
+        className={cn("ml-2 h-4 w-4 text-muted transition-transform duration-200", open && "rotate-180")}
+        aria-hidden="true"
+      />
     </button>
   );
 });
@@ -291,7 +314,6 @@ export function SelectContent({ className, children, position = "popper", sideOf
     highlightedIndex,
     setHighlightedIndex,
     optionOrder,
-    optionRefs,
   } = useSelectContext();
 
   const contentRef = React.useRef(null);
@@ -354,13 +376,12 @@ export function SelectContent({ className, children, position = "popper", sideOf
   const maxAvailable = Math.min(Math.max(availableSpaceRaw, 160), maxViewportHeight);
 
   const style = {
-    top: shouldOpenUpwards
-      ? triggerRect.top + window.scrollY - sideOffset
-      : triggerRect.bottom + window.scrollY + sideOffset,
-    left: triggerRect.left + window.scrollX,
+    position: "fixed",
+    top: shouldOpenUpwards ? triggerRect.top - sideOffset : triggerRect.bottom + sideOffset,
+    left: triggerRect.left,
+    width: `${triggerRect.width}px`,
     maxHeight: `${maxAvailable}px`,
     transform: shouldOpenUpwards ? "translateY(-100%)" : undefined,
-    "--trigger-width": `${triggerRect.width}px`,
   };
 
   const content = (
@@ -368,7 +389,7 @@ export function SelectContent({ className, children, position = "popper", sideOf
       ref={contentRef}
       style={style}
       className={cn(
-        "z-[9999] w-[var(--trigger-width)] min-w-[12rem] overflow-hidden rounded-xl border border-border/60 bg-surface shadow-e3",
+        "z-[9999] overflow-hidden rounded-xl border border-border/60 bg-surface shadow-e3",
         "data-[placement=top]:origin-bottom data-[placement=bottom]:origin-top",
         className,
       )}
