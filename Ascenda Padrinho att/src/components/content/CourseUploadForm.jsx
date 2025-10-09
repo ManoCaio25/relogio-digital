@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,38 +10,78 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectViewport,
 } from "@/components/ui/select";
 import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import { useTrainingTypeOptions } from "@/utils/labels";
+
+const makeEmptySelectState = () => ({ value: "", label: "" });
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "Technical",
-    difficulty: "Beginner",
-    duration_hours: "",
-    file_url: "",
-    youtube_url: "",
-    youtube_video_id: "",
-    training_type: "webDevelopment",
-  });
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [durationHours, setDurationHours] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [youtubeVideoId, setYoutubeVideoId] = useState("");
+  const [category, setCategory] = useState(makeEmptySelectState);
+  const [difficulty, setDifficulty] = useState(makeEmptySelectState);
+  const [trainingType, setTrainingType] = useState(makeEmptySelectState);
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
   const { t } = useTranslation();
-  const allTrainingOptions = useTrainingTypeOptions(t);
-  const trainingOptions = useMemo(
-    () => allTrainingOptions.filter(option => option.value !== "all"),
-    [allTrainingOptions]
+  const categoryOptions = useMemo(
+    () => [
+      { value: "Technical", label: t("courseForm.categories.technical") },
+      { value: "Leadership", label: t("courseForm.categories.leadership") },
+      { value: "Communication", label: t("courseForm.categories.communication") },
+      { value: "Design", label: t("courseForm.categories.design") },
+      { value: "Business", label: t("courseForm.categories.business") },
+    ],
+    [t],
   );
-  const selectContentClassName =
-    "z-[9999] rounded-xl border border-border/60 bg-surface p-0 shadow-e3 w-[var(--radix-select-trigger-width)] min-w-[12rem]";
+  const difficultyOptions = useMemo(
+    () => [
+      { value: "Beginner", label: t("courseForm.difficulties.beginner") },
+      { value: "Intermediate", label: t("courseForm.difficulties.intermediate") },
+      { value: "Advanced", label: t("courseForm.difficulties.advanced") },
+    ],
+    [t],
+  );
+  const trainingOptions = useMemo(
+    () => [
+      { value: "sap", label: t("courseForm.trainingTypes.sap", "SAP") },
+      { value: "sapHr", label: t("courseForm.trainingTypes.sapHr", "HR") },
+      { value: "sapHrPmo", label: t("courseForm.trainingTypes.sapHrPmo", "PMO") },
+      { value: "webDevelopment", label: t("courseForm.trainingTypes.webDevelopment", "Web Development") },
+      { value: "google", label: t("courseForm.trainingTypes.google", "Google") },
+    ],
+    [t],
+  );
+  const handleCategoryChange = React.useCallback(
+    (nextValue) => {
+      const option = categoryOptions.find((item) => item.value === nextValue);
+      setCategory({ value: nextValue, label: option?.label ?? "" });
+    },
+    [categoryOptions],
+  );
 
+  const handleDifficultyChange = React.useCallback(
+    (nextValue) => {
+      const option = difficultyOptions.find((item) => item.value === nextValue);
+      setDifficulty({ value: nextValue, label: option?.label ?? "" });
+    },
+    [difficultyOptions],
+  );
+
+  const handleTrainingTypeChange = React.useCallback(
+    (nextValue) => {
+      const option = trainingOptions.find((item) => item.value === nextValue);
+      setTrainingType({ value: nextValue, label: option?.label ?? "" });
+    },
+    [trainingOptions],
+  );
   const handleFileChange = React.useCallback(async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -52,30 +92,35 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       file_name: selectedFile.name,
       file_mime: selectedFile.type,
       file_size: selectedFile.size,
-      title: formData.title || selectedFile.name,
-      description: formData.description
+      title: title || selectedFile.name,
+      description: description,
     };
     setPreviewData(preview);
 
     if (onPreview) {
       onPreview(preview);
     }
-  }, [formData.title, formData.description, onPreview]);
+  }, [description, onPreview, title]);
 
   const handleVideoIdChange = React.useCallback((videoId) => {
-    setFormData(prev => ({ ...prev, youtube_video_id: videoId }));
+    setYoutubeVideoId(videoId);
   }, []);
 
   const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
+    if (!category.value || !difficulty.value || !trainingType.value) {
+      console.error("Please select category, difficulty, and training type before submitting the course.");
+      return;
+    }
+
     setIsUploading(true);
 
     try {
-      let fileUrl = formData.file_url;
+      let fileUrl = "";
       let fileName = null;
       let fileMime = null;
       let fileSize = null;
-      
+
       if (file) {
         const uploadResult = await UploadFile({ file });
         fileUrl = uploadResult.file_url;
@@ -85,12 +130,12 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       }
 
       const courseData = {
-        title: formData.title,
-        description: formData.description,
-        category: formData.category,
-        difficulty: formData.difficulty,
-        training_type: formData.training_type,
-        duration_hours: parseFloat(formData.duration_hours) || 0,
+        title,
+        description,
+        category: category.value,
+        difficulty: difficulty.value,
+        training_type: trainingType.value,
+        duration_hours: parseFloat(durationHours) || 0,
         enrolled_count: 0,
         completion_rate: 0,
         published: true
@@ -103,24 +148,21 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         courseData.file_size = fileSize;
       }
 
-      if (formData.youtube_video_id) {
-        courseData.youtube_url = formData.youtube_url;
-        courseData.youtube_video_id = formData.youtube_video_id;
+      if (youtubeVideoId) {
+        courseData.youtube_url = youtubeUrl;
+        courseData.youtube_video_id = youtubeVideoId;
       }
 
       await onSuccess(courseData);
 
-      setFormData({
-        title: "",
-        description: "",
-        category: "Technical",
-        difficulty: "Beginner",
-        duration_hours: "",
-        file_url: "",
-        youtube_url: "",
-        youtube_video_id: "",
-        training_type: "webDevelopment",
-      });
+      setTitle("");
+      setDescription("");
+      setDurationHours("");
+      setYoutubeUrl("");
+      setYoutubeVideoId("");
+      setCategory(makeEmptySelectState());
+      setDifficulty(makeEmptySelectState());
+      setTrainingType(makeEmptySelectState());
       setFile(null);
       setPreviewData(null);
     } catch (error) {
@@ -128,7 +170,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
     }
 
     setIsUploading(false);
-  }, [formData, file, onSuccess]);
+  }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
     <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
@@ -144,8 +186,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <Label htmlFor="title">{t("courseForm.titleLabel")}</Label>
             <Input
               id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder={t("common.placeholders.courseTitleExample")}
               required
             />
@@ -155,8 +197,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <Label htmlFor="description">{t("courseForm.descriptionLabel")}</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder={t("common.placeholders.courseDescription")}
               required
               className="min-h-[6rem]"
@@ -167,18 +209,21 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="category">{t("courseForm.categoryLabel")}</Label>
               <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                id="category"
+                value={category.value || null}
+                onValueChange={handleCategoryChange}
               >
-                <SelectTrigger id="category">
-                  <SelectValue />
+                <SelectTrigger>
+                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select")}>
+                    {category.label}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
-                  <SelectItem value="Technical">{t("courseForm.categories.technical")}</SelectItem>
-                  <SelectItem value="Leadership">{t("courseForm.categories.leadership")}</SelectItem>
-                  <SelectItem value="Communication">{t("courseForm.categories.communication")}</SelectItem>
-                  <SelectItem value="Design">{t("courseForm.categories.design")}</SelectItem>
-                  <SelectItem value="Business">{t("courseForm.categories.business")}</SelectItem>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -186,16 +231,21 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="difficulty">{t("courseForm.difficultyLabel")}</Label>
               <Select
-                value={formData.difficulty}
-                onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
+                id="difficulty"
+                value={difficulty.value || null}
+                onValueChange={handleDifficultyChange}
               >
-                <SelectTrigger id="difficulty">
-                  <SelectValue />
+                <SelectTrigger>
+                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select")}>
+                    {difficulty.label}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
-                  <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
-                  <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
-                  <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
+                  {difficultyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -203,11 +253,14 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="training-type">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
-                value={formData.training_type}
-                onValueChange={(value) => setFormData({ ...formData, training_type: value })}
+                id="training-type"
+                value={trainingType.value || null}
+                onValueChange={handleTrainingTypeChange}
               >
-                <SelectTrigger id="training-type">
-                  <SelectValue />
+                <SelectTrigger>
+                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select")}>
+                    {trainingType.label}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {trainingOptions.map((option) => (
@@ -225,10 +278,10 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 id="duration"
                 type="number"
                 step="0.5"
-                min = "0"
-                max = "24"
-                value={formData.duration_hours}
-                onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
+                min="0"
+                max="24"
+                value={durationHours}
+                onChange={(e) => setDurationHours(e.target.value)}
                 placeholder="5.5"
               />
             </div>
@@ -241,12 +294,12 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </Label>
             <Input
               id="youtube"
-              value={formData.youtube_url}
-              onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
+              value={youtubeUrl}
+              onChange={(e) => setYoutubeUrl(e.target.value)}
               placeholder={t("common.placeholders.youtubeUrl")}
             />
             <YouTubePreview
-              url={formData.youtube_url}
+              url={youtubeUrl}
               onVideoIdChange={handleVideoIdChange}
             />
           </div>
