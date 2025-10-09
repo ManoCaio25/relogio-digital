@@ -8,6 +8,54 @@ const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayou
 const SelectContext = React.createContext(null);
 const selectRegistry = new Map();
 
+function useTriggerMeasurements(triggerRef, isListening) {
+  const [triggerRect, setTriggerRect] = React.useState(null);
+
+  const measureTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, [triggerRef]);
+
+  useIsomorphicLayoutEffect(() => {
+    measureTriggerRect();
+  }, [measureTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => measureTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [measureTriggerRect, triggerRef]);
+
+  React.useEffect(() => {
+    if (!isListening) return undefined;
+    measureTriggerRect();
+
+    const handleResize = () => measureTriggerRect();
+    const handleScroll = () => measureTriggerRect();
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [isListening, measureTriggerRect]);
+
+  return { triggerRect, measureTriggerRect };
+}
+
 function useSelectContext() {
   const context = React.useContext(SelectContext);
   if (!context) {
@@ -46,7 +94,6 @@ export function Select({
   const [options, setOptions] = React.useState({});
   const [optionOrder, setOptionOrder] = React.useState([]);
   const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
-  const [triggerRect, setTriggerRect] = React.useState(null);
   const triggerRef = React.useRef(null);
   const optionRefs = React.useRef(new Map());
 
@@ -55,6 +102,7 @@ export function Select({
 
   const isOpenControlled = openProp !== undefined;
   const open = isOpenControlled ? openProp : openState;
+  const { triggerRect, measureTriggerRect } = useTriggerMeasurements(triggerRef, open);
 
   const reactId = React.useId();
   const selectId = React.useMemo(() => {
@@ -228,7 +276,7 @@ export function Select({
       optionOrder,
       triggerRef,
       triggerRect,
-      updateTriggerRect,
+      measureTriggerRect,
       optionRefs,
     }),
     [
@@ -242,7 +290,7 @@ export function Select({
       highlightedIndex,
       optionOrder,
       triggerRect,
-      updateTriggerRect,
+      measureTriggerRect,
     ],
   );
 
@@ -281,7 +329,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       updateTriggerRect();
       setOpen((prev) => !prev);
     },
-    [onClick, setOpen, updateTriggerRect],
+    [onClick, setOpen, measureTriggerRect],
   );
 
   const handleKeyDown = React.useCallback(
@@ -291,11 +339,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       const keysToOpen = ["Enter", " ", "ArrowDown", "ArrowUp"];
       if (keysToOpen.includes(event.key)) {
         event.preventDefault();
-        updateTriggerRect();
+        measureTriggerRect();
         setOpen(true);
       }
     },
-    [onKeyDown, setOpen, updateTriggerRect],
+    [onKeyDown, setOpen, measureTriggerRect],
   );
 
   return (
