@@ -34,6 +34,33 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
     () => allTrainingOptions.filter(option => option.value !== "all"),
     [allTrainingOptions]
   );
+  const categoryOptions = useMemo(
+    () => [
+      { value: "Technical", label: t("courseForm.categories.technical") },
+      { value: "Leadership", label: t("courseForm.categories.leadership") },
+      { value: "Communication", label: t("courseForm.categories.communication") },
+      { value: "Design", label: t("courseForm.categories.design") },
+      { value: "Business", label: t("courseForm.categories.business") },
+    ],
+    [t],
+  );
+  const difficultyOptions = useMemo(
+    () => [
+      { value: "Beginner", label: t("courseForm.difficulties.beginner") },
+      { value: "Intermediate", label: t("courseForm.difficulties.intermediate") },
+      { value: "Advanced", label: t("courseForm.difficulties.advanced") },
+    ],
+    [t],
+  );
+  const selectedCategoryLabel = useMemo(() => {
+    return categoryOptions.find((option) => option.value === formData.category)?.label ?? "";
+  }, [categoryOptions, formData.category]);
+  const selectedDifficultyLabel = useMemo(() => {
+    return difficultyOptions.find((option) => option.value === formData.difficulty)?.label ?? "";
+  }, [difficultyOptions, formData.difficulty]);
+  const selectedTrainingLabel = useMemo(() => {
+    return trainingOptions.find((option) => option.value === formData.training_type)?.label ?? "";
+  }, [formData.training_type, trainingOptions]);
 
   useEffect(() => {
     if (course) {
@@ -120,30 +147,44 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
           <div className="grid grid-cols-3 gap-4 lg:grid-cols-4">
             <div>
               <Label htmlFor="edit-category" className="text-secondary">{t("courseForm.categoryLabel")}</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+              <Select
+                id="edit-category"
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
                 <SelectTrigger className="bg-surface2 border-border text-primary">
-                  <SelectValue />
+                  <SelectValue>
+                    {selectedCategoryLabel}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-border">
-                  <SelectItem value="Technical">{t("courseForm.categories.technical")}</SelectItem>
-                  <SelectItem value="Leadership">{t("courseForm.categories.leadership")}</SelectItem>
-                  <SelectItem value="Communication">{t("courseForm.categories.communication")}</SelectItem>
-                  <SelectItem value="Design">{t("courseForm.categories.design")}</SelectItem>
-                  <SelectItem value="Business">{t("courseForm.categories.business")}</SelectItem>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label htmlFor="edit-difficulty" className="text-secondary">{t("courseForm.difficultyLabel")}</Label>
-              <Select value={formData.difficulty} onValueChange={(value) => setFormData({ ...formData, difficulty: value })}>
+              <Select
+                id="edit-difficulty"
+                value={formData.difficulty}
+                onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
+              >
                 <SelectTrigger className="bg-surface2 border-border text-primary">
-                  <SelectValue />
+                  <SelectValue>
+                    {selectedDifficultyLabel}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-border">
-                  <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
-                  <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
-                  <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
+                  {difficultyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -151,11 +192,14 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
             <div>
               <Label htmlFor="edit-training-type" className="text-secondary">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
+                id="edit-training-type"
                 value={formData.training_type}
                 onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
                 <SelectTrigger className="bg-surface2 border-border text-primary">
-                  <SelectValue />
+                  <SelectValue>
+                    {selectedTrainingLabel}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-surface border-border">
                   {trainingOptions.map((option) => (
