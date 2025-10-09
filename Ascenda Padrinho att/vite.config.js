@@ -10,6 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'flag-icons': fileURLToPath(new URL('./src/styles/flag-icons', import.meta.url)),
     },
   },
 });
