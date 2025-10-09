@@ -2,8 +2,8 @@ import React from 'react';
 import { useTranslation } from '@/i18n';
 
 const options = [
-  { code: 'pt', emoji: '🇧🇷', label: 'Português' },
-  { code: 'en', emoji: '🇺🇸', label: 'English' },
+  { code: 'pt', flag: 'br', fallbackEmoji: '🇧🇷', label: 'Português' },
+  { code: 'en', flag: 'us', fallbackEmoji: '🇺🇸', label: 'English' },
 ];
 
 export default function LanguageToggle() {
@@ -26,17 +26,16 @@ export default function LanguageToggle() {
             aria-label={option.label}
             title={option.label}
           >
-            <span
-              aria-hidden="true"
-              role="img"
-              className="leading-none"
-              style={{
-                fontFamily:
-                  '"Twemoji Country Flags", "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif',
-              }}
-            >
-              {option.emoji}
-            </span>
+            {option.flag ? (
+              <span
+                aria-hidden="true"
+                className={`fi fi-${option.flag.toLowerCase()} text-[1.25rem]`}
+              />
+            ) : (
+              <span aria-hidden="true" role="img" className="text-lg leading-none">
+                {option.fallbackEmoji}
+              </span>
+            )}
           </button>
         );
       })}
