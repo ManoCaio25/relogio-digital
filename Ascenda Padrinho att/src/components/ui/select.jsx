@@ -4,13 +4,7 @@ import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/utils";
 
 const SelectContext = React.createContext(null);
-let __selectIdCounter = 0;
-
-function useStableId(prefix = "select") {
-  const rid = React.useId?.();
-  const ref = React.useRef(rid || `${prefix}-${++__selectIdCounter}`);
-  return ref.current;
-}
+let selectIdCounter = 0;
 const selectRegistry = new Map();
 
 function useSelectContext() {
@@ -35,17 +29,8 @@ const getTextFromChildren = (children) => {
     .trim();
 };
 
-export function Select({
-  value,
-  defaultValue,
-  onValueChange,
-  children,
-  className,
-  open: openProp,
-  defaultOpen,
-  onOpenChange,
-}) {
-  const [openState, setOpenState] = React.useState(defaultOpen ?? false);
+export function Select({ value, defaultValue, onValueChange, children, className }) {
+  const [openState, setOpenState] = React.useState(false);
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? null);
   const [selectedLabel, setSelectedLabel] = React.useState("");
   const [options, setOptions] = React.useState({});
@@ -60,7 +45,10 @@ export function Select({
   const isOpenControlled = openProp !== undefined;
   const open = isOpenControlled ? openProp : openState;
 
-  const selectId = useStableId();
+  const selectIdRef = React.useRef(null);
+  if (selectIdRef.current === null) {
+    selectIdRef.current = `select-${++selectIdCounter}`;
+  }
 
   const close = React.useCallback(() => {
     if (!isOpenControlled) {
@@ -70,17 +58,17 @@ export function Select({
   }, [isOpenControlled, onOpenChange]);
 
   React.useEffect(() => {
-    selectRegistry.set(selectId, close);
+    selectRegistry.set(selectIdRef.current, close);
     return () => {
-      selectRegistry.delete(selectId);
+      selectRegistry.delete(selectIdRef.current);
     };
-  }, [close, selectId]);
+  }, [close]);
 
   const setOpen = React.useCallback((nextOpen) => {
     const resolve = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
     if (resolve) {
       selectRegistry.forEach((closeFn, id) => {
-        if (id !== selectId) {
+        if (id !== selectIdRef.current) {
           closeFn();
         }
       });
@@ -89,7 +77,37 @@ export function Select({
       setOpenState(resolve);
     }
     onOpenChange?.(resolve);
-  }, [isOpenControlled, onOpenChange, open, selectId]);
+  }, [isOpenControlled, onOpenChange, open]);
+
+  const selectIdRef = React.useRef(null);
+  if (selectIdRef.current === null) {
+    selectIdRef.current = `select-${++selectIdCounter}`;
+  }
+
+  const close = React.useCallback(() => {
+    setOpenState(false);
+  }, []);
+
+  React.useEffect(() => {
+    selectRegistry.set(selectIdRef.current, close);
+    return () => {
+      selectRegistry.delete(selectIdRef.current);
+    };
+  }, [close]);
+
+  const setOpen = React.useCallback((nextOpen) => {
+    setOpenState((prev) => {
+      const valueToSet = typeof nextOpen === "function" ? nextOpen(prev) : nextOpen;
+      if (valueToSet) {
+        selectRegistry.forEach((closeFn, id) => {
+          if (id !== selectIdRef.current) {
+            closeFn();
+          }
+        });
+      }
+      return valueToSet;
+    });
+  }, []);
 
   const registerOption = React.useCallback((optionValue, label) => {
     setOptions((prev) => ({ ...prev, [optionValue]: label }));
@@ -139,7 +157,7 @@ export function Select({
   );
 
   React.useEffect(() => {
-    if (!open) return;
+    if (!openState) return;
     updateTriggerRect();
     const handleResize = () => updateTriggerRect();
     const handleScroll = () => updateTriggerRect();
@@ -151,28 +169,28 @@ export function Select({
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll, true);
     };
-  }, [open, updateTriggerRect]);
+  }, [openState, updateTriggerRect]);
 
   React.useEffect(() => {
-    if (!open) {
+    if (!openState) {
       setHighlightedIndex(-1);
       return;
     }
     const currentIndex = optionOrder.indexOf(currentValue);
     setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
-  }, [open, optionOrder, currentValue]);
+  }, [openState, optionOrder, currentValue]);
 
   React.useEffect(() => {
-    if (!open || highlightedIndex < 0) return;
+    if (!openState || highlightedIndex < 0) return;
     const valueAtIndex = optionOrder[highlightedIndex];
     if (!valueAtIndex) return;
     const node = optionRefs.current.get(valueAtIndex);
     node?.focus();
-  }, [open, highlightedIndex, optionOrder]);
+  }, [openState, highlightedIndex, optionOrder]);
 
   const contextValue = React.useMemo(
     () => ({
-      open,
+      open: openState,
       setOpen,
       value: currentValue,
       selectedLabel,
@@ -188,7 +206,7 @@ export function Select({
       optionRefs,
     }),
     [
-      open,
+      openState,
       setOpen,
       currentValue,
       selectedLabel,
@@ -281,15 +299,7 @@ export const SelectValue = ({ placeholder, className }) => {
   );
 };
 
-export function SelectContent({
-  className,
-  children,
-  position = "popper",
-  side = "bottom",
-  align = "start",
-  sideOffset = 6,
-  viewportClassName,
-}) {
+export function SelectContent({ className, children, position = "popper", sideOffset = 6, viewportClassName }) {
   const {
     open,
     setOpen,
@@ -352,12 +362,7 @@ export function SelectContent({
 
   const spaceBelow = window.innerHeight - triggerRect.bottom;
   const spaceAbove = triggerRect.top;
-  const preferTop = side === "top";
-  const preferBottom = side === "bottom";
-  const shouldOpenUpwards =
-    position === "popper"
-      ? preferTop || (preferBottom && spaceAbove > spaceBelow && spaceBelow < 200)
-      : preferTop;
+  const shouldOpenUpwards = position === "popper" && spaceAbove > spaceBelow && spaceBelow < 200;
 
   const availableSpaceRaw = shouldOpenUpwards
     ? Math.max(spaceAbove - sideOffset - 12, 0)
@@ -369,41 +374,18 @@ export function SelectContent({
     top: shouldOpenUpwards
       ? triggerRect.top + window.scrollY - sideOffset
       : triggerRect.bottom + window.scrollY + sideOffset,
-    left:
-      align === "end"
-        ? triggerRect.right + window.scrollX
-        : align === "center"
-          ? triggerRect.left + window.scrollX + triggerRect.width / 2
-          : triggerRect.left + window.scrollX,
+    left: triggerRect.left + window.scrollX,
     maxHeight: `${maxAvailable}px`,
     transform: shouldOpenUpwards ? "translateY(-100%)" : undefined,
-    transformOrigin:
-      shouldOpenUpwards && align === "end"
-        ? "top right"
-        : shouldOpenUpwards && align === "center"
-          ? "top center"
-          : shouldOpenUpwards
-            ? "top left"
-            : align === "end"
-              ? "bottom right"
-              : align === "center"
-                ? "bottom center"
-                : "bottom left",
-    "--radix-select-trigger-width": `${triggerRect.width}px`,
+    "--trigger-width": `${triggerRect.width}px`,
   };
-
-  if (align === "end") {
-    style.transform = `${shouldOpenUpwards ? "translate(-100%, -100%)" : "translateX(-100%)"}`;
-  } else if (align === "center") {
-    style.transform = `${shouldOpenUpwards ? "translate(-50%, -100%)" : "translateX(-50%)"}`;
-  }
 
   const content = (
     <div
       ref={contentRef}
       style={style}
       className={cn(
-        "z-[9999] w-[var(--radix-select-trigger-width)] min-w-[12rem] overflow-hidden rounded-xl border border-border/60 bg-surface p-0 shadow-e3",
+        "z-[9999] w-[var(--trigger-width)] min-w-[12rem] overflow-hidden rounded-xl border border-border/60 bg-surface shadow-e3",
         "data-[placement=top]:origin-bottom data-[placement=bottom]:origin-top",
         className,
       )}
@@ -411,15 +393,11 @@ export function SelectContent({
       role="listbox"
       tabIndex={-1}
     >
-      <SelectViewport className={viewportClassName}>{children}</SelectViewport>
+      <div className={cn("max-h-full overflow-y-auto p-1", viewportClassName)}>{children}</div>
     </div>
   );
 
   return createPortal(content, document.body);
-}
-
-export function SelectViewport({ className, children }) {
-  return <div className={cn("max-h-full overflow-y-auto p-1", className)}>{children}</div>;
 }
 
 export function SelectItem({ className, value, children }) {

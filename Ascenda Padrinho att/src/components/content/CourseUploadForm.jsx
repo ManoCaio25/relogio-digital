@@ -171,22 +171,14 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger id="category">
-                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select an option")} />
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent
-                  position="popper"
-                  side="bottom"
-                  align="start"
-                  sideOffset={6}
-                  className={selectContentClassName}
-                >
-                  <SelectViewport>
-                    <SelectItem value="Technical">{t("courseForm.categories.technical")}</SelectItem>
-                    <SelectItem value="Leadership">{t("courseForm.categories.leadership")}</SelectItem>
-                    <SelectItem value="Communication">{t("courseForm.categories.communication")}</SelectItem>
-                    <SelectItem value="Design">{t("courseForm.categories.design")}</SelectItem>
-                    <SelectItem value="Business">{t("courseForm.categories.business")}</SelectItem>
-                  </SelectViewport>
+                <SelectContent position="popper" sideOffset={6}>
+                  <SelectItem value="Technical">{t("courseForm.categories.technical")}</SelectItem>
+                  <SelectItem value="Leadership">{t("courseForm.categories.leadership")}</SelectItem>
+                  <SelectItem value="Communication">{t("courseForm.categories.communication")}</SelectItem>
+                  <SelectItem value="Design">{t("courseForm.categories.design")}</SelectItem>
+                  <SelectItem value="Business">{t("courseForm.categories.business")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -198,20 +190,12 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
               >
                 <SelectTrigger id="difficulty">
-                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select an option")} />
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent
-                  position="popper"
-                  side="bottom"
-                  align="start"
-                  sideOffset={6}
-                  className={selectContentClassName}
-                >
-                  <SelectViewport>
-                    <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
-                    <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
-                    <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
-                  </SelectViewport>
+                <SelectContent position="popper" sideOffset={6}>
+                  <SelectItem value="Beginner">{t("courseForm.difficulties.beginner")}</SelectItem>
+                  <SelectItem value="Intermediate">{t("courseForm.difficulties.intermediate")}</SelectItem>
+                  <SelectItem value="Advanced">{t("courseForm.difficulties.advanced")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -223,22 +207,14 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
                 <SelectTrigger id="training-type">
-                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select an option")} />
+                  <SelectValue />
                 </SelectTrigger>
-                <SelectContent
-                  position="popper"
-                  side="bottom"
-                  align="start"
-                  sideOffset={6}
-                  className={selectContentClassName}
-                >
-                  <SelectViewport>
-                    {trainingOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectViewport>
+                <SelectContent position="popper" sideOffset={6}>
+                  {trainingOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -248,9 +224,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Input
                 id="duration"
                 type="number"
-                min={0}
-                step={0.5}
-                inputMode="decimal"
+                step="0.5"
+                min = "0"
+                max = "24"
                 value={formData.duration_hours}
                 onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
                 placeholder="5.5"
