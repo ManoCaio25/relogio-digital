@@ -96,20 +96,18 @@ export function Select({
   }, [isOpenControlled, onOpenChange]);
 
   React.useEffect(() => {
-    const id = selectIdRef.current;
-    selectRegistry.set(id, close);
+    selectRegistry.set(selectIdRef.current, close);
     return () => {
-      selectRegistry.delete(id);
+      selectRegistry.delete(selectIdRef.current);
     };
   }, [close]);
 
   const setOpen = React.useCallback(
     (nextOpen) => {
       const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
-      const activeSelectId = selectIdRef.current;
-      if (resolved && activeSelectId) {
+      if (resolved) {
         selectRegistry.forEach((closeFn, id) => {
-          if (id !== activeSelectId) {
+          if (id !== currentId) {
             closeFn();
           }
         });
