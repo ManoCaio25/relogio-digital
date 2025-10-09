@@ -16,17 +16,15 @@ import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
 
-const makeEmptySelectState = () => ({ value: "", label: "" });
-
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [durationHours, setDurationHours] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [youtubeVideoId, setYoutubeVideoId] = useState("");
-  const [category, setCategory] = useState(makeEmptySelectState);
-  const [difficulty, setDifficulty] = useState(makeEmptySelectState);
-  const [trainingType, setTrainingType] = useState(makeEmptySelectState);
+  const [category, setCategory] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [trainingType, setTrainingType] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
@@ -59,29 +57,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
     ],
     [t],
   );
-  const handleCategoryChange = React.useCallback(
-    (nextValue) => {
-      const option = categoryOptions.find((item) => item.value === nextValue);
-      setCategory({ value: nextValue, label: option?.label ?? "" });
-    },
-    [categoryOptions],
-  );
-
-  const handleDifficultyChange = React.useCallback(
-    (nextValue) => {
-      const option = difficultyOptions.find((item) => item.value === nextValue);
-      setDifficulty({ value: nextValue, label: option?.label ?? "" });
-    },
-    [difficultyOptions],
-  );
-
-  const handleTrainingTypeChange = React.useCallback(
-    (nextValue) => {
-      const option = trainingOptions.find((item) => item.value === nextValue);
-      setTrainingType({ value: nextValue, label: option?.label ?? "" });
-    },
-    [trainingOptions],
-  );
   const handleFileChange = React.useCallback(async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -108,7 +83,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
 
   const handleSubmit = React.useCallback(async (e) => {
     e.preventDefault();
-    if (!category.value || !difficulty.value || !trainingType.value) {
+    if (!category || !difficulty || !trainingType) {
       console.error("Please select category, difficulty, and training type before submitting the course.");
       return;
     }
@@ -132,9 +107,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       const courseData = {
         title,
         description,
-        category: category.value,
-        difficulty: difficulty.value,
-        training_type: trainingType.value,
+        category,
+        difficulty,
+        training_type: trainingType,
         duration_hours: parseFloat(durationHours) || 0,
         enrolled_count: 0,
         completion_rate: 0,
@@ -160,9 +135,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setDurationHours("");
       setYoutubeUrl("");
       setYoutubeVideoId("");
-      setCategory(makeEmptySelectState());
-      setDifficulty(makeEmptySelectState());
-      setTrainingType(makeEmptySelectState());
+      setCategory("");
+      setDifficulty("");
+      setTrainingType("");
       setFile(null);
       setPreviewData(null);
     } catch (error) {
@@ -210,13 +185,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Label htmlFor="category">{t("courseForm.categoryLabel")}</Label>
               <Select
                 id="category"
-                value={category.value || null}
-                onValueChange={handleCategoryChange}
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select")}>
-                    {category.label}
-                  </SelectValue>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {categoryOptions.map((option) => (
@@ -232,13 +205,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Label htmlFor="difficulty">{t("courseForm.difficultyLabel")}</Label>
               <Select
                 id="difficulty"
-                value={difficulty.value || null}
-                onValueChange={handleDifficultyChange}
+                value={formData.difficulty}
+                onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select")}>
-                    {difficulty.label}
-                  </SelectValue>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {difficultyOptions.map((option) => (
@@ -254,13 +225,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Label htmlFor="training-type">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
                 id="training-type"
-                value={trainingType.value || null}
-                onValueChange={handleTrainingTypeChange}
+                value={formData.training_type}
+                onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("common.placeholders.selectOption", "Select")}>
-                    {trainingType.label}
-                  </SelectValue>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {trainingOptions.map((option) => (
@@ -278,8 +247,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 id="duration"
                 type="number"
                 step="0.5"
-                min="0"
-                max="24"
+                min = "0"
+                max = "24"
                 value={durationHours}
                 onChange={(e) => setDurationHours(e.target.value)}
                 placeholder="5.5"
