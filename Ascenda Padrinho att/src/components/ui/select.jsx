@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/utils";
 
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+
 const SelectContext = React.createContext(null);
 let selectIdCounter = 0;
 const selectRegistry = new Map();
@@ -29,8 +31,17 @@ const getTextFromChildren = (children) => {
     .trim();
 };
 
-export function Select({ value, defaultValue, onValueChange, children, className }) {
-  const [openState, setOpenState] = React.useState(false);
+export function Select({
+  value,
+  defaultValue,
+  onValueChange,
+  children,
+  className,
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+}) {
+  const [openState, setOpenState] = React.useState(defaultOpen);
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? null);
   const [selectedLabel, setSelectedLabel] = React.useState("");
   const [options, setOptions] = React.useState({});
@@ -42,6 +53,7 @@ export function Select({ value, defaultValue, onValueChange, children, className
 
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
+
   const isOpenControlled = openProp !== undefined;
   const open = isOpenControlled ? openProp : openState;
 
@@ -49,6 +61,32 @@ export function Select({ value, defaultValue, onValueChange, children, className
   if (selectIdRef.current === null) {
     selectIdRef.current = `select-${++selectIdCounter}`;
   }
+
+  const updateTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    updateTriggerRect();
+  }, [updateTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => updateTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [updateTriggerRect]);
 
   const close = React.useCallback(() => {
     if (!isOpenControlled) {
@@ -58,56 +96,31 @@ export function Select({ value, defaultValue, onValueChange, children, className
   }, [isOpenControlled, onOpenChange]);
 
   React.useEffect(() => {
-    selectRegistry.set(selectIdRef.current, close);
+    const id = selectIdRef.current;
+    selectRegistry.set(id, close);
     return () => {
-      selectRegistry.delete(selectIdRef.current);
+      selectRegistry.delete(id);
     };
   }, [close]);
 
-  const setOpen = React.useCallback((nextOpen) => {
-    const resolve = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
-    if (resolve) {
-      selectRegistry.forEach((closeFn, id) => {
-        if (id !== selectIdRef.current) {
-          closeFn();
-        }
-      });
-    }
-    if (!isOpenControlled) {
-      setOpenState(resolve);
-    }
-    onOpenChange?.(resolve);
-  }, [isOpenControlled, onOpenChange, open]);
-
-  const selectIdRef = React.useRef(null);
-  if (selectIdRef.current === null) {
-    selectIdRef.current = `select-${++selectIdCounter}`;
-  }
-
-  const close = React.useCallback(() => {
-    setOpenState(false);
-  }, []);
-
-  React.useEffect(() => {
-    selectRegistry.set(selectIdRef.current, close);
-    return () => {
-      selectRegistry.delete(selectIdRef.current);
-    };
-  }, [close]);
-
-  const setOpen = React.useCallback((nextOpen) => {
-    setOpenState((prev) => {
-      const valueToSet = typeof nextOpen === "function" ? nextOpen(prev) : nextOpen;
-      if (valueToSet) {
+  const setOpen = React.useCallback(
+    (nextOpen) => {
+      const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
+      if (resolved) {
+        const currentId = selectIdRef.current;
         selectRegistry.forEach((closeFn, id) => {
-          if (id !== selectIdRef.current) {
+          if (id !== currentId) {
             closeFn();
           }
         });
       }
-      return valueToSet;
-    });
-  }, []);
+      if (!isOpenControlled) {
+        setOpenState(resolved);
+      }
+      onOpenChange?.(resolved);
+    },
+    [isOpenControlled, onOpenChange, open],
+  );
 
   const registerOption = React.useCallback((optionValue, label) => {
     setOptions((prev) => ({ ...prev, [optionValue]: label }));
@@ -131,19 +144,6 @@ export function Select({ value, defaultValue, onValueChange, children, className
     }
   }, [currentValue, options]);
 
-  const updateTriggerRect = React.useCallback(() => {
-    if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    setTriggerRect({
-      top: rect.top,
-      left: rect.left,
-      width: rect.width,
-      height: rect.height,
-      right: rect.right,
-      bottom: rect.bottom,
-    });
-  }, []);
-
   const selectValue = React.useCallback(
     (nextValue, label) => {
       if (!isControlled) {
@@ -157,8 +157,9 @@ export function Select({ value, defaultValue, onValueChange, children, className
   );
 
   React.useEffect(() => {
-    if (!openState) return;
+    if (!open) return;
     updateTriggerRect();
+
     const handleResize = () => updateTriggerRect();
     const handleScroll = () => updateTriggerRect();
 
@@ -169,28 +170,28 @@ export function Select({ value, defaultValue, onValueChange, children, className
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll, true);
     };
-  }, [openState, updateTriggerRect]);
+  }, [open, updateTriggerRect]);
 
   React.useEffect(() => {
-    if (!openState) {
+    if (!open) {
       setHighlightedIndex(-1);
       return;
     }
     const currentIndex = optionOrder.indexOf(currentValue);
     setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
-  }, [openState, optionOrder, currentValue]);
+  }, [open, optionOrder, currentValue]);
 
   React.useEffect(() => {
-    if (!openState || highlightedIndex < 0) return;
+    if (!open || highlightedIndex < 0) return;
     const valueAtIndex = optionOrder[highlightedIndex];
     if (!valueAtIndex) return;
     const node = optionRefs.current.get(valueAtIndex);
     node?.focus();
-  }, [openState, highlightedIndex, optionOrder]);
+  }, [open, highlightedIndex, optionOrder]);
 
   const contextValue = React.useMemo(
     () => ({
-      open: openState,
+      open,
       setOpen,
       value: currentValue,
       selectedLabel,
@@ -206,7 +207,7 @@ export function Select({ value, defaultValue, onValueChange, children, className
       optionRefs,
     }),
     [
-      openState,
+      open,
       setOpen,
       currentValue,
       selectedLabel,
@@ -241,13 +242,17 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       } else if (forwardedRef) {
         forwardedRef.current = node;
       }
+      if (node) {
+        updateTriggerRect();
+      }
     },
-    [forwardedRef, triggerRef],
+    [forwardedRef, triggerRef, updateTriggerRect],
   );
 
   const handleToggle = React.useCallback(
     (event) => {
       onClick?.(event);
+      if (event.defaultPrevented) return;
       updateTriggerRect();
       setOpen((prev) => !prev);
     },
@@ -283,8 +288,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       aria-expanded={open}
       {...props}
     >
-      <div className="flex flex-1 items-center gap-2 overflow-hidden">{children}</div>
-      <ChevronDown className="ml-2 h-4 w-4 text-muted" aria-hidden="true" />
+      <div className="flex flex-1 items-center gap-2 overflow-hidden text-left">{children}</div>
+      <ChevronDown
+        className={cn("ml-2 h-4 w-4 text-muted transition-transform duration-200", open && "rotate-180")}
+        aria-hidden="true"
+      />
     </button>
   );
 });
@@ -308,7 +316,6 @@ export function SelectContent({ className, children, position = "popper", sideOf
     highlightedIndex,
     setHighlightedIndex,
     optionOrder,
-    optionRefs,
   } = useSelectContext();
 
   const contentRef = React.useRef(null);
@@ -371,13 +378,12 @@ export function SelectContent({ className, children, position = "popper", sideOf
   const maxAvailable = Math.min(Math.max(availableSpaceRaw, 160), maxViewportHeight);
 
   const style = {
-    top: shouldOpenUpwards
-      ? triggerRect.top + window.scrollY - sideOffset
-      : triggerRect.bottom + window.scrollY + sideOffset,
-    left: triggerRect.left + window.scrollX,
+    position: "fixed",
+    top: shouldOpenUpwards ? triggerRect.top - sideOffset : triggerRect.bottom + sideOffset,
+    left: triggerRect.left,
+    width: `${triggerRect.width}px`,
     maxHeight: `${maxAvailable}px`,
     transform: shouldOpenUpwards ? "translateY(-100%)" : undefined,
-    "--trigger-width": `${triggerRect.width}px`,
   };
 
   const content = (
@@ -385,7 +391,7 @@ export function SelectContent({ className, children, position = "popper", sideOf
       ref={contentRef}
       style={style}
       className={cn(
-        "z-[9999] w-[var(--trigger-width)] min-w-[12rem] overflow-hidden rounded-xl border border-border/60 bg-surface shadow-e3",
+        "z-[9999] overflow-hidden rounded-xl border border-border/60 bg-surface shadow-e3",
         "data-[placement=top]:origin-bottom data-[placement=bottom]:origin-top",
         className,
       )}
