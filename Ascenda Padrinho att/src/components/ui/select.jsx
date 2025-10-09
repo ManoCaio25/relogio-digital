@@ -173,9 +173,9 @@ export function Select({
   React.useEffect(() => {
     selectRegistry.set(selectIdRef.current, close);
     return () => {
-      selectRegistry.delete(selectIdRef.current);
+      selectRegistry.delete(selectId);
     };
-  }, [close]);
+  }, [close, selectId]);
 
   const setOpen = React.useCallback(
     (nextOpen) => {
@@ -201,18 +201,16 @@ export function Select({
   }, []);
 
   const unregisterOption = React.useCallback((optionValue) => {
-    setOptions((prev) => {
-      if (!(optionValue in prev)) return prev;
-      const next = { ...prev };
-      delete next[optionValue];
-      return next;
-    });
     setOptionOrder((prev) => prev.filter((value) => value !== optionValue));
     optionRefs.current.delete(optionValue);
   }, []);
 
   React.useEffect(() => {
-    if (currentValue != null && options[currentValue]) {
+    if (currentValue == null) {
+      setSelectedLabel("");
+      return;
+    }
+    if (Object.prototype.hasOwnProperty.call(options, currentValue)) {
       setSelectedLabel(options[currentValue]);
     }
   }, [currentValue, options]);
