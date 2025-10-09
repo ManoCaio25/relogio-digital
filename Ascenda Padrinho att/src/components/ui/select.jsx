@@ -31,7 +31,6 @@ const getTextFromChildren = (children) => {
 };
 
 export function Select({
-  id,
   value,
   defaultValue,
   onValueChange,
@@ -90,6 +89,32 @@ export function Select({
     return () => observer.disconnect();
   }, [updateTriggerRect]);
 
+  const updateTriggerRect = React.useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    setTriggerRect({
+      top: rect.top,
+      left: rect.left,
+      bottom: rect.bottom,
+      right: rect.right,
+      width: rect.width,
+      height: rect.height,
+    });
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    updateTriggerRect();
+  }, [updateTriggerRect]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
+      return undefined;
+    }
+    const observer = new ResizeObserver(() => updateTriggerRect());
+    observer.observe(triggerRef.current);
+    return () => observer.disconnect();
+  }, [updateTriggerRect]);
+
   const close = React.useCallback(() => {
     if (!isOpenControlled) {
       setOpenState(false);
@@ -98,18 +123,18 @@ export function Select({
   }, [isOpenControlled, onOpenChange]);
 
   React.useEffect(() => {
-    selectRegistry.set(selectId, close);
+    selectRegistry.set(selectIdRef.current, close);
     return () => {
-      selectRegistry.delete(selectId);
+      selectRegistry.delete(selectIdRef.current);
     };
-  }, [close, selectId]);
+  }, [close]);
 
   const setOpen = React.useCallback(
     (nextOpen) => {
       const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
-      if (resolved && selectId) {
+      if (resolved) {
         selectRegistry.forEach((closeFn, id) => {
-          if (id !== selectId) {
+          if (id !== currentId) {
             closeFn();
           }
         });
@@ -119,7 +144,7 @@ export function Select({
       }
       onOpenChange?.(resolved);
     },
-    [isOpenControlled, onOpenChange, open, selectId],
+    [isOpenControlled, onOpenChange, open],
   );
 
   const registerOption = React.useCallback((optionValue, label) => {
@@ -191,7 +216,6 @@ export function Select({
 
   const contextValue = React.useMemo(
     () => ({
-      selectId,
       open,
       setOpen,
       value: currentValue,
@@ -208,7 +232,6 @@ export function Select({
       optionRefs,
     }),
     [
-      selectId,
       open,
       setOpen,
       currentValue,
