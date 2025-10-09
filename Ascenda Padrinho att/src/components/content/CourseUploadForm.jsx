@@ -221,9 +221,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Input
                 id="duration"
                 type="number"
-                min={0}
-                step={0.5}
-                inputMode="decimal"
+                step="0.5"
+                min = "0"
+                max = "24"
                 value={formData.duration_hours}
                 onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
                 placeholder="5.5"
