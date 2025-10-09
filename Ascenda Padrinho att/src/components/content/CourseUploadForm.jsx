@@ -185,11 +185,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Label htmlFor="category">{t("courseForm.categoryLabel")}</Label>
               <Select
                 id="category"
-                value={category || undefined}
-                onValueChange={setCategory}
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {categoryOptions.map((option) => (
@@ -205,11 +205,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Label htmlFor="difficulty">{t("courseForm.difficultyLabel")}</Label>
               <Select
                 id="difficulty"
-                value={difficulty || undefined}
-                onValueChange={setDifficulty}
+                value={formData.difficulty}
+                onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {difficultyOptions.map((option) => (
@@ -225,11 +225,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               <Label htmlFor="training-type">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
                 id="training-type"
-                value={trainingType || undefined}
-                onValueChange={setTrainingType}
+                value={formData.training_type}
+                onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
                   {trainingOptions.map((option) => (
