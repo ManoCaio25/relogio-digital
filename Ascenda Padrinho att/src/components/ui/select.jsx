@@ -96,10 +96,9 @@ export function Select({
   }, [isOpenControlled, onOpenChange]);
 
   React.useEffect(() => {
-    const id = selectIdRef.current;
-    selectRegistry.set(id, close);
+    selectRegistry.set(selectIdRef.current, close);
     return () => {
-      selectRegistry.delete(id);
+      selectRegistry.delete(selectIdRef.current);
     };
   }, [close]);
 
@@ -107,7 +106,6 @@ export function Select({
     (nextOpen) => {
       const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
       if (resolved) {
-        const currentId = selectIdRef.current;
         selectRegistry.forEach((closeFn, id) => {
           if (id !== currentId) {
             closeFn();
