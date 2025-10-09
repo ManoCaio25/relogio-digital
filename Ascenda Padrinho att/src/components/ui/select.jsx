@@ -96,6 +96,7 @@ export function Select({
   const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
   const triggerRef = React.useRef(null);
   const optionRefs = React.useRef(new Map());
+  const optionLabelsRef = React.useRef(new Map());
 
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
@@ -195,10 +196,22 @@ export function Select({
     [isOpenControlled, onOpenChange, open],
   );
 
-  const registerOption = React.useCallback((optionValue, label) => {
-    setOptions((prev) => ({ ...prev, [optionValue]: label }));
-    setOptionOrder((prev) => (prev.includes(optionValue) ? prev : [...prev, optionValue]));
-  }, []);
+  const registerOption = React.useCallback(
+    (optionValue, label) => {
+      optionLabelsRef.current.set(optionValue, label);
+      setOptions((prev) => {
+        if (prev[optionValue] === label) {
+          return prev;
+        }
+        return { ...prev, [optionValue]: label };
+      });
+      setOptionOrder((prev) => (prev.includes(optionValue) ? prev : [...prev, optionValue]));
+      if (optionValue === currentValue && label) {
+        setSelectedLabel(label);
+      }
+    },
+    [currentValue],
+  );
 
   const unregisterOption = React.useCallback((optionValue) => {
     setOptionOrder((prev) => prev.filter((value) => value !== optionValue));
@@ -220,7 +233,9 @@ export function Select({
       if (!isControlled) {
         setInternalValue(nextValue);
       }
-      setSelectedLabel(label ?? options[nextValue] ?? "");
+      const resolvedLabel =
+        label ?? optionLabelsRef.current.get(nextValue) ?? options[nextValue] ?? "";
+      setSelectedLabel(resolvedLabel);
       onValueChange?.(nextValue);
       close();
     },
