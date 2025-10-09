@@ -371,6 +371,7 @@ export function SelectContent({ className, children, position = "popper", sideOf
   const maxAvailable = Math.min(Math.max(availableSpaceRaw, 160), maxViewportHeight);
 
   const style = {
+    position: "fixed",
     top: shouldOpenUpwards
       ? triggerRect.top + window.scrollY - sideOffset
       : triggerRect.bottom + window.scrollY + sideOffset,
