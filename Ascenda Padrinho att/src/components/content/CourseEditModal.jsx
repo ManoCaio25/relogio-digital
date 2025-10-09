@@ -120,7 +120,11 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
           <div className="grid grid-cols-3 gap-4 lg:grid-cols-4">
             <div>
               <Label htmlFor="edit-category" className="text-secondary">{t("courseForm.categoryLabel")}</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+              <Select
+                id="edit-category"
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
                 <SelectTrigger className="bg-surface2 border-border text-primary">
                   <SelectValue />
                 </SelectTrigger>
@@ -136,7 +140,11 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
 
             <div>
               <Label htmlFor="edit-difficulty" className="text-secondary">{t("courseForm.difficultyLabel")}</Label>
-              <Select value={formData.difficulty} onValueChange={(value) => setFormData({ ...formData, difficulty: value })}>
+              <Select
+                id="edit-difficulty"
+                value={formData.difficulty}
+                onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
+              >
                 <SelectTrigger className="bg-surface2 border-border text-primary">
                   <SelectValue />
                 </SelectTrigger>
@@ -151,6 +159,7 @@ export default function CourseEditModal({ course, isOpen, onClose, onSave }) {
             <div>
               <Label htmlFor="edit-training-type" className="text-secondary">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
+                id="edit-training-type"
                 value={formData.training_type}
                 onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >

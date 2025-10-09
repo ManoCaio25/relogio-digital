@@ -10,7 +10,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectViewport,
 } from "@/components/ui/select";
 import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
@@ -39,9 +38,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
     () => allTrainingOptions.filter(option => option.value !== "all"),
     [allTrainingOptions]
   );
-  const selectContentClassName =
-    "z-[9999] rounded-xl border border-border/60 bg-surface p-0 shadow-e3 w-[var(--radix-select-trigger-width)] min-w-[12rem]";
-
   const handleFileChange = React.useCallback(async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -167,10 +163,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="category">{t("courseForm.categoryLabel")}</Label>
               <Select
+                id="category"
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
-                <SelectTrigger id="category">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
@@ -186,10 +183,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="difficulty">{t("courseForm.difficultyLabel")}</Label>
               <Select
+                id="difficulty"
                 value={formData.difficulty}
                 onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
               >
-                <SelectTrigger id="difficulty">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
@@ -203,10 +201,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <div className="space-y-2">
               <Label htmlFor="training-type">{t("courseForm.trainingTypeLabel")}</Label>
               <Select
+                id="training-type"
                 value={formData.training_type}
                 onValueChange={(value) => setFormData({ ...formData, training_type: value })}
               >
-                <SelectTrigger id="training-type">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={6}>
