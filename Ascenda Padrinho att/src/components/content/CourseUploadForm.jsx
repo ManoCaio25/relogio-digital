@@ -161,7 +161,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
     }
 
     setIsUploading(false);
-  }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
+  }, [attachedQuiz, category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
     <>
