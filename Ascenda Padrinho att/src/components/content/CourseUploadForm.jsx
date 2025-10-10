@@ -15,6 +15,8 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
+import { QuizGeneratorModal } from "../quizzes/QuizGeneratorModal";
+import { QuizMiniPreview } from "../quizzes/QuizMiniPreview";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -28,6 +30,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
+  const [quizzes, setQuizzes] = useState(null);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -128,6 +132,17 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         courseData.youtube_video_id = youtubeVideoId;
       }
 
+      if (quizzes) {
+        courseData.quizzes = {
+          status: "draft",
+          total:
+            (quizzes?.easy?.length || 0) +
+            (quizzes?.intermediate?.length || 0) +
+            (quizzes?.advanced?.length || 0),
+          bundle: quizzes,
+        };
+      }
+
       await onSuccess(courseData);
 
       setTitle("");
@@ -140,6 +155,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setTrainingType("");
       setFile(null);
       setPreviewData(null);
+      setQuizzes(null);
     } catch (error) {
       console.error("Error uploading course:", error);
     }
@@ -148,15 +164,16 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
-    <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
-          <Upload className="h-5 w-5" />
-          {t("content.addCourse")}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
+            <Upload className="h-5 w-5" />
+            {t("content.addCourse")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">{t("courseForm.titleLabel")}</Label>
             <Input
@@ -285,6 +302,46 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </div>
           </div>
 
+          <div className="space-y-3 rounded-2xl border border-border/60 bg-surface2/70 p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h4 className="text-base font-semibold text-primary">
+                  {t("courseForm.quizzes.title", "Course Quizzes (AI)")}
+                </h4>
+                <p className="text-xs text-muted">
+                  {t(
+                    "courseForm.quizzes.helper",
+                    "Generate 20 questions (7 easy, 7 intermediate, 6 advanced) from link/files/text.",
+                  )}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsQuizModalOpen(true)}
+                className="w-full sm:w-auto"
+              >
+                {t("courseForm.quizzes.generate", "Generate quizzes (AI)")}
+              </Button>
+            </div>
+
+            {quizzes ? (
+              <div className="space-y-2">
+                <QuizMiniPreview data={quizzes} />
+                <p className="text-xs text-muted">
+                  {t(
+                    "courseForm.quizzes.savedHint",
+                    "Quizzes will be attached to the course payload. Reopen to edit or replace.",
+                  )}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs text-muted">
+                {t("courseForm.quizzes.empty", "No quizzes generated yet.")}
+              </p>
+            )}
+          </div>
+
           {previewData && (
             <Button
               type="button"
@@ -297,22 +354,35 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </Button>
           )}
 
-          <Button
-            type="submit"
-            disabled={isUploading}
-            className="w-full bg-brand hover:bg-brand/90 text-white"
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {t("common.actions.uploading")}
-              </>
-            ) : (
-              t("content.addCourse")
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <Button
+              type="submit"
+              disabled={isUploading}
+              className="w-full bg-brand hover:bg-brand/90 text-white"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t("common.actions.uploading")}
+                </>
+              ) : (
+                t("content.addCourse")
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+      {isQuizModalOpen && (
+        <QuizGeneratorModal
+          defaultYoutubeUrl={youtubeUrl}
+          defaultFiles={file ? [file] : []}
+          defaultText={description}
+          onClose={() => setIsQuizModalOpen(false)}
+          onSave={(quizJson) => {
+            setQuizzes(quizJson);
+            setIsQuizModalOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 }
