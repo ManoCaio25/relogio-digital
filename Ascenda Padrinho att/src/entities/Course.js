@@ -29,6 +29,10 @@ export const Course = {
 
   update(id, updates) {
     return store.update(id, updates);
-  }
+  },
+
+  remove(id) {
+    return store.remove(id);
+  },
 };
 

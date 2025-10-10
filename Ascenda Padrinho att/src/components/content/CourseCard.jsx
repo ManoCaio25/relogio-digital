@@ -13,13 +13,14 @@ import {
   FileText,
   UserPlus,
   Layers,
+  Trash,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { CourseAssignment } from "@/entities/CourseAssignment";
 import { useTranslation } from "@/i18n";
 import { getTrainingTypeLabel } from "@/utils/labels";
 
-export default function CourseCard({ course, index, onEdit, onPreview, onAssign }) {
+export default function CourseCard({ course, index, onEdit, onPreview, onAssign, onDelete }) {
   const [assignmentCount, setAssignmentCount] = useState(0);
   const { t } = useTranslation();
   const categoryLabels = React.useMemo(() => ({
@@ -183,7 +184,7 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
               )}
             </div>
 
-            <div className="grid gap-2 pt-1 sm:grid-cols-3">
+            <div className="grid gap-2 pt-1 sm:grid-cols-2 lg:grid-cols-4">
               <Button
                 variant="outline"
                 size="sm"
@@ -211,6 +212,17 @@ export default function CourseCard({ course, index, onEdit, onPreview, onAssign 
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   {t("courseCard.preview")}
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDelete(course)}
+                  className="h-11 justify-center rounded-xl border-error/40 bg-error/10 text-error transition-colors hover:border-error/60 hover:bg-error/15"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  {t("courseCard.delete", "Delete")}
                 </Button>
               )}
             </div>
