@@ -11,15 +11,8 @@ import { QuizMiniPreview } from "./QuizMiniPreview";
 import QuizEditor from "./QuizEditor";
 
 export function QuizGeneratorModal({ defaultYoutubeUrl, defaultFiles, defaultText, onClose, onSave }) {
-  const storage = typeof window !== "undefined" ? window.sessionStorage : null;
   const [apiProvider, setProvider] = React.useState("openai");
-  const [apiKey, setKey] = React.useState(() => {
-    try {
-      return storage?.getItem("ASCENDA_AI_KEY") || "";
-    } catch {
-      return "";
-    }
-  });
+  const [apiKey, setKey] = React.useState(sessionStorage.getItem("ASCENDA_AI_KEY") || "");
   const [youtubeUrl, setYoutubeUrl] = React.useState(defaultYoutubeUrl || "");
   const [text, setText] = React.useState(defaultText || "");
   const [localFiles, setLocalFiles] = React.useState(defaultFiles || []);
@@ -73,11 +66,7 @@ TEXT:
 
     setLoading(true);
     try {
-      try {
-        storage?.setItem("ASCENDA_AI_KEY", apiKey);
-      } catch {
-        // ignore write errors (private mode, SSR, etc.)
-      }
+      sessionStorage.setItem("ASCENDA_AI_KEY", apiKey);
       const header = youtubeUrl ? `Source: ${youtubeUrl}\n\n` : "";
       const prompt = buildPrompt(header + (text || ""));
       const json = await generateQuizJSON({ provider: apiProvider, apiKey, prompt });
