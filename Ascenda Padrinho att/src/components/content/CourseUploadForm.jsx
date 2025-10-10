@@ -15,7 +15,9 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import { AscendaIAActivitiesSection } from "../activities/AscendaIAActivitiesSection";
+import { QuizGeneratorModal } from "../quizzes/QuizGeneratorModal";
+import { QuizMiniPreview } from "../quizzes/QuizMiniPreview";
+import { AscendaIASection as AscendaIAWidget } from "../quizzes/AscendaIASection";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -29,7 +31,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
-  const [ascendaActivities, setAscendaActivities] = useState(null);
+  const [legacyQuiz, setLegacyQuiz] = useState(null);
+  const [ascendaQuiz, setAscendaQuiz] = useState(null);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -130,11 +134,20 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         courseData.youtube_video_id = youtubeVideoId;
       }
 
-      if (ascendaActivities?.items?.length) {
-        courseData.activities = {
-          status: ascendaActivities.status || "draft",
-          total: ascendaActivities.items.length,
-          bundle: ascendaActivities,
+      if (ascendaQuiz) {
+        courseData.quizzes = {
+          status: ascendaQuiz.status || "draft",
+          total: ascendaQuiz.total || ascendaQuiz.questions?.length || 0,
+          bundle: ascendaQuiz,
+        };
+      } else if (legacyQuiz) {
+        courseData.quizzes = {
+          status: "draft",
+          total:
+            (legacyQuiz?.easy?.length || 0) +
+            (legacyQuiz?.intermediate?.length || 0) +
+            (legacyQuiz?.advanced?.length || 0),
+          bundle: legacyQuiz,
         };
       }
 
@@ -150,13 +163,14 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setTrainingType("");
       setFile(null);
       setPreviewData(null);
-      setAscendaActivities(null);
+      setLegacyQuiz(null);
+      setAscendaQuiz(null);
     } catch (error) {
       console.error("Error uploading course:", error);
     }
 
     setIsUploading(false);
-  }, [ascendaActivities, category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
+  }, [ascendaQuiz, category, description, difficulty, durationHours, file, legacyQuiz, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
     <>
@@ -292,12 +306,87 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <AscendaIAActivitiesSection
-              youtubeUrl={youtubeUrl}
-              uploadedFile={file}
-              attachedActivities={ascendaActivities}
-              onAttach={setAscendaActivities}
-            />
+            <div className="space-y-3 rounded-2xl border border-border/60 bg-surface2/70 p-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h4 className="text-base font-semibold text-primary">
+                    {t("courseForm.quizzes.title", "Course Quizzes (AI)")}
+                  </h4>
+                  <p className="text-xs text-muted">
+                    {t(
+                      "courseForm.quizzes.helper",
+                      "Generate 20 questions (7 easy, 7 intermediate, 6 advanced) from link/files/text.",
+                    )}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsQuizModalOpen(true)}
+                  className="w-full sm:w-auto"
+                >
+                  {t("courseForm.quizzes.generate", "Generate quizzes (AI)")}
+                </Button>
+              </div>
+
+              {ascendaQuiz ? (
+                <div className="space-y-2 rounded-xl border border-brand/40 bg-brand/5 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-primary">
+                        {ascendaQuiz.topic} · {ascendaQuiz.questions?.length || ascendaQuiz.total || 0} {" "}
+                        {t("courseForm.quizzes.questionLabel", "questions")}
+                      </p>
+                      <p className="text-xs text-muted">
+                        {ascendaQuiz.createdBy} • {ascendaQuiz.createdAt}
+                      </p>
+                      {ascendaQuiz.assignedTo?.length ? (
+                        <p className="text-xs text-muted">
+                          {t("courseForm.quizzes.assignedLabel", "Assigned to")}: {ascendaQuiz.assignedTo.join(", ")}
+                        </p>
+                      ) : null}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setAscendaQuiz(null)}
+                    >
+                      {t("common.actions.remove", "Remove")}
+                    </Button>
+                  </div>
+                  <ul className="space-y-1 text-xs text-muted">
+                    {(ascendaQuiz.questions || []).slice(0, 3).map((question, index) => (
+                      <li key={question.id || index}>• {question.prompt}</li>
+                    ))}
+                    {(ascendaQuiz.questions?.length || 0) > 3 && (
+                      <li className="italic text-muted">
+                        {t("courseForm.quizzes.more", "…and more questions generated by AscendaIA")}
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              ) : legacyQuiz ? (
+                <div className="space-y-2">
+                  <QuizMiniPreview data={legacyQuiz} />
+                  <div className="flex items-center justify-between text-xs text-muted">
+                    <p>
+                      {t(
+                        "courseForm.quizzes.savedHint",
+                        "Quizzes will be attached to the course payload. Reopen to edit or replace.",
+                      )}
+                    </p>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setLegacyQuiz(null)}>
+                      {t("common.actions.remove", "Remove")}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-muted">
+                  {t("courseForm.quizzes.empty", "No quizzes generated yet.")}
+                </p>
+              )}
+            </div>
 
             {previewData && (
               <Button
@@ -326,8 +415,30 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               )}
             </Button>
           </form>
+          <AscendaIAWidget
+            attachedQuiz={ascendaQuiz}
+            onAttach={(quiz) => {
+              setAscendaQuiz(quiz);
+              if (quiz) {
+                setLegacyQuiz(null);
+              }
+            }}
+          />
         </CardContent>
       </Card>
+      {isQuizModalOpen && (
+        <QuizGeneratorModal
+          defaultYoutubeUrl={youtubeUrl}
+          defaultFiles={file ? [file] : []}
+          defaultText={description}
+          onClose={() => setIsQuizModalOpen(false)}
+          onSave={(quizJson) => {
+            setLegacyQuiz(quizJson);
+            setAscendaQuiz(null);
+            setIsQuizModalOpen(false);
+          }}
+        />
+      )}
     </>
   );
 }
