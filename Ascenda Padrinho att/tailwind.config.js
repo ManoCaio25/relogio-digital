@@ -17,6 +17,7 @@ export default {
         bg: withOpacityValue('--bg-rgb'),
         surface: withOpacityValue('--surface-rgb'),
         surface2: withOpacityValue('--surface-2-rgb'),
+        background: withOpacityValue('--surface-rgb'),
         primary: withOpacityValue('--text-primary-rgb'),
         secondary: withOpacityValue('--text-secondary-rgb'),
         muted: withOpacityValue('--text-muted-rgb'),

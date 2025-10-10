@@ -1,5 +1,32 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+
+const ACCENT_STYLES = {
+  sky: {
+    cardRing: "ring-sky-400/40",
+    checkbox: "text-sky-300 focus-visible:ring-sky-300/40",
+    chipBorder: "border-sky-400/40",
+    chipBg: "bg-sky-400/10",
+    chipText: "text-sky-100",
+    previewBorder: "border-sky-400/40",
+  },
+  violet: {
+    cardRing: "ring-violet-400/40",
+    checkbox: "text-violet-300 focus-visible:ring-violet-300/40",
+    chipBorder: "border-violet-400/40",
+    chipBg: "bg-violet-400/10",
+    chipText: "text-violet-100",
+    previewBorder: "border-violet-400/40",
+  },
+  fuchsia: {
+    cardRing: "ring-fuchsia-400/40",
+    checkbox: "text-fuchsia-300 focus-visible:ring-fuchsia-300/40",
+    chipBorder: "border-fuchsia-400/40",
+    chipBg: "bg-fuchsia-400/10",
+    chipText: "text-fuchsia-100",
+    previewBorder: "border-fuchsia-400/40",
+  },
+};
 
 /** ---- mock IA: generate questions per level (front-only) ---- */
 function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
@@ -31,50 +58,54 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 
 /** ---- small UI helpers ---- */
 function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
-  const ring = `ring-${color}-400/30`;
-  const focus = `focus:ring-${color}-400/40`;
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
-    <div
-      className={`flex h-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-4 shadow-sm backdrop-blur-sm ring-1 ${ring}`}
+    <motion.div
+      whileHover={{ y: -3 }}
+      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${ring} transition-all duration-200 hover:shadow-md`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
-          <h4 className="text-sm font-semibold text-white truncate" title={title}>
+          <h4 className="truncate text-sm font-semibold text-white" title={title}>
             {title}
           </h4>
-          <p className="text-sm text-white/70 break-words">{desc}</p>
+          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
         </div>
-        <label className="flex shrink-0 items-center gap-2 text-sm text-white/70">
+        <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
           <input
             type="checkbox"
             checked={checked}
             onChange={onToggle}
             className="h-4 w-4 rounded border border-white/40 bg-transparent accent-current"
+            aria-label={`Incluir nível ${title}`}
           />
-          <span className="whitespace-nowrap">Enable</span>
+          <span className="whitespace-nowrap">Incluir</span>
         </label>
       </div>
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questions</span>
-        <div className="flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questões</span>
+        <div className="flex items-center justify-center gap-3 mt-3">
           <button
             type="button"
             onClick={() => onChange(Math.max(0, (value || 0) - 1))}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 text-lg text-white transition hover:bg-white/5"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
+            aria-label={`Remover questão de nível ${title}`}
           >
             −
           </button>
           <input
             type="number"
             min={0}
-            value={value}
+            value={value ?? 0}
             onChange={(e) => onChange(Number(e.target.value))}
-            className={`w-20 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 ${focus}`}
+            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 ${focus}`}
+            aria-label={`Quantidade de questões nível ${title}`}
           />
           <button
             type="button"
             onClick={() => onChange((value || 0) + 1)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 text-lg text-white transition hover:bg-white/5"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
+            aria-label={`Adicionar questão de nível ${title}`}
           >
             +
           </button>
@@ -85,23 +116,23 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
 }
 
 function StatChip({ label, count, color = "sky" }) {
-  const border = `border-${color}-400/30`;
-  const bg = `bg-${color}-400/10`;
-  const txt = `text-${color}-300`;
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full border ${border} ${bg} px-3 py-1 text-xs ${txt}`}>
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${accent.chipBorder} ${accent.chipBg} ${accent.chipText}`}
+    >
       {label} <b className="text-white">{count}</b>
     </span>
   );
 }
 
 function PreviewCol({ label, items, color = "sky" }) {
-  const border = `border-${color}-400/30`;
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
-    <div className={`rounded-xl border ${border} p-3`}>
+    <div className={`rounded-xl border p-3 ${accent.previewBorder}`}>
       <div className="mb-2 text-sm font-semibold">{label}</div>
       <ul className="max-h-56 space-y-1 overflow-auto pr-1 text-sm text-white/70">
-        {items.length === 0 && <li className="text-white/40">No items</li>}
+        {items.length === 0 && <li className="text-white/40">Sem itens</li>}
         {items.slice(0, 8).map((q) => (
           <li key={q.id}>• {q.prompt}</li>
         ))}
@@ -118,6 +149,30 @@ export default function AscendaIASection() {
   const [counts, setCounts] = useState({ easy: 4, intermediate: 4, advanced: 2 });
   const [loading, setLoading] = useState(false);
   const [quiz, setQuiz] = useState(null);
+
+  const levels = useMemo(
+    () => [
+      {
+        code: "easy",
+        title: "Básico",
+        desc: "Vitórias rápidas e aquecimento",
+        accent: "sky",
+      },
+      {
+        code: "intermediate",
+        title: "Intermediário",
+        desc: "Raciocínio baseado em cenários",
+        accent: "violet",
+      },
+      {
+        code: "advanced",
+        title: "Avançado",
+        desc: "Profundidade estratégica e arquitetural",
+        accent: "fuchsia",
+      },
+    ],
+    []
+  );
 
   const totalRequested =
     (sel.easy ? counts.easy : 0) +
@@ -145,6 +200,11 @@ export default function AscendaIASection() {
     setLoading(false);
   };
 
+  const canGenerate =
+    !loading &&
+    totalRequested > 0 &&
+    (topic.trim().length > 0 || youtubeUrl.trim().length > 0);
+
   const save = () => {
     const key = "ascenda_quizzes";
     const list = JSON.parse(localStorage.getItem(key) || "[]");
@@ -166,26 +226,14 @@ export default function AscendaIASection() {
     alert("✅ Quiz saved locally!");
   };
 
-  const Level = ({ code, title, desc, color }) => (
-    <LevelCard
-      color={color}
-      title={title}
-      desc={desc}
-      checked={sel[code]}
-      onToggle={() => setSel((s) => ({ ...s, [code]: !s[code] }))}
-      value={counts[code]}
-      onChange={(n) => setCounts((c) => ({ ...c, [code]: n }))}
-    />
-  );
-
   return (
-    <section className="space-y-5 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
+    <section className="space-y-6 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
       {/* header */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
           <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-            Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejados.
+            Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
           </p>
         </div>
         {quiz && (
@@ -198,45 +246,50 @@ export default function AscendaIASection() {
       {/* inputs */}
       <div className="grid gap-4 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm text-white/70">
-          <span className="font-medium text-white">Tópico</span>
+          <span className="text-sm font-medium text-white">Tópico</span>
           <input
-            className="h-10 rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+            className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
             placeholder="Tópico (ex.: React, Lógica, SQL)"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
+            aria-label="Tópico do quiz"
           />
         </label>
         <label className="flex flex-col gap-2 text-sm text-white/70">
-          <span className="font-medium text-white">Link do YouTube</span>
+          <span className="text-sm font-medium text-white">Link do YouTube</span>
           <input
-            className="h-10 rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+            className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
             placeholder="Link do YouTube (opcional)"
             value={youtubeUrl}
             onChange={(e) => setYoutubeUrl(e.target.value)}
+            aria-label="Link do YouTube para referência"
           />
         </label>
       </div>
 
       {/* level cards */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Level code="easy" title="Easy" desc="Quick wins and warm-ups" color="sky" />
-        <Level code="intermediate" title="Intermediate" desc="Scenario-based reasoning" color="violet" />
-        <Level code="advanced" title="Advanced" desc="Strategic & architectural depth" color="fuchsia" />
+        <Level code="easy" title="Básico" desc="Vitórias rápidas e aquecimento" color="sky" />
+        <Level code="intermediate" title="Intermediário" desc="Raciocínio baseado em cenários" color="violet" />
+        <Level code="advanced" title="Avançado" desc="Profundidade estratégica e arquitetural" color="fuchsia" />
       </div>
 
       {/* actions */}
-      <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <span className="text-sm text-white/70 md:text-base">
-          Total requested:{" "}
-          <span className="rounded-md bg-white/10 px-2 py-0.5 text-white">{totalRequested}</span>
+      <div className="mt-8 flex flex-col items-center gap-3 text-center">
+        <span
+          className="text-sm text-white/80"
+          aria-live="polite"
+        >
+          Total solicitado:{" "}
+          <span className="rounded-md bg-white/10 px-2 py-0.5 font-semibold text-white">{totalRequested}</span>
         </span>
         <button
           type="button"
           onClick={generate}
-          disabled={loading || !topic.trim() || totalRequested === 0}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 px-4 py-2 text-sm font-medium shadow-lg shadow-fuchsia-500/10 transition hover:brightness-110 disabled:opacity-50 md:w-auto"
+          disabled={loading || !canGenerate}
+          className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500/80 via-violet-500/70 to-fuchsia-500/80 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-fuchsia-500/10 transition-all duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Gerando…" : "Gerar com AscendaIA"}
+          {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
         </button>
       </div>
 
@@ -254,43 +307,41 @@ export default function AscendaIASection() {
       {/* preview */}
       {quiz && (
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="text-sm text-white/70">
               <span className="font-semibold">{quiz.topic}</span>
-              <span className="mx-2">•</span>
-              Total of{" "}
-              <span className="font-semibold">
-                {quiz.easy.length + quiz.intermediate.length + quiz.advanced.length}
-              </span>{" "}
-              questions
+              <span className="mx-2 hidden md:inline">•</span>
+              <span className="block md:inline">
+                Total de <span className="font-semibold">{quiz.easy.length + quiz.intermediate.length + quiz.advanced.length}</span> questões
+              </span>
             </div>
-            <div className="flex gap-2">
-              <StatChip label="Easy" count={quiz.easy.length} color="sky" />
-              <StatChip label="Intermediate" count={quiz.intermediate.length} color="violet" />
-              <StatChip label="Advanced" count={quiz.advanced.length} color="fuchsia" />
+            <div className="flex flex-wrap items-center gap-2">
+              <StatChip label="Básico" count={quiz.easy.length} color="sky" />
+              <StatChip label="Intermediário" count={quiz.intermediate.length} color="violet" />
+              <StatChip label="Avançado" count={quiz.advanced.length} color="fuchsia" />
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <PreviewCol label="Easy" color="sky" items={quiz.easy} />
-            <PreviewCol label="Intermediate" color="violet" items={quiz.intermediate} />
-            <PreviewCol label="Advanced" color="fuchsia" items={quiz.advanced} />
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <PreviewCol label="Básico" color="sky" items={quiz.easy} />
+            <PreviewCol label="Intermediário" color="violet" items={quiz.intermediate} />
+            <PreviewCol label="Avançado" color="fuchsia" items={quiz.advanced} />
           </div>
 
           <div className="mt-4 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setQuiz(null)}
-              className="rounded-lg border border-white/15 px-3 py-2 text-sm hover:bg-white/5"
+              className="rounded-lg border border-white/15 px-3 py-2 text-sm transition-all duration-200 hover:bg-white/5"
             >
-              Discard
+              Descartar
             </button>
             <button
               type="button"
               onClick={save}
-              className="rounded-lg bg-emerald-500/80 px-4 py-2 text-sm font-semibold shadow-md hover:brightness-110"
+              className="rounded-lg bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-md transition-all duration-200 hover:brightness-110"
             >
-              Save quiz
+              Salvar quiz
             </button>
           </div>
         </div>
