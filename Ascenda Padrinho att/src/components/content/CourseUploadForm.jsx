@@ -15,6 +15,7 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
+import AscendaIASection from "../ascenda/AscendaIASection";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -28,6 +29,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
+  const [attachedQuiz, setAttachedQuiz] = useState(null);
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -128,6 +130,15 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         courseData.youtube_video_id = youtubeVideoId;
       }
 
+      if (attachedQuiz) {
+        courseData.quizzes = {
+          status: attachedQuiz.status || "draft",
+          total: attachedQuiz.questions?.length || attachedQuiz.total || 0,
+          bundle: attachedQuiz,
+          assignedTo: attachedQuiz.assignedTo || [],
+        };
+      }
+
       await onSuccess(courseData);
 
       setTitle("");
@@ -140,23 +151,25 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setTrainingType("");
       setFile(null);
       setPreviewData(null);
+      setAttachedQuiz(null);
     } catch (error) {
       console.error("Error uploading course:", error);
     }
 
     setIsUploading(false);
-  }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
+  }, [attachedQuiz, category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
-    <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
-          <Upload className="h-5 w-5" />
-          {t("content.addCourse")}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
+            <Upload className="h-5 w-5" />
+            {t("content.addCourse")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">{t("courseForm.titleLabel")}</Label>
             <Input
@@ -285,6 +298,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </div>
           </div>
 
+          <AscendaIASection attachedQuiz={attachedQuiz} onAttach={setAttachedQuiz} />
+
           {previewData && (
             <Button
               type="button"
@@ -297,22 +312,23 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </Button>
           )}
 
-          <Button
-            type="submit"
-            disabled={isUploading}
-            className="w-full bg-brand hover:bg-brand/90 text-white"
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                {t("common.actions.uploading")}
-              </>
-            ) : (
-              t("content.addCourse")
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <Button
+              type="submit"
+              disabled={isUploading}
+              className="w-full bg-brand hover:bg-brand/90 text-white"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {t("common.actions.uploading")}
+                </>
+              ) : (
+                t("content.addCourse")
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   );
 }
