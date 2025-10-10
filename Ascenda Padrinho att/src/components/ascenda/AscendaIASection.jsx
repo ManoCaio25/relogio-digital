@@ -1,5 +1,32 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+
+const ACCENT_STYLES = {
+  sky: {
+    cardRing: "ring-sky-400/40",
+    checkbox: "text-sky-300 focus-visible:ring-sky-300/40",
+    chipBorder: "border-sky-400/40",
+    chipBg: "bg-sky-400/10",
+    chipText: "text-sky-100",
+    previewBorder: "border-sky-400/40",
+  },
+  violet: {
+    cardRing: "ring-violet-400/40",
+    checkbox: "text-violet-300 focus-visible:ring-violet-300/40",
+    chipBorder: "border-violet-400/40",
+    chipBg: "bg-violet-400/10",
+    chipText: "text-violet-100",
+    previewBorder: "border-violet-400/40",
+  },
+  fuchsia: {
+    cardRing: "ring-fuchsia-400/40",
+    checkbox: "text-fuchsia-300 focus-visible:ring-fuchsia-300/40",
+    chipBorder: "border-fuchsia-400/40",
+    chipBg: "bg-fuchsia-400/10",
+    chipText: "text-fuchsia-100",
+    previewBorder: "border-fuchsia-400/40",
+  },
+};
 
 /** ---- mock IA: generate questions per level (front-only) ---- */
 function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
@@ -31,8 +58,7 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 
 /** ---- small UI helpers ---- */
 function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
-  const ring = `ring-${color}-400/30`;
-  const focus = `focus:ring-${color}-400/40`;
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -90,20 +116,20 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
 }
 
 function StatChip({ label, count, color = "sky" }) {
-  const border = `border-${color}-400/30`;
-  const bg = `bg-${color}-400/10`;
-  const txt = `text-${color}-300`;
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full border ${border} ${bg} px-3 py-1 text-xs ${txt}`}>
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${accent.chipBorder} ${accent.chipBg} ${accent.chipText}`}
+    >
       {label} <b className="text-white">{count}</b>
     </span>
   );
 }
 
 function PreviewCol({ label, items, color = "sky" }) {
-  const border = `border-${color}-400/30`;
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
-    <div className={`rounded-xl border ${border} p-3`}>
+    <div className={`rounded-xl border p-3 ${accent.previewBorder}`}>
       <div className="mb-2 text-sm font-semibold">{label}</div>
       <ul className="max-h-56 space-y-1 overflow-auto pr-1 text-sm text-white/70">
         {items.length === 0 && <li className="text-white/40">Sem itens</li>}
@@ -123,6 +149,30 @@ export default function AscendaIASection() {
   const [counts, setCounts] = useState({ easy: 4, intermediate: 4, advanced: 2 });
   const [loading, setLoading] = useState(false);
   const [quiz, setQuiz] = useState(null);
+
+  const levels = useMemo(
+    () => [
+      {
+        code: "easy",
+        title: "Básico",
+        desc: "Vitórias rápidas e aquecimento",
+        accent: "sky",
+      },
+      {
+        code: "intermediate",
+        title: "Intermediário",
+        desc: "Raciocínio baseado em cenários",
+        accent: "violet",
+      },
+      {
+        code: "advanced",
+        title: "Avançado",
+        desc: "Profundidade estratégica e arquitetural",
+        accent: "fuchsia",
+      },
+    ],
+    []
+  );
 
   const totalRequested =
     (sel.easy ? counts.easy : 0) +
@@ -175,18 +225,6 @@ export default function AscendaIASection() {
     localStorage.setItem(key, JSON.stringify(list));
     alert("✅ Quiz saved locally!");
   };
-
-  const Level = ({ code, title, desc, color }) => (
-    <LevelCard
-      color={color}
-      title={title}
-      desc={desc}
-      checked={sel[code]}
-      onToggle={() => setSel((s) => ({ ...s, [code]: !s[code] }))}
-      value={counts[code]}
-      onChange={(n) => setCounts((c) => ({ ...c, [code]: n }))}
-    />
-  );
 
   return (
     <section className="space-y-6 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
