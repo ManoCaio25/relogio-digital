@@ -145,6 +145,11 @@ export default function AscendaIASection() {
     setLoading(false);
   };
 
+  const canGenerate =
+    !loading &&
+    totalRequested > 0 &&
+    (topic.trim().length > 0 || youtubeUrl.trim().length > 0);
+
   const save = () => {
     const key = "ascenda_quizzes";
     const list = JSON.parse(localStorage.getItem(key) || "[]");
