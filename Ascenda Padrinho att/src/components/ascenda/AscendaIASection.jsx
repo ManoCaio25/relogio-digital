@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 const ACCENT_STYLES = {
   sky: {
@@ -59,8 +60,9 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
-    <div
-      className={`flex h-full min-w-[260px] w-full flex-col justify-between gap-5 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${accent.cardRing}`}
+    <motion.div
+      whileHover={{ y: -3 }}
+      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${ring} transition-all duration-200 hover:shadow-md`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
@@ -74,7 +76,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
             type="checkbox"
             checked={checked}
             onChange={onToggle}
-            className={`h-4 w-4 rounded border border-white/40 bg-transparent transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 ${accent.checkbox}`}
+            className="h-4 w-4 rounded border border-white/40 bg-transparent accent-current"
             aria-label={`Incluir nível ${title}`}
           />
           <span className="whitespace-nowrap">Incluir</span>
@@ -82,11 +84,11 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questões</span>
-        <div className="mt-3 flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3 mt-3">
           <button
             type="button"
             onClick={() => onChange(Math.max(0, (value || 0) - 1))}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-0"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
             aria-label={`Remover questão de nível ${title}`}
           >
             −
@@ -96,13 +98,13 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
             min={0}
             value={value ?? 0}
             onChange={(e) => onChange(Number(e.target.value))}
-            className="h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 focus:ring-primary/40"
+            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 ${focus}`}
             aria-label={`Quantidade de questões nível ${title}`}
           />
           <button
             type="button"
             onClick={() => onChange((value || 0) + 1)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-0"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
             aria-label={`Adicionar questão de nível ${title}`}
           >
             +
@@ -271,23 +273,9 @@ export default function AscendaIASection() {
 
       {/* level cards */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {levels.map((level) => (
-          <LevelCard
-            key={level.code}
-            color={level.accent}
-            title={level.title}
-            desc={level.desc}
-            checked={sel[level.code]}
-            onToggle={() => setSel((s) => ({ ...s, [level.code]: !s[level.code] }))}
-            value={counts[level.code]}
-            onChange={(n) =>
-              setCounts((c) => {
-                const parsed = Number.isFinite(n) ? n : 0;
-                return { ...c, [level.code]: Math.max(0, parsed) };
-              })
-            }
-          />
-        ))}
+        <Level code="easy" title="Básico" desc="Vitórias rápidas e aquecimento" color="sky" />
+        <Level code="intermediate" title="Intermediário" desc="Raciocínio baseado em cenários" color="violet" />
+        <Level code="advanced" title="Avançado" desc="Profundidade estratégica e arquitetural" color="fuchsia" />
       </div>
 
       {/* actions */}
@@ -302,9 +290,8 @@ export default function AscendaIASection() {
         <button
           type="button"
           onClick={generate}
-          disabled={disableGenerate}
-          className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500/80 via-violet-500/70 to-fuchsia-500/80 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-fuchsia-500/10 transition-all duration-200 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-60"
-          aria-busy={loading}
+          disabled={loading || !canGenerate}
+          className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500/80 via-violet-500/70 to-fuchsia-500/80 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-fuchsia-500/10 transition-all duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
         </button>
@@ -329,26 +316,16 @@ export default function AscendaIASection() {
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              {levels.map((level) => (
-                <StatChip
-                  key={`stat-${level.code}`}
-                  label={level.title}
-                  count={quiz[level.code]?.length ?? 0}
-                  color={level.accent}
-                />
-              ))}
+              <StatChip label="Básico" count={quiz.easy.length} color="sky" />
+              <StatChip label="Intermediário" count={quiz.intermediate.length} color="violet" />
+              <StatChip label="Avançado" count={quiz.advanced.length} color="fuchsia" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            {levels.map((level) => (
-              <PreviewCol
-                key={`preview-${level.code}`}
-                label={level.title}
-                color={level.accent}
-                items={quiz[level.code] ?? []}
-              />
-            ))}
+            <PreviewCol label="Básico" color="sky" items={quiz.easy} />
+            <PreviewCol label="Intermediário" color="violet" items={quiz.intermediate} />
+            <PreviewCol label="Avançado" color="fuchsia" items={quiz.advanced} />
           </div>
 
           <div className="mt-4 flex justify-end gap-2">
