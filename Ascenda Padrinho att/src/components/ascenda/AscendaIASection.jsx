@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 
 /** ---- mock IA: generate questions per level (front-only) ---- */
@@ -7,10 +7,10 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
     Array.from({ length: n }, (_, i) => ({
       id: `${level}-${i + 1}`,
       level,
-      prompt: `(${level.toUpperCase()}) Pergunta ${i + 1} sobre ${topic}${
-        youtubeUrl ? ` (fonte: ${youtubeUrl})` : ""
+      prompt: `(${level.toUpperCase()}) Q${i + 1} about ${topic}${
+        youtubeUrl ? ` (src: ${youtubeUrl})` : ""
       }?`,
-      options: ["Opção A", "Opção B", "Opção C", "Opção D"],
+      options: ["Option A", "Option B", "Option C", "Option D"],
       correctIndex: Math.floor(Math.random() * 4),
     }));
 
@@ -29,63 +29,43 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
   });
 }
 
-function NivelCard({
-  cor = "sky",
-  titulo,
-  desc,
-  habilitado,
-  valor,
-  onToggle,
-  onChange,
-}) {
-  const ring = `ring-${cor}-400/40`;
-  const border = `border-${cor}-400/20`;
-  const decrease = () => onChange(Math.max(0, valor - 1));
-  const increase = () => onChange(Math.min(20, valor + 1));
-
+/** ---- small UI helpers ---- */
+function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
+  const ring = `ring-${color}-400/40`;
+  const border = `border-${color}-400/20`;
   return (
-    <div
-      className={`flex h-full flex-col justify-between rounded-2xl border ${border} bg-surface/80 p-4 shadow-e1 ring-1 ${ring} backdrop-blur-sm`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-base font-semibold text-primary">{titulo}</p>
-          <p className="text-xs text-secondary">{desc}</p>
+    <div className={`rounded-2xl border ${border} bg-white/5 p-3 ring-1 ${ring}`}>
+      <div className="mb-2 flex items-start justify-between">
+        <div>
+          <div className="text-base font-semibold">{title}</div>
+          <div className="text-xs text-white/60">{desc}</div>
         </div>
-        <label className="inline-flex items-center gap-2 text-[11px] text-muted">
-          <input type="checkbox" checked={habilitado} onChange={onToggle} />
-          <span>Habilitar</span>
+        <label className="inline-flex cursor-pointer items-center gap-2 text-xs">
+          <input type="checkbox" checked={checked} onChange={onToggle} />
+          Enable
         </label>
       </div>
-
-      <div className="mt-4 space-y-2">
-        <span className="text-[11px] uppercase tracking-wide text-muted">Questões</span>
-        <div className="flex items-center gap-3">
+      <div className="mt-2">
+        <div className="text-[11px] uppercase tracking-wide text-white/50">Questions</div>
+        <div className="mt-1 flex items-center gap-2">
           <button
             type="button"
-            onClick={decrease}
-            disabled={!habilitado || valor <= 0}
-            className="h-9 w-9 rounded-lg border border-border/60 bg-surface/80 text-lg leading-none text-primary transition hover:bg-surface2/80 disabled:opacity-60"
-            aria-label={`Diminuir questões de ${titulo}`}
+            onClick={() => onChange(Math.max(0, (value || 0) - 1))}
+            className="h-8 w-8 rounded-lg border border-white/15 hover:bg-white/5"
           >
             −
           </button>
           <input
             type="number"
             min={0}
-            max={20}
-            value={habilitado ? valor : 0}
-            onChange={(e) => onChange(Math.min(20, Math.max(0, Number(e.target.value) || 0)))}
-            disabled={!habilitado}
-            className="h-9 w-full rounded-lg border border-border/60 bg-surface/80 px-3 text-center text-sm text-primary outline-none ring-1 ring-ring/40 focus:ring-brand"
-            aria-label={`Quantidade de questões ${titulo}`}
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="w-full rounded-lg bg-white/5 px-3 py-2 text-center outline-none ring-1 ring-white/10"
           />
           <button
             type="button"
-            onClick={increase}
-            disabled={!habilitado || valor >= 20}
-            className="h-9 w-9 rounded-lg border border-border/60 bg-surface/80 text-lg leading-none text-primary transition hover:bg-surface2/80 disabled:opacity-60"
-            aria-label={`Aumentar questões de ${titulo}`}
+            onClick={() => onChange((value || 0) + 1)}
+            className="h-8 w-8 rounded-lg border border-white/15 hover:bg-white/5"
           >
             +
           </button>
@@ -95,25 +75,25 @@ function NivelCard({
   );
 }
 
-function ChipContagem({ rotulo, qtd, cor = "sky" }) {
-  const border = `border-${cor}-400/30`;
-  const bg = `bg-${cor}-400/15`;
-  const txt = `text-${cor}-200`;
+function StatChip({ label, count, color = "sky" }) {
+  const border = `border-${color}-400/30`;
+  const bg = `bg-${color}-400/10`;
+  const txt = `text-${color}-300`;
   return (
     <span className={`inline-flex items-center gap-2 rounded-full border ${border} ${bg} px-3 py-1 text-xs ${txt}`}>
-      {rotulo} <b className="text-white">{qtd}</b>
+      {label} <b className="text-white">{count}</b>
     </span>
   );
 }
 
-function ColunaPreview({ rotulo, itens, cor = "sky" }) {
-  const border = `border-${cor}-400/30`;
+function PreviewCol({ label, items, color = "sky" }) {
+  const border = `border-${color}-400/30`;
   return (
-    <div className={`rounded-xl border ${border} bg-surface/60 p-4`}> 
-      <div className="mb-2 text-sm font-semibold text-primary">{rotulo}</div>
-      <ul className="max-h-56 space-y-1 overflow-auto pr-1 text-sm text-secondary">
-        {itens.length === 0 && <li className="text-muted">Sem itens</li>}
-        {itens.slice(0, 8).map((q) => (
+    <div className={`rounded-xl border ${border} p-3`}>
+      <div className="mb-2 text-sm font-semibold">{label}</div>
+      <ul className="max-h-56 space-y-1 overflow-auto pr-1 text-sm text-white/70">
+        {items.length === 0 && <li className="text-white/40">No items</li>}
+        {items.slice(0, 8).map((q) => (
           <li key={q.id}>• {q.prompt}</li>
         ))}
       </ul>
@@ -121,81 +101,32 @@ function ColunaPreview({ rotulo, itens, cor = "sky" }) {
   );
 }
 
-const difficultyConfig = {
-  basic: {
-    title: "Básico",
-    description: "Vitórias rápidas e aquecimento",
-    color: "sky",
-    storageKey: "easy",
-  },
-  intermediate: {
-    title: "Intermediário",
-    description: "Raciocínio baseado em cenários",
-    color: "violet",
-    storageKey: "intermediate",
-  },
-  advanced: {
-    title: "Avançado",
-    description: "Profundidade estratégica e arquitetural",
-    color: "fuchsia",
-    storageKey: "advanced",
-  },
-};
-
 /** ---- main component ---- */
 export default function AscendaIASection() {
   const [topic, setTopic] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [levels, setLevels] = useState({
-    basic: { enabled: true, count: 4 },
-    intermediate: { enabled: true, count: 4 },
-    advanced: { enabled: false, count: 2 },
-  });
+  const [sel, setSel] = useState({ easy: true, intermediate: true, advanced: false });
+  const [counts, setCounts] = useState({ easy: 4, intermediate: 4, advanced: 2 });
   const [loading, setLoading] = useState(false);
   const [quiz, setQuiz] = useState(null);
 
-  const totalRequested = useMemo(
-    () =>
-      Object.values(levels)
-        .filter((level) => level.enabled)
-        .reduce((acc, level) => acc + level.count, 0),
-    [levels]
-  );
-
-  const trimmedTopic = topic.trim();
-  const trimmedYoutube = youtubeUrl.trim();
-  const canGenerate = totalRequested > 0 && (trimmedTopic || trimmedYoutube);
-
-  const toggleLevel = (key) => {
-    setLevels((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], enabled: !prev[key].enabled },
-    }));
-  };
-
-  const updateLevelCount = (key, value) => {
-    setLevels((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], count: value },
-    }));
-  };
+  const totalRequested =
+    (sel.easy ? counts.easy : 0) +
+    (sel.intermediate ? counts.intermediate : 0) +
+    (sel.advanced ? counts.advanced : 0);
 
   const generate = async () => {
-    if (!canGenerate || loading) return;
-    const referenceTopic = trimmedTopic || trimmedYoutube;
+    if (!topic.trim()) return;
     const req = {
-      topic: referenceTopic,
-      youtubeUrl: trimmedYoutube || null,
+      topic: topic.trim(),
+      youtubeUrl: youtubeUrl.trim() || null,
       counts: {
-        easy: levels.basic.enabled ? Number(levels.basic.count || 0) : 0,
-        intermediate: levels.intermediate.enabled ? Number(levels.intermediate.count || 0) : 0,
-        advanced: levels.advanced.enabled ? Number(levels.advanced.count || 0) : 0,
+        easy: sel.easy ? Number(counts.easy || 0) : 0,
+        intermediate: sel.intermediate ? Number(counts.intermediate || 0) : 0,
+        advanced: sel.advanced ? Number(counts.advanced || 0) : 0,
       },
     };
-
-    if (!req.counts.easy && !req.counts.intermediate && !req.counts.advanced) {
-      return;
-    }
+    if (!req.counts.easy && !req.counts.intermediate && !req.counts.advanced) return;
 
     setLoading(true);
     const result = await fakeAscendaIAByLevels(req);
@@ -204,7 +135,6 @@ export default function AscendaIASection() {
   };
 
   const save = () => {
-    if (!quiz) return;
     const key = "ascenda_quizzes";
     const list = JSON.parse(localStorage.getItem(key) || "[]");
     list.push({
@@ -222,79 +152,81 @@ export default function AscendaIASection() {
       status: "draft",
     });
     localStorage.setItem(key, JSON.stringify(list));
-    alert("✅ Quizzes salvos localmente!");
+    alert("✅ Quiz saved locally!");
   };
 
+  const Level = ({ code, title, desc, color }) => (
+    <LevelCard
+      color={color}
+      title={title}
+      desc={desc}
+      checked={sel[code]}
+      onToggle={() => setSel((s) => ({ ...s, [code]: !s[code] }))}
+      value={counts[code]}
+      onChange={(n) => setCounts((c) => ({ ...c, [code]: n }))}
+    />
+  );
+
   return (
-    <section className="space-y-6 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur">
-      <header className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold text-primary">AscendaIA – Gerar Quizzes</h3>
-          <p className="text-sm text-secondary">
-            Crie quizzes a partir de um tema ou link do YouTube. Selecione os níveis de dificuldade e quantidades.
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+      {/* header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-semibold tracking-tight">🧠 AscendaIA</h3>
+          <p className="text-sm text-white/60">
+            Generate quizzes from a topic or YouTube link. Pick difficulty levels and counts.
           </p>
         </div>
         {quiz && (
-          <span className="inline-flex h-fit items-center rounded-full border border-success/40 bg-success/10 px-3 py-1 text-xs text-success">
-            Rascunho pronto
+          <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">
+            Draft ready
           </span>
         )}
-      </header>
+      </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* inputs */}
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
         <input
-          className="h-10 w-full rounded-xl border border-border/60 bg-surface/80 px-3 text-sm text-primary outline-none ring-1 ring-ring/30 transition focus:ring-brand"
-          placeholder="Tópico (ex.: React, Lógica, SQL)"
+          className="rounded-xl bg-white/5 px-3 py-2 outline-none ring-1 ring-white/10 focus:ring-primary/50"
+          placeholder="Topic (e.g., React Hooks)"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          aria-label="Tópico"
         />
         <input
-          className="h-10 w-full rounded-xl border border-border/60 bg-surface/80 px-3 text-sm text-primary outline-none ring-1 ring-ring/30 transition focus:ring-brand"
-          placeholder="Link do YouTube (opcional)"
+          className="rounded-xl bg-white/5 px-3 py-2 outline-none ring-1 ring-white/10 focus:ring-primary/50"
+          placeholder="YouTube link (optional)"
           value={youtubeUrl}
           onChange={(e) => setYoutubeUrl(e.target.value)}
-          aria-label="Link do YouTube (opcional)"
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {Object.entries(difficultyConfig).map(([key, config]) => (
-          <NivelCard
-            key={key}
-            cor={config.color}
-            titulo={config.title}
-            desc={config.description}
-            habilitado={levels[key].enabled}
-            valor={levels[key].count}
-            onToggle={() => toggleLevel(key)}
-            onChange={(value) => updateLevelCount(key, value)}
-          />
-        ))}
+      {/* level cards */}
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <Level code="easy" title="Easy" desc="Quick wins and warm-ups" color="sky" />
+        <Level code="intermediate" title="Intermediate" desc="Scenario-based reasoning" color="violet" />
+        <Level code="advanced" title="Advanced" desc="Strategic & architectural depth" color="fuchsia" />
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-secondary" aria-live="polite">
-          Total solicitado: <span className="font-semibold text-primary">{totalRequested}</span>
-        </p>
-        <div className="flex w-full flex-col gap-2 md:w-auto">
-          <button
-            type="button"
-            onClick={generate}
-            disabled={!canGenerate || loading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 py-3 text-sm font-semibold text-bg shadow-e1 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
-          >
-            {loading ? "Gerando..." : "Gerar com AscendaIA"}
-          </button>
-          {totalRequested === 0 && (
-            <span className="text-xs text-warning">Selecione ao menos 1 questão.</span>
-          )}
-        </div>
+      {/* actions */}
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-xs text-white/60">
+          Total requested:{" "}
+          <span className="rounded-md bg-white/10 px-2 py-0.5 text-white">{totalRequested}</span>
+        </span>
+        <button
+          type="button"
+          onClick={generate}
+          disabled={loading || !topic.trim() || totalRequested === 0}
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 px-4 py-2 font-medium shadow-lg shadow-fuchsia-500/10 transition hover:brightness-110 disabled:opacity-50"
+        >
+          {loading ? "Generating…" : "✨ Generate with AscendaIA"}
+        </button>
       </div>
 
+      {/* loading */}
       {loading && (
         <motion.div
-          className="h-1 w-full rounded-full bg-surface2/60"
+          className="mt-3 h-1 w-full rounded-full bg-white/10"
           initial={{ scaleX: 0.1, opacity: 0.6 }}
           animate={{ scaleX: [0.1, 1, 0.3, 1], opacity: [0.6, 1, 0.8, 1] }}
           transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
@@ -302,49 +234,50 @@ export default function AscendaIASection() {
         />
       )}
 
+      {/* preview */}
       {quiz && (
-        <div className="space-y-4 rounded-3xl border border-border/60 bg-surface2/80 p-5 shadow-e1">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <p className="text-sm text-secondary">
-              <span className="font-semibold text-primary">{quiz.topic}</span>
-              <span className="mx-2 text-muted">•</span>
-              Total de
-              <span className="ml-1 font-semibold text-primary">
+        <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="text-sm text-white/70">
+              <span className="font-semibold">{quiz.topic}</span>
+              <span className="mx-2">•</span>
+              Total of{" "}
+              <span className="font-semibold">
                 {quiz.easy.length + quiz.intermediate.length + quiz.advanced.length}
               </span>{" "}
-              questões
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <ChipContagem rotulo="Básico" qtd={quiz.easy.length} cor="sky" />
-              <ChipContagem rotulo="Intermediário" qtd={quiz.intermediate.length} cor="violet" />
-              <ChipContagem rotulo="Avançado" qtd={quiz.advanced.length} cor="fuchsia" />
+              questions
+            </div>
+            <div className="flex gap-2">
+              <StatChip label="Easy" count={quiz.easy.length} color="sky" />
+              <StatChip label="Intermediate" count={quiz.intermediate.length} color="violet" />
+              <StatChip label="Advanced" count={quiz.advanced.length} color="fuchsia" />
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <ColunaPreview rotulo="Básico" cor="sky" itens={quiz.easy} />
-            <ColunaPreview rotulo="Intermediário" cor="violet" itens={quiz.intermediate} />
-            <ColunaPreview rotulo="Avançado" cor="fuchsia" itens={quiz.advanced} />
+          <div className="grid gap-3 md:grid-cols-3">
+            <PreviewCol label="Easy" color="sky" items={quiz.easy} />
+            <PreviewCol label="Intermediate" color="violet" items={quiz.intermediate} />
+            <PreviewCol label="Advanced" color="fuchsia" items={quiz.advanced} />
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <div className="mt-4 flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setQuiz(null)}
-              className="inline-flex items-center justify-center rounded-xl border border-border/60 px-4 py-2 text-sm font-medium text-secondary transition hover:bg-surface/80"
+              className="rounded-lg border border-white/15 px-3 py-2 text-sm hover:bg-white/5"
             >
-              Descartar
+              Discard
             </button>
             <button
               type="button"
               onClick={save}
-              className="inline-flex items-center justify-center rounded-xl bg-success/80 px-4 py-2 text-sm font-semibold text-bg shadow-e1 transition hover:brightness-110"
+              className="rounded-lg bg-emerald-500/80 px-4 py-2 text-sm font-semibold shadow-md hover:brightness-110"
             >
-              Salvar quizzes
+              Save quiz
             </button>
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }
