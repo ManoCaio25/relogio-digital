@@ -1,4 +1,9 @@
+// AddCourse.jsx — sample form showcasing the AscendaIA activities block
+// If your Add Course page already exists, copy the ACTIVITIES section
+// to integrate the automatic activity planner.
+
 import React from "react";
+import { AscendaIAActivitiesSection } from "../components/activities/AscendaIAActivitiesSection";
 
 export default function AddCourse() {
   const [title, setTitle] = React.useState("");
@@ -9,6 +14,7 @@ export default function AddCourse() {
   const [hours, setHours] = React.useState("5.5");
   const [youtubeUrl, setYoutubeUrl] = React.useState("");
   const [files, setFiles] = React.useState([]);
+  const [activities, setActivities] = React.useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +26,13 @@ export default function AddCourse() {
       trainingType,
       hours: Number(hours),
       youtubeUrl: youtubeUrl || null,
+      activities: activities
+        ? {
+            status: activities.status || "draft",
+            total: activities.items?.length || 0,
+            bundle: activities,
+          }
+        : null,
     };
 
     // TODO: replace with your existing submit logic (API or local persistence)
@@ -90,6 +103,13 @@ export default function AddCourse() {
         multiple
         onChange={(e) => setFiles(Array.from(e.target.files || []))}
         className="block w-full rounded-lg bg-surface/50 py-8 text-center"
+      />
+
+      <AscendaIAActivitiesSection
+        youtubeUrl={youtubeUrl}
+        uploadedFile={files[0] || null}
+        attachedActivities={activities}
+        onAttach={setActivities}
       />
 
       <button type="submit" className="w-full rounded-xl bg-primary/80 py-3 font-semibold">
