@@ -195,15 +195,19 @@ export default function AscendaIASection() {
     if (!req.counts.easy && !req.counts.intermediate && !req.counts.advanced) return;
 
     setLoading(true);
-    const result = await fakeAscendaIAByLevels(req);
-    setQuiz(result);
-    setLoading(false);
+    setQuiz(null);
+    try {
+      const result = await fakeAscendaIAByLevels(req);
+      setQuiz(result);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const canGenerate =
-    !loading &&
     totalRequested > 0 &&
     (topic.trim().length > 0 || youtubeUrl.trim().length > 0);
+  const disableGenerate = loading || !canGenerate;
 
   const save = () => {
     const key = "ascenda_quizzes";
@@ -295,13 +299,9 @@ export default function AscendaIASection() {
 
       {/* loading */}
       {loading && (
-        <motion.div
-          className="mt-3 h-1 w-full rounded-full bg-white/10"
-          initial={{ scaleX: 0.1, opacity: 0.6 }}
-          animate={{ scaleX: [0.1, 1, 0.3, 1], opacity: [0.6, 1, 0.8, 1] }}
-          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-          style={{ transformOrigin: "0% 50%" }}
-        />
+        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="h-full w-1/3 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
+        </div>
       )}
 
       {/* preview */}
