@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,25 +29,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
-  const [ascendaQuizDraft, setAscendaQuizDraft] = useState(null);
-  useEffect(() => {
-    if (typeof window === "undefined") return undefined;
-
-    const handleQuizSaved = (event) => {
-      setAscendaQuizDraft(event.detail || null);
-    };
-    const handleQuizDiscarded = () => {
-      setAscendaQuizDraft(null);
-    };
-
-    window.addEventListener("ascenda-quiz-saved", handleQuizSaved);
-    window.addEventListener("ascenda-quiz-discarded", handleQuizDiscarded);
-
-    return () => {
-      window.removeEventListener("ascenda-quiz-saved", handleQuizSaved);
-      window.removeEventListener("ascenda-quiz-discarded", handleQuizDiscarded);
-    };
-  }, []);
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -148,14 +129,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         courseData.youtube_video_id = youtubeVideoId;
       }
 
-      if (ascendaQuizDraft) {
-        courseData.quizzes = {
-          status: ascendaQuizDraft.status || "draft",
-          total: ascendaQuizDraft.items?.length || 0,
-          bundle: ascendaQuizDraft,
-        };
-      }
-
       await onSuccess(courseData);
 
       setTitle("");
@@ -168,13 +141,12 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setTrainingType("");
       setFile(null);
       setPreviewData(null);
-      setAscendaQuizDraft(null);
     } catch (error) {
       console.error("Error uploading course:", error);
     }
 
     setIsUploading(false);
-  }, [ascendaQuizDraft, category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
+  }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
     <>
