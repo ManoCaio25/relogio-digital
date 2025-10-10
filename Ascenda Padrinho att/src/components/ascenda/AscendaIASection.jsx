@@ -80,7 +80,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -125,10 +125,12 @@ export default function AscendaIASection() {
     (sel.advanced ? counts.advanced : 0);
 
   const generate = async () => {
-    if (!topic.trim()) return;
+    const topicClean = topic.trim();
+    const youtubeClean = youtubeUrl.trim();
+    if (!topicClean && !youtubeClean) return;
     const req = {
-      topic: topic.trim(),
-      youtubeUrl: youtubeUrl.trim() || null,
+      topic: topicClean || youtubeClean,
+      youtubeUrl: youtubeClean || null,
       counts: {
         easy: sel.easy ? Number(counts.easy || 0) : 0,
         intermediate: sel.intermediate ? Number(counts.intermediate || 0) : 0,
@@ -177,36 +179,42 @@ export default function AscendaIASection() {
   );
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+    <section className="space-y-5 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
       {/* header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-semibold tracking-tight">🧠 AscendaIA</h3>
-          <p className="text-sm text-white/60">
-            Generate quizzes from a topic or YouTube link. Pick difficulty levels and counts.
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
+          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+            Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejados.
           </p>
         </div>
         {quiz && (
-          <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">
-            Draft ready
+          <span className="rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
+            Rascunho pronto
           </span>
         )}
       </div>
 
       {/* inputs */}
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <input
-          className="rounded-xl bg-white/5 px-3 py-2 outline-none ring-1 ring-white/10 focus:ring-primary/50"
-          placeholder="Topic (e.g., React Hooks)"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-        />
-        <input
-          className="rounded-xl bg-white/5 px-3 py-2 outline-none ring-1 ring-white/10 focus:ring-primary/50"
-          placeholder="YouTube link (optional)"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
-        />
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="flex flex-col gap-2 text-sm text-white/70">
+          <span className="font-medium text-white">Tópico</span>
+          <input
+            className="h-10 rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+            placeholder="Tópico (ex.: React, Lógica, SQL)"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-sm text-white/70">
+          <span className="font-medium text-white">Link do YouTube</span>
+          <input
+            className="h-10 rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+            placeholder="Link do YouTube (opcional)"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+          />
+        </label>
       </div>
 
       {/* level cards */}
@@ -228,7 +236,7 @@ export default function AscendaIASection() {
           disabled={loading || !topic.trim() || totalRequested === 0}
           className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 px-4 py-2 text-sm font-medium shadow-lg shadow-fuchsia-500/10 transition hover:brightness-110 disabled:opacity-50 md:w-auto"
         >
-          {loading ? "Generating…" : "✨ Generate with AscendaIA"}
+          {loading ? "Gerando…" : "Gerar com AscendaIA"}
         </button>
       </div>
 
@@ -287,6 +295,6 @@ export default function AscendaIASection() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
