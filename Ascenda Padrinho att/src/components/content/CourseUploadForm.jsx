@@ -119,7 +119,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         duration_hours: parseFloat(durationHours) || 0,
         enrolled_count: 0,
         completion_rate: 0,
-        published: true
+        published: true,
       };
 
       if (fileUrl) {
