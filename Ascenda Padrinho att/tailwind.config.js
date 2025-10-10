@@ -17,6 +17,7 @@ export default {
         bg: withOpacityValue('--bg-rgb'),
         surface: withOpacityValue('--surface-rgb'),
         surface2: withOpacityValue('--surface-2-rgb'),
+        background: withOpacityValue('--surface-rgb'),
         primary: withOpacityValue('--text-primary-rgb'),
         secondary: withOpacityValue('--text-secondary-rgb'),
         muted: withOpacityValue('--text-muted-rgb'),
@@ -30,6 +31,16 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
+      keyframes: {
+        'loading-stripes': {
+          '0%': { transform: 'translateX(-120%)' },
+          '50%': { transform: 'translateX(30%)' },
+          '100%': { transform: 'translateX(120%)' },
+        },
+      },
+      animation: {
+        'loading-stripes': 'loading-stripes 1.4s ease-in-out infinite',
       },
       transitionDuration: {
         350: '350ms',
