@@ -30,48 +30,103 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 }
 
 /** ---- small UI helpers ---- */
-function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
-  const ring = `ring-${color}-400/40`;
-  const border = `border-${color}-400/20`;
+const palette = {
+  sky: {
+    ring: "ring-sky-400/30",
+    focus: "focus:ring-sky-400/40",
+    accent: "accent-sky-300",
+  },
+  violet: {
+    ring: "ring-violet-400/30",
+    focus: "focus:ring-violet-400/40",
+    accent: "accent-violet-300",
+  },
+  fuchsia: {
+    ring: "ring-fuchsia-400/30",
+    focus: "focus:ring-fuchsia-400/40",
+    accent: "accent-fuchsia-300",
+  },
+};
+
+function LevelCard({
+  color = "sky",
+  title,
+  desc,
+  checked,
+  onToggle,
+  value,
+  onChange,
+}) {
+  const { ring, focus, accent } = palette[color] || palette.sky;
+
+  const clampValue = (raw) => {
+    const next = Number.isNaN(raw) ? 0 : Math.min(20, Math.max(0, raw));
+    onChange(next);
+  };
+
+  const decrement = () => clampValue((value || 0) - 1);
+  const increment = () => clampValue((value || 0) + 1);
+
   return (
-    <div className={`rounded-2xl border ${border} bg-white/5 p-3 ring-1 ${ring}`}>
-      <div className="mb-2 flex items-start justify-between">
-        <div>
-          <div className="text-base font-semibold">{title}</div>
-          <div className="text-xs text-white/60">{desc}</div>
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 250, damping: 20 }}
+      className={`min-w-[260px] w-full rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm transition hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40 ring-1 ${ring}`}
+    >
+      <div className="flex h-full flex-col gap-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-1">
+            <h4 className="text-base font-medium text-white whitespace-normal break-words normal-case" title={title}>
+              {title}
+            </h4>
+            <p className="text-sm text-white/75 whitespace-normal break-words normal-case">{desc}</p>
+          </div>
+          <label className="flex shrink-0 items-center gap-2 text-sm text-white/75">
+            <span className="sr-only">Habilitar {title}</span>
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={onToggle}
+              className={`h-5 w-5 rounded border border-white/40 bg-background/60 focus:outline-none focus:ring-2 ${focus} ${accent}`}
+            />
+            <span className="whitespace-nowrap">Habilitar</span>
+          </label>
         </div>
-        <label className="inline-flex cursor-pointer items-center gap-2 text-xs">
-          <input type="checkbox" checked={checked} onChange={onToggle} />
-          Enable
-        </label>
-      </div>
-      <div className="mt-2">
-        <div className="text-[11px] uppercase tracking-wide text-white/50">Questions</div>
-        <div className="mt-1 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onChange(Math.max(0, (value || 0) - 1))}
-            className="h-8 w-8 rounded-lg border border-white/15 hover:bg-white/5"
-          >
-            −
-          </button>
-          <input
-            type="number"
-            min={0}
-            value={value}
-            onChange={(e) => onChange(Number(e.target.value))}
-            className="w-full rounded-lg bg-white/5 px-3 py-2 text-center outline-none ring-1 ring-white/10"
-          />
-          <button
-            type="button"
-            onClick={() => onChange((value || 0) + 1)}
-            className="h-8 w-8 rounded-lg border border-white/15 hover:bg-white/5"
-          >
-            +
-          </button>
+
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-medium uppercase tracking-wide text-white/60">Quantidade</span>
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              aria-label={`Diminuir ${title}`}
+              onClick={decrement}
+              disabled={!checked || (value || 0) <= 0}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-background/70 text-lg text-white transition hover:bg-background/90 disabled:opacity-40 disabled:hover:bg-background/70 active:scale-[0.98]"
+            >
+              −
+            </button>
+            <input
+              type="number"
+              min={0}
+              max={20}
+              value={value}
+              onChange={(e) => clampValue(Number(e.target.value))}
+              disabled={!checked}
+              className={`h-9 w-20 rounded-lg border border-white/15 bg-background/60 px-3 text-center text-base font-medium text-white tabular-nums outline-none transition focus:ring-2 ${focus} disabled:opacity-40`}
+            />
+            <button
+              type="button"
+              aria-label={`Aumentar ${title}`}
+              onClick={increment}
+              disabled={!checked || (value || 0) >= 20}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-background/70 text-lg text-white transition hover:bg-background/90 disabled:opacity-40 disabled:hover:bg-background/70 active:scale-[0.98]"
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -116,10 +171,12 @@ export default function AscendaIASection() {
     (sel.advanced ? counts.advanced : 0);
 
   const generate = async () => {
-    if (!topic.trim()) return;
+    const topicClean = topic.trim();
+    const youtubeClean = youtubeUrl.trim();
+    if (!topicClean && !youtubeClean) return;
     const req = {
-      topic: topic.trim(),
-      youtubeUrl: youtubeUrl.trim() || null,
+      topic: topicClean || youtubeClean,
+      youtubeUrl: youtubeClean || null,
       counts: {
         easy: sel.easy ? Number(counts.easy || 0) : 0,
         intermediate: sel.intermediate ? Number(counts.intermediate || 0) : 0,
@@ -168,58 +225,66 @@ export default function AscendaIASection() {
   );
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+    <section className="space-y-5 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
       {/* header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-semibold tracking-tight">🧠 AscendaIA</h3>
-          <p className="text-sm text-white/60">
-            Generate quizzes from a topic or YouTube link. Pick difficulty levels and counts.
+        <div className="space-y-1">
+          <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
+          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+            Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejados.
           </p>
         </div>
         {quiz && (
-          <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300">
-            Draft ready
+          <span className="rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
+            Rascunho pronto
           </span>
         )}
       </div>
 
       {/* inputs */}
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <input
-          className="rounded-xl bg-white/5 px-3 py-2 outline-none ring-1 ring-white/10 focus:ring-primary/50"
-          placeholder="Topic (e.g., React Hooks)"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-        />
-        <input
-          className="rounded-xl bg-white/5 px-3 py-2 outline-none ring-1 ring-white/10 focus:ring-primary/50"
-          placeholder="YouTube link (optional)"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
-        />
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="flex flex-col gap-2 text-sm text-white/70">
+          <span className="font-medium text-white">Tópico</span>
+          <input
+            className="h-10 rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+            placeholder="Tópico (ex.: React, Lógica, SQL)"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          />
+        </label>
+        <label className="flex flex-col gap-2 text-sm text-white/70">
+          <span className="font-medium text-white">Link do YouTube</span>
+          <input
+            className="h-10 rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+            placeholder="Link do YouTube (opcional)"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+          />
+        </label>
       </div>
 
       {/* level cards */}
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
-        <Level code="easy" title="Easy" desc="Quick wins and warm-ups" color="sky" />
-        <Level code="intermediate" title="Intermediate" desc="Scenario-based reasoning" color="violet" />
-        <Level code="advanced" title="Advanced" desc="Strategic & architectural depth" color="fuchsia" />
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Level code="easy" title="Básico" desc="Vitórias rápidas e aquecimento" color="sky" />
+        <Level code="intermediate" title="Intermediário" desc="Raciocínio baseado em cenários" color="violet" />
+        <Level code="advanced" title="Avançado" desc="Profundidade estratégica e arquitetural" color="fuchsia" />
       </div>
 
       {/* actions */}
-      <div className="mt-4 flex items-center justify-between">
-        <span className="text-xs text-white/60">
-          Total requested:{" "}
-          <span className="rounded-md bg-white/10 px-2 py-0.5 text-white">{totalRequested}</span>
+      <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <span className="inline-flex items-center gap-2 text-sm text-white/75" aria-live="polite">
+          Total solicitado:
+          <span className="rounded-full bg-white/10 px-3 py-1 text-white">{totalRequested}</span>
         </span>
         <button
           type="button"
           onClick={generate}
-          disabled={loading || !topic.trim() || totalRequested === 0}
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 px-4 py-2 font-medium shadow-lg shadow-fuchsia-500/10 transition hover:brightness-110 disabled:opacity-50"
+          disabled={
+            loading || totalRequested === 0 || (!topic.trim() && !youtubeUrl.trim())
+          }
+          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:bg-border/40 disabled:text-white/60 disabled:opacity-60 md:w-auto"
         >
-          {loading ? "Generating…" : "✨ Generate with AscendaIA"}
+          {loading ? "Gerando…" : "Gerar com AscendaIA"}
         </button>
       </div>
 
@@ -278,6 +343,6 @@ export default function AscendaIASection() {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
