@@ -168,12 +168,9 @@ export function Select({
       setSelectedLabel("");
       return;
     }
-
-    if (optionLabelsRef.current.has(currentValue)) {
-      const label = optionLabelsRef.current.get(currentValue);
-      if (label !== undefined) {
-        setSelectedLabel(label);
-      }
+    const label = optionLabelsRef.current.get(currentValue);
+    if (label) {
+      setSelectedLabel(label);
     }
   }, [currentValue]);
 
