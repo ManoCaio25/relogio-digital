@@ -80,7 +80,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
