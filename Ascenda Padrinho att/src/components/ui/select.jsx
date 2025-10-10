@@ -159,6 +159,8 @@ export function Select({
   const unregisterOption = React.useCallback((optionValue) => {
     setOptionOrder((prev) => prev.filter((value) => value !== optionValue));
     optionRefs.current.delete(optionValue);
+    // Intentionally retain the cached label in optionLabelsRef so the trigger can
+    // continue rendering the selected text after the menu unmounts.
   }, []);
 
   React.useEffect(() => {
