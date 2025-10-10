@@ -30,100 +30,54 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 }
 
 /** ---- small UI helpers ---- */
-const palette = {
-  sky: {
-    ring: "ring-sky-400/30",
-    focus: "focus:ring-sky-400/40",
-    accent: "accent-sky-300",
-  },
-  violet: {
-    ring: "ring-violet-400/30",
-    focus: "focus:ring-violet-400/40",
-    accent: "accent-violet-300",
-  },
-  fuchsia: {
-    ring: "ring-fuchsia-400/30",
-    focus: "focus:ring-fuchsia-400/40",
-    accent: "accent-fuchsia-300",
-  },
-};
-
-function LevelCard({
-  color = "sky",
-  title,
-  desc,
-  checked,
-  onToggle,
-  value,
-  onChange,
-}) {
-  const { ring, focus, accent } = palette[color] || palette.sky;
-
-  const clampValue = (raw) => {
-    const next = Number.isNaN(raw) ? 0 : Math.min(20, Math.max(0, raw));
-    onChange(next);
-  };
-
-  const decrement = () => clampValue((value || 0) - 1);
-  const increment = () => clampValue((value || 0) + 1);
-
+function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
+  const ring = `ring-${color}-400/30`;
+  const focus = `focus:ring-${color}-400/40`;
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ type: "spring", stiffness: 250, damping: 20 }}
-      className={`min-w-[260px] w-full rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm transition hover:shadow-md focus-within:ring-2 focus-within:ring-primary/40 ring-1 ${ring}`}
+    <div
+      className={`flex h-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-4 shadow-sm backdrop-blur-sm ring-1 ${ring}`}
     >
-      <div className="flex h-full flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-1">
-            <h4 className="text-base font-medium text-white whitespace-normal break-words normal-case" title={title}>
-              {title}
-            </h4>
-            <p className="text-sm text-white/75 whitespace-normal break-words normal-case">{desc}</p>
-          </div>
-          <label className="flex shrink-0 items-center gap-2 text-sm text-white/75">
-            <span className="sr-only">Habilitar {title}</span>
-            <input
-              type="checkbox"
-              checked={checked}
-              onChange={onToggle}
-              className={`h-5 w-5 rounded border border-white/40 bg-background/60 focus:outline-none focus:ring-2 ${focus} ${accent}`}
-            />
-            <span className="whitespace-nowrap">Habilitar</span>
-          </label>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-1">
+          <h4 className="text-sm font-semibold text-white truncate" title={title}>
+            {title}
+          </h4>
+          <p className="text-sm text-white/70 break-words">{desc}</p>
         </div>
-
-        <div className="flex flex-col gap-2">
-          <span className="text-xs font-medium uppercase tracking-wide text-white/60">Quantidade</span>
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              aria-label={`Diminuir ${title}`}
-              onClick={decrement}
-              disabled={!checked || (value || 0) <= 0}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-background/70 text-lg text-white transition hover:bg-background/90 disabled:opacity-40 disabled:hover:bg-background/70 active:scale-[0.98]"
-            >
-              −
-            </button>
-            <input
-              type="number"
-              min={0}
-              max={20}
-              value={value}
-              onChange={(e) => clampValue(Number(e.target.value))}
-              disabled={!checked}
-              className={`h-9 w-20 rounded-lg border border-white/15 bg-background/60 px-3 text-center text-base font-medium text-white tabular-nums outline-none transition focus:ring-2 ${focus} disabled:opacity-40`}
-            />
-            <button
-              type="button"
-              aria-label={`Aumentar ${title}`}
-              onClick={increment}
-              disabled={!checked || (value || 0) >= 20}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-background/70 text-lg text-white transition hover:bg-background/90 disabled:opacity-40 disabled:hover:bg-background/70 active:scale-[0.98]"
-            >
-              +
-            </button>
-          </div>
+        <label className="flex shrink-0 items-center gap-2 text-sm text-white/70">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={onToggle}
+            className="h-4 w-4 rounded border border-white/40 bg-transparent accent-current"
+          />
+          <span className="whitespace-nowrap">Enable</span>
+        </label>
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questions</span>
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => onChange(Math.max(0, (value || 0) - 1))}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 text-lg text-white transition hover:bg-white/5"
+          >
+            −
+          </button>
+          <input
+            type="number"
+            min={0}
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className={`w-20 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 ${focus}`}
+          />
+          <button
+            type="button"
+            onClick={() => onChange((value || 0) + 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 text-lg text-white transition hover:bg-white/5"
+          >
+            +
+          </button>
         </div>
       </div>
     </motion.div>
@@ -230,7 +184,7 @@ export default function AscendaIASection() {
   );
 
   return (
-    <section className="space-y-5 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur">
+    <section className="space-y-5 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
       {/* header */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
@@ -269,27 +223,23 @@ export default function AscendaIASection() {
       </div>
 
       {/* level cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Level code="easy" title="Básico" desc="Vitórias rápidas e aquecimento" color="sky" />
-        <Level code="intermediate" title="Intermediário" desc="Raciocínio baseado em cenários" color="violet" />
-        <Level code="advanced" title="Avançado" desc="Profundidade estratégica e arquitetural" color="fuchsia" />
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Level code="easy" title="Easy" desc="Quick wins and warm-ups" color="sky" />
+        <Level code="intermediate" title="Intermediate" desc="Scenario-based reasoning" color="violet" />
+        <Level code="advanced" title="Advanced" desc="Strategic & architectural depth" color="fuchsia" />
       </div>
 
       {/* actions */}
-      <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <span className="inline-flex items-center gap-2 text-sm text-white/75" aria-live="polite">
-          Total solicitado:
-          <span className="rounded-full bg-white/10 px-3 py-1 text-white">{totalRequested}</span>
+      <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <span className="text-sm text-white/70 md:text-base">
+          Total requested:{" "}
+          <span className="rounded-md bg-white/10 px-2 py-0.5 text-white">{totalRequested}</span>
         </span>
         <button
           type="button"
           onClick={generate}
-          disabled={!canGenerate}
-          className={`inline-flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold shadow-md transition md:w-auto ${
-            canGenerate
-              ? "bg-gradient-to-r from-primary/90 to-fuchsia-600/80 text-white hover:shadow-lg"
-              : "bg-muted/60 text-white/60"
-          }`}
+          disabled={loading || !topic.trim() || totalRequested === 0}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500/80 to-fuchsia-500/80 px-4 py-2 text-sm font-medium shadow-lg shadow-fuchsia-500/10 transition hover:brightness-110 disabled:opacity-50 md:w-auto"
         >
           {loading ? "Gerando…" : "Gerar com AscendaIA"}
         </button>
