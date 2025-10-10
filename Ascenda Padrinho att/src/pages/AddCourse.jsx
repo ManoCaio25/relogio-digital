@@ -1,10 +1,4 @@
-// AddCourse.jsx — sample form including the "Generate quizzes (AI)" block
-// If your Add Course page already exists, copy the QUIZZES section
-// and modal usage into your file.
-
 import React from "react";
-import { QuizGeneratorModal } from "../components/quizzes/QuizGeneratorModal";
-import { QuizMiniPreview } from "../components/quizzes/QuizMiniPreview";
 
 export default function AddCourse() {
   const [title, setTitle] = React.useState("");
@@ -16,9 +10,6 @@ export default function AddCourse() {
   const [youtubeUrl, setYoutubeUrl] = React.useState("");
   const [files, setFiles] = React.useState([]);
 
-  const [quizzes, setQuizzes] = React.useState(null); // { easy, intermediate, advanced }
-  const [isGeneratorOpen, setGeneratorOpen] = React.useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = {
@@ -29,16 +20,6 @@ export default function AddCourse() {
       trainingType,
       hours: Number(hours),
       youtubeUrl: youtubeUrl || null,
-      quizzes: quizzes
-        ? {
-            status: "draft",
-            total:
-              (quizzes?.easy?.length || 0) +
-              (quizzes?.intermediate?.length || 0) +
-              (quizzes?.advanced?.length || 0),
-            bundle: quizzes,
-          }
-        : null,
     };
 
     // TODO: replace with your existing submit logic (API or local persistence)
@@ -111,48 +92,10 @@ export default function AddCourse() {
         className="block w-full rounded-lg bg-surface/50 py-8 text-center"
       />
 
-      {/* QUIZZES block */}
-      <div className="rounded-2xl border border-border/60 p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h4 className="text-lg font-semibold">Course Quizzes (AI)</h4>
-            <p className="text-sm text-muted-foreground">
-              Generate 20 questions (7 easy, 7 intermediate, 6 advanced) from link/files/text.
-            </p>
-          </div>
-          <button type="button" onClick={() => setGeneratorOpen(true)} className="rounded-xl px-4 py-2 shadow hover:shadow-md">
-            Generate quizzes (AI)
-          </button>
-        </div>
-
-        {quizzes ? (
-          <div className="mt-4">
-            <QuizMiniPreview data={quizzes} />
-            <p className="mt-2 text-xs text-muted-foreground">
-              Quizzes will be saved along with the course. Reopen the generator to edit/replace.
-            </p>
-          </div>
-        ) : (
-          <p className="mt-3 text-sm text-muted-foreground">No quizzes generated yet.</p>
-        )}
-      </div>
-
       <button type="submit" className="w-full rounded-xl bg-primary/80 py-3 font-semibold">
         Add course
       </button>
 
-      {isGeneratorOpen && (
-        <QuizGeneratorModal
-          defaultYoutubeUrl={youtubeUrl}
-          defaultFiles={files}
-          defaultText={description}
-          onClose={() => setGeneratorOpen(false)}
-          onSave={(quizJson) => {
-            setQuizzes(quizJson);
-            setGeneratorOpen(false);
-          }}
-        />
-      )}
     </form>
   );
 }
