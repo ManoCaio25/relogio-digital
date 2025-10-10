@@ -20,6 +20,7 @@ import { QuizMiniPreview } from "../quizzes/QuizMiniPreview";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
+  const [attachedQuiz, setAttachedQuiz] = useState(null);
   const [description, setDescription] = useState("");
   const [durationHours, setDurationHours] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
