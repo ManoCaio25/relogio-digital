@@ -193,15 +193,19 @@ export default function AscendaIASection() {
     if (!req.counts.easy && !req.counts.intermediate && !req.counts.advanced) return;
 
     setLoading(true);
-    const result = await fakeAscendaIAByLevels(req);
-    setQuiz(result);
-    setLoading(false);
+    setQuiz(null);
+    try {
+      const result = await fakeAscendaIAByLevels(req);
+      setQuiz(result);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const canGenerate =
-    !loading &&
     totalRequested > 0 &&
     (topic.trim().length > 0 || youtubeUrl.trim().length > 0);
+  const disableGenerate = loading || !canGenerate;
 
   const save = () => {
     const key = "ascenda_quizzes";
@@ -298,8 +302,9 @@ export default function AscendaIASection() {
         <button
           type="button"
           onClick={generate}
-          disabled={loading || !canGenerate}
+          disabled={disableGenerate}
           className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500/80 via-violet-500/70 to-fuchsia-500/80 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-fuchsia-500/10 transition-all duration-200 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent disabled:cursor-not-allowed disabled:opacity-60"
+          aria-busy={loading}
         >
           {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
         </button>
