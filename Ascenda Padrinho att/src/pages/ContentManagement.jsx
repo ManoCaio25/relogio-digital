@@ -119,6 +119,26 @@ export default function ContentManagement() {
     loadCourses();
   }, [loadCourses]);
 
+  const handleDeleteCourse = useCallback(
+    async (course) => {
+      if (!course) return;
+
+      const confirmed = window.confirm(
+        t(
+          "content.delete.confirm",
+          "Are you sure you want to delete the course \"{{title}}\"?",
+          { title: course.title },
+        ),
+      );
+
+      if (!confirmed) return;
+
+      await Course.remove(course.id);
+      loadCourses();
+    },
+    [loadCourses, t],
+  );
+
   // Filtro + busca (memoizado)
   const filteredCourses = useMemo(() => {
     const normalizedTerm = searchTerm.trim().toLowerCase();
@@ -424,6 +444,7 @@ export default function ContentManagement() {
                   onEdit={handleEdit}
                   onPreview={handlePreview}
                   onAssign={handleAssign}
+                  onDelete={handleDeleteCourse}
                 />
               ))}
             </div>

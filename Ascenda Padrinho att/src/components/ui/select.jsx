@@ -79,6 +79,7 @@ const getTextFromChildren = (children) => {
 };
 
 export function Select({
+  id,
   value,
   defaultValue,
   onValueChange,
@@ -89,9 +90,8 @@ export function Select({
   onOpenChange,
 }) {
   const [openState, setOpenState] = React.useState(defaultOpen);
-  const [internalValue, setInternalValue] = React.useState(defaultValue ?? null);
+  const [internalValue, setInternalValue] = React.useState(defaultValue ?? "");
   const [selectedLabel, setSelectedLabel] = React.useState("");
-  const [options, setOptions] = React.useState({});
   const [optionOrder, setOptionOrder] = React.useState([]);
   const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
   const triggerRef = React.useRef(null);
@@ -103,6 +103,7 @@ export function Select({
 
   const isOpenControlled = openProp !== undefined;
   const open = isOpenControlled ? openProp : openState;
+
   const { triggerRect, measureTriggerRect } = useTriggerMeasurements(triggerRef, open);
 
   const reactId = React.useId();
@@ -111,58 +112,6 @@ export function Select({
     const sanitized = reactId.replace(/:/g, "");
     return `select-${sanitized}`;
   }, [id, reactId]);
-
-  const updateTriggerRect = React.useCallback(() => {
-    if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    setTriggerRect({
-      top: rect.top,
-      left: rect.left,
-      bottom: rect.bottom,
-      right: rect.right,
-      width: rect.width,
-      height: rect.height,
-    });
-  }, []);
-
-  useIsomorphicLayoutEffect(() => {
-    updateTriggerRect();
-  }, [updateTriggerRect]);
-
-  useIsomorphicLayoutEffect(() => {
-    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
-      return undefined;
-    }
-    const observer = new ResizeObserver(() => updateTriggerRect());
-    observer.observe(triggerRef.current);
-    return () => observer.disconnect();
-  }, [updateTriggerRect]);
-
-  const updateTriggerRect = React.useCallback(() => {
-    if (!triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
-    setTriggerRect({
-      top: rect.top,
-      left: rect.left,
-      bottom: rect.bottom,
-      right: rect.right,
-      width: rect.width,
-      height: rect.height,
-    });
-  }, []);
-
-  useIsomorphicLayoutEffect(() => {
-    updateTriggerRect();
-  }, [updateTriggerRect]);
-
-  useIsomorphicLayoutEffect(() => {
-    if (typeof ResizeObserver === "undefined" || !triggerRef.current) {
-      return undefined;
-    }
-    const observer = new ResizeObserver(() => updateTriggerRect());
-    observer.observe(triggerRef.current);
-    return () => observer.disconnect();
-  }, [updateTriggerRect]);
 
   const close = React.useCallback(() => {
     if (!isOpenControlled) {
@@ -182,8 +131,8 @@ export function Select({
     (nextOpen) => {
       const resolved = typeof nextOpen === "function" ? nextOpen(open) : nextOpen;
       if (resolved) {
-        selectRegistry.forEach((closeFn, id) => {
-          if (id !== currentId) {
+        selectRegistry.forEach((closeFn, registryId) => {
+          if (registryId !== selectId) {
             closeFn();
           }
         });
@@ -193,18 +142,12 @@ export function Select({
       }
       onOpenChange?.(resolved);
     },
-    [isOpenControlled, onOpenChange, open],
+    [isOpenControlled, onOpenChange, open, selectId],
   );
 
   const registerOption = React.useCallback(
     (optionValue, label) => {
       optionLabelsRef.current.set(optionValue, label);
-      setOptions((prev) => {
-        if (prev[optionValue] === label) {
-          return prev;
-        }
-        return { ...prev, [optionValue]: label };
-      });
       setOptionOrder((prev) => (prev.includes(optionValue) ? prev : [...prev, optionValue]));
       if (optionValue === currentValue && label) {
         setSelectedLabel(label);
@@ -216,47 +159,36 @@ export function Select({
   const unregisterOption = React.useCallback((optionValue) => {
     setOptionOrder((prev) => prev.filter((value) => value !== optionValue));
     optionRefs.current.delete(optionValue);
+    // Intentionally retain the cached label in optionLabelsRef so the trigger can
+    // continue rendering the selected text after the menu unmounts.
   }, []);
 
   React.useEffect(() => {
-    if (currentValue == null) {
+    if (currentValue == null || currentValue === "") {
       setSelectedLabel("");
       return;
     }
-    if (Object.prototype.hasOwnProperty.call(options, currentValue)) {
-      setSelectedLabel(options[currentValue]);
+
+    if (optionLabelsRef.current.has(currentValue)) {
+      const label = optionLabelsRef.current.get(currentValue);
+      if (label !== undefined) {
+        setSelectedLabel(label);
+      }
     }
-  }, [currentValue, options]);
+  }, [currentValue]);
 
   const selectValue = React.useCallback(
     (nextValue, label) => {
       if (!isControlled) {
         setInternalValue(nextValue);
       }
-      const resolvedLabel =
-        label ?? optionLabelsRef.current.get(nextValue) ?? options[nextValue] ?? "";
+      const resolvedLabel = label ?? optionLabelsRef.current.get(nextValue) ?? "";
       setSelectedLabel(resolvedLabel);
       onValueChange?.(nextValue);
       close();
     },
-    [close, isControlled, onValueChange, options],
+    [close, isControlled, onValueChange],
   );
-
-  React.useEffect(() => {
-    if (!open) return;
-    updateTriggerRect();
-
-    const handleResize = () => updateTriggerRect();
-    const handleScroll = () => updateTriggerRect();
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleScroll, true);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleScroll, true);
-    };
-  }, [open, updateTriggerRect]);
 
   React.useEffect(() => {
     if (!open) {
@@ -275,8 +207,24 @@ export function Select({
     node?.focus();
   }, [open, highlightedIndex, optionOrder]);
 
+  React.useEffect(() => {
+    if (!open) return undefined;
+
+    const handleResize = () => measureTriggerRect();
+    const handleScroll = () => measureTriggerRect();
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [measureTriggerRect, open]);
+
   const contextValue = React.useMemo(
     () => ({
+      selectId,
       open,
       setOpen,
       value: currentValue,
@@ -293,17 +241,18 @@ export function Select({
       optionRefs,
     }),
     [
-      open,
-      setOpen,
       currentValue,
-      selectedLabel,
-      registerOption,
-      unregisterOption,
-      selectValue,
       highlightedIndex,
-      optionOrder,
-      triggerRect,
       measureTriggerRect,
+      open,
+      optionOrder,
+      registerOption,
+      selectValue,
+      selectedLabel,
+      setHighlightedIndex,
+      triggerRect,
+      unregisterOption,
+      selectId,
     ],
   );
 
@@ -318,7 +267,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   { className, children, onClick, onKeyDown, id: _ignoredId, ...props },
   forwardedRef,
 ) {
-  const { open, setOpen, triggerRef, updateTriggerRect, selectId } = useSelectContext();
+  const { open, setOpen, triggerRef, measureTriggerRect, selectId } = useSelectContext();
 
   const assignRef = React.useCallback(
     (node) => {
@@ -329,20 +278,20 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         forwardedRef.current = node;
       }
       if (node) {
-        updateTriggerRect();
+        measureTriggerRect();
       }
     },
-    [forwardedRef, triggerRef, updateTriggerRect],
+    [forwardedRef, measureTriggerRect, triggerRef],
   );
 
   const handleToggle = React.useCallback(
     (event) => {
       onClick?.(event);
       if (event.defaultPrevented) return;
-      updateTriggerRect();
+      measureTriggerRect();
       setOpen((prev) => !prev);
     },
-    [onClick, setOpen, measureTriggerRect],
+    [measureTriggerRect, onClick, setOpen],
   );
 
   const handleKeyDown = React.useCallback(
@@ -356,7 +305,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setOpen(true);
       }
     },
-    [onKeyDown, setOpen, measureTriggerRect],
+    [measureTriggerRect, onKeyDown, setOpen],
   );
 
   return (
@@ -418,7 +367,7 @@ export function SelectContent({ className, children, position = "popper", sideOf
   const contentRef = React.useRef(null);
 
   React.useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     const handlePointerDown = (event) => {
       const target = event.target;
       if (contentRef.current?.contains(target)) return;
@@ -531,6 +480,7 @@ export function SelectItem({ className, value, children }) {
         optionRefs.current.delete(value);
       };
     }
+    return undefined;
   }, [optionRefs, value]);
 
   const index = optionOrder.indexOf(value);
