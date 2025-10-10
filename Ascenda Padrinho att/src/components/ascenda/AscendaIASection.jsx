@@ -5,11 +5,11 @@ import { fakeAscendaIA } from "../../utils/fakeAscendaIA";
 const STORAGE_KEY = "ascenda_quizzes";
 
 const createId = () =>
-  (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+  (typeof crypto !== "undefined" && crypto.randomUUID
     ? crypto.randomUUID()
     : `quiz_${Date.now()}`);
 
-function readStoredQuizzes() {
+const readStoredQuizzes = () => {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -20,34 +20,16 @@ function readStoredQuizzes() {
     console.warn("AscendaIA: failed to read stored quizzes", error);
     return [];
   }
-}
+};
 
-function writeStoredQuizzes(quizzes) {
+const writeStoredQuizzes = (quizzes) => {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(quizzes));
   } catch (error) {
     console.warn("AscendaIA: failed to persist quizzes", error);
   }
-}
-
-const generateButtonClass = [
-  "rounded-xl",
-  "bg-gradient-to-r",
-  "from-purple-500",
-  "via-fuchsia-500",
-  "to-indigo-500",
-  "px-4",
-  "py-2",
-  "font-semibold",
-  "text-white",
-  "shadow",
-  "hover:from-purple-400",
-  "hover:via-fuchsia-400",
-  "hover:to-indigo-400",
-  "disabled:cursor-not-allowed",
-  "disabled:opacity-60",
-].join(" ");
+};
 
 export default function AscendaIASection({ attachedQuiz, onAttach }) {
   const [topic, setTopic] = React.useState("");
@@ -56,84 +38,70 @@ export default function AscendaIASection({ attachedQuiz, onAttach }) {
   const [loading, setLoading] = React.useState(false);
   const [quiz, setQuiz] = React.useState(null);
   const [savedQuizzes, setSavedQuizzes] = React.useState(() => readStoredQuizzes());
-  const [activeId, setActiveId] = React.useState(attachedQuiz?.id || null);
+  const [lastSavedId, setLastSavedId] = React.useState(attachedQuiz?.id || null);
 
   React.useEffect(() => {
-    setActiveId(attachedQuiz?.id || null);
+    setLastSavedId(attachedQuiz?.id || null);
   }, [attachedQuiz]);
 
   React.useEffect(() => {
     writeStoredQuizzes(savedQuizzes);
   }, [savedQuizzes]);
 
-  const handleGenerate = React.useCallback(async () => {
+  const handleGenerate = async () => {
     if (!topic.trim()) return;
 
     setLoading(true);
     try {
       const totalQuestions = Math.max(1, Number(count) || 1);
       const result = await fakeAscendaIA({ topic: topic.trim(), count: totalQuestions });
-      setQuiz({
+      const enhanced = {
         ...result,
         id: createId(),
         youtubeUrl: youtubeUrl.trim() || null,
-        status: "draft",
-      });
-    } catch (error) {
-      console.error("AscendaIA: generation failed", error);
-      if (typeof window !== "undefined") {
-        window.alert("AscendaIA could not generate the quiz. Try again.");
-      }
+      };
+      setQuiz(enhanced);
     } finally {
       setLoading(false);
     }
-  }, [topic, count, youtubeUrl]);
+  };
 
-  const handleSave = React.useCallback(() => {
+  const handleSave = () => {
     if (!quiz) return;
 
-    setSavedQuizzes((current) => {
-      const withoutCurrent = current.filter((item) => item.id !== quiz.id);
-      const next = [...withoutCurrent, quiz];
-      setActiveId(quiz.id);
-      onAttach?.(quiz);
+    const existing = savedQuizzes.filter((item) => item.id !== quiz.id);
+    const next = [...existing, quiz];
+    setSavedQuizzes(next);
+    setLastSavedId(quiz.id);
+    onAttach?.(quiz);
 
-      if (typeof window !== "undefined") {
-        window.alert("✅ Quiz saved locally!");
-      }
+    if (typeof window !== "undefined") {
+      window.alert("✅ Quiz saved locally!");
+    }
+  };
 
-      return next;
-    });
-  }, [onAttach, quiz]);
+  const handleAttachStored = (quizId) => {
+    const found = savedQuizzes.find((item) => item.id === quizId) || null;
+    setLastSavedId(found?.id || null);
+    onAttach?.(found || null);
+  };
 
-  const handleAttachStored = React.useCallback(
-    (quizId) => {
-      const found = savedQuizzes.find((item) => item.id === quizId) || null;
-      setActiveId(found?.id || null);
-      onAttach?.(found || null);
-    },
-    [onAttach, savedQuizzes],
-  );
-
-  const handleDeleteStored = React.useCallback(
-    (quizId) => {
-      setSavedQuizzes((current) => current.filter((item) => item.id !== quizId));
-      if (activeId === quizId) {
-        setActiveId(null);
-        onAttach?.(null);
-      }
-    },
-    [activeId, onAttach],
-  );
+  const handleDeleteStored = (quizId) => {
+    setSavedQuizzes((prev) => prev.filter((item) => item.id !== quizId));
+    if (lastSavedId === quizId) {
+      setLastSavedId(null);
+      onAttach?.(null);
+    }
+  };
 
   return (
-    <section className="space-y-5 rounded-2xl border border-border/60 bg-surface/70 p-5 shadow-lg">
-      <header className="space-y-1">
-        <h3 className="text-lg font-semibold text-primary">🧠 AscendaIA — Smart Quiz Generator</h3>
-        <p className="text-sm text-muted">
+    <div className="space-y-5 rounded-2xl border border-border/60 bg-surface/70 p-5 shadow-lg">
+      <div className="space-y-1">
+        <h3 className="text-lg font-semibold text-white">🧠 AscendaIA — Smart Quiz Generator</h3>
+        <p className="text-sm text-muted-foreground">
           Create quizzes from videos, documents, or topics. 100% front-end, no API key needed.
         </p>
-      </header>
+      </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <input
@@ -163,7 +131,7 @@ export default function AscendaIASection({ attachedQuiz, onAttach }) {
           type="button"
           onClick={handleGenerate}
           disabled={loading || !topic.trim()}
-          className={generateButtonClass}
+          className="rounded-xl bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 px-4 py-2 font-semibold text-white shadow hover:from-purple-400 hover:via-fuchsia-400 hover:to-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Generating..." : "✨ Generate with AscendaIA"}
         </button>
@@ -171,7 +139,7 @@ export default function AscendaIASection({ attachedQuiz, onAttach }) {
 
       {loading && (
         <motion.p
-          className="text-center text-sm text-muted"
+          className="text-center text-sm text-muted-foreground"
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
@@ -179,29 +147,27 @@ export default function AscendaIASection({ attachedQuiz, onAttach }) {
         </motion.p>
       )}
 
-      {quiz && !loading && (
+      {quiz && (
         <div className="space-y-3 rounded-xl border border-border/60 bg-surface/80 p-4">
           <div>
-            <h4 className="font-semibold text-primary">
+            <h4 className="font-semibold text-white">
               ✅ Quiz generated: {quiz.topic} ({quiz.total} questions)
             </h4>
             {quiz.youtubeUrl && (
-              <p className="text-xs text-muted">Source: {quiz.youtubeUrl}</p>
+              <p className="text-xs text-muted-foreground">Source: {quiz.youtubeUrl}</p>
             )}
-            <p className="text-xs text-muted">Created at {quiz.createdAt} by {quiz.createdBy}</p>
+            <p className="text-xs text-muted-foreground">Created at {quiz.createdAt} by {quiz.createdBy}</p>
           </div>
-
-          <ul className="space-y-1 text-sm text-muted">
+          <ul className="space-y-1 text-sm text-muted-foreground">
             {quiz.questions.slice(0, 5).map((question) => (
               <li key={question.id}>• {question.prompt}</li>
             ))}
             {quiz.questions.length > 5 && (
-              <li className="text-xs italic text-muted/80">
+              <li className="text-xs italic text-muted-foreground/80">
                 …and {quiz.questions.length - 5} more questions
               </li>
             )}
           </ul>
-
           <div className="flex justify-end">
             <button
               type="button"
@@ -214,31 +180,21 @@ export default function AscendaIASection({ attachedQuiz, onAttach }) {
         </div>
       )}
 
-      <div className="space-y-3 rounded-xl border border-border/50 bg-surface/70 p-4">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-secondary">Saved quizzes</h4>
-          {savedQuizzes.length > 0 && (
-            <span className="text-xs text-muted">{savedQuizzes.length} saved</span>
-          )}
-        </div>
-
-        {savedQuizzes.length === 0 ? (
-          <p className="text-xs text-muted/80">
-            No quizzes stored yet. Generate one above and save it to reuse later.
-          </p>
-        ) : (
+      {savedQuizzes.length > 0 && (
+        <div className="space-y-3 rounded-xl border border-border/50 bg-surface/70 p-4">
+          <h4 className="text-sm font-semibold text-muted-foreground">Saved quizzes</h4>
           <ul className="space-y-3 text-sm">
             {savedQuizzes.map((item) => (
               <li
                 key={item.id}
                 className={`rounded-lg border border-border/40 p-3 transition ${
-                  item.id === activeId ? "border-green-500/70 bg-green-500/5" : "bg-surface/70"
+                  item.id === lastSavedId ? "border-green-500/70 bg-green-500/5" : "bg-surface/70"
                 }`}
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-medium text-primary">{item.topic}</p>
-                    <p className="text-xs text-muted">
+                    <p className="font-medium text-white">{item.topic}</p>
+                    <p className="text-xs text-muted-foreground">
                       {item.total} questions · {item.createdAt}
                     </p>
                   </div>
@@ -262,8 +218,8 @@ export default function AscendaIASection({ attachedQuiz, onAttach }) {
               </li>
             ))}
           </ul>
-        )}
-      </div>
-    </section>
+        </div>
+      )}
+    </div>
   );
 }

@@ -15,7 +15,8 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import AscendaIASection from "../ascenda/AscendaIASection";
+import { QuizGeneratorModal } from "../quizzes/QuizGeneratorModal";
+import { QuizMiniPreview } from "../quizzes/QuizMiniPreview";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -29,7 +30,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
-  const [attachedQuiz, setAttachedQuiz] = useState(null);
+  const [quizzes, setQuizzes] = useState(null);
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -130,12 +132,14 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         courseData.youtube_video_id = youtubeVideoId;
       }
 
-      if (attachedQuiz) {
+      if (quizzes) {
         courseData.quizzes = {
-          status: attachedQuiz.status || "draft",
-          total: attachedQuiz.questions?.length || attachedQuiz.total || 0,
-          bundle: attachedQuiz,
-          assignedTo: attachedQuiz.assignedTo || [],
+          status: "draft",
+          total:
+            (quizzes?.easy?.length || 0) +
+            (quizzes?.intermediate?.length || 0) +
+            (quizzes?.advanced?.length || 0),
+          bundle: quizzes,
         };
       }
 
@@ -151,7 +155,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setTrainingType("");
       setFile(null);
       setPreviewData(null);
-      setAttachedQuiz(null);
+      setQuizzes(null);
     } catch (error) {
       console.error("Error uploading course:", error);
     }
@@ -298,7 +302,45 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </div>
           </div>
 
-          <AscendaIASection attachedQuiz={attachedQuiz} onAttach={setAttachedQuiz} />
+          <div className="space-y-3 rounded-2xl border border-border/60 bg-surface2/70 p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h4 className="text-base font-semibold text-primary">
+                  {t("courseForm.quizzes.title", "Course Quizzes (AI)")}
+                </h4>
+                <p className="text-xs text-muted">
+                  {t(
+                    "courseForm.quizzes.helper",
+                    "Generate 20 questions (7 easy, 7 intermediate, 6 advanced) from link/files/text.",
+                  )}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsQuizModalOpen(true)}
+                className="w-full sm:w-auto"
+              >
+                {t("courseForm.quizzes.generate", "Generate quizzes (AI)")}
+              </Button>
+            </div>
+
+            {quizzes ? (
+              <div className="space-y-2">
+                <QuizMiniPreview data={quizzes} />
+                <p className="text-xs text-muted">
+                  {t(
+                    "courseForm.quizzes.savedHint",
+                    "Quizzes will be attached to the course payload. Reopen to edit or replace.",
+                  )}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs text-muted">
+                {t("courseForm.quizzes.empty", "No quizzes generated yet.")}
+              </p>
+            )}
+          </div>
 
           {previewData && (
             <Button
@@ -329,6 +371,18 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
           </form>
         </CardContent>
       </Card>
+      {isQuizModalOpen && (
+        <QuizGeneratorModal
+          defaultYoutubeUrl={youtubeUrl}
+          defaultFiles={file ? [file] : []}
+          defaultText={description}
+          onClose={() => setIsQuizModalOpen(false)}
+          onSave={(quizJson) => {
+            setQuizzes(quizJson);
+            setIsQuizModalOpen(false);
+          }}
+        />
+      )}
     </>
   );
 }
