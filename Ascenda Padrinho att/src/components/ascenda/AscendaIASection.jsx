@@ -82,7 +82,7 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
             className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
             aria-label={`Incluir nível ${title}`}
           />
-          <span className="whitespace-nowrap">Incluir</span>
+          <span>Incluir</span>
         </label>
       </div>
       <div className="mt-auto flex items-end justify-between gap-3 pt-4">
