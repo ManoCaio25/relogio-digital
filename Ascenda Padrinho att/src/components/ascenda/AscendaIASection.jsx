@@ -127,6 +127,23 @@ export function CardsContainer({ children }) {
   );
 }
 
+export const LevelCard = DifficultyCard;
+
+export function CardsContainer({ children }) {
+  return (
+    <div
+      className="
+      grid gap-6
+      grid-cols-1
+      md:[grid-template-columns:repeat(3,minmax(260px,1fr))]
+      items-stretch isolate
+    "
+    >
+      {children}
+    </div>
+  );
+}
+
 function StatChip({ label, count, color = "sky" }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
