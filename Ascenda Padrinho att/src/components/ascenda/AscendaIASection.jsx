@@ -275,8 +275,8 @@ export default function AscendaIASection({ asModal = false }) {
 
   const content = (
     <>
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:gap-8">
-        <div className="flex-1 min-w-0 space-y-6">
+      <div className="grid gap-6 items-start xl:gap-8 xl:grid-cols-[1fr_320px]">
+        <div className="min-w-0 space-y-6">
           {/* header */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-1">
@@ -333,7 +333,7 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
         </div>
 
-        <aside className="w-full shrink-0 space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 xl:w-[320px]">
+        <aside className="w-full space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
           <div className="space-y-1">
             <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
             <p className="text-xs text-white/60">
