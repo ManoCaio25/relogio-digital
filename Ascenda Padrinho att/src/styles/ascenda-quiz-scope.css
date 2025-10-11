@@ -1,0 +1,29 @@
+/* Isolamento: neutraliza efeitos do CSS global dentro da aba */
+[data-quiz-scope],
+[data-quiz-scope] * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  transform: none !important;
+  rotate: 0deg !important;
+}
+
+/* Evita que textos “estourem” em colunas estreitas */
+[data-quiz-scope] * {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Cards não viram “filetes” */
+[data-quiz-scope] .quiz-card {
+  min-width: 220px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Impedir scroll horizontal no bloco (sem mascarar bugs visuais) */
+[data-quiz-scope] {
+  overflow-x: hidden;
+}
