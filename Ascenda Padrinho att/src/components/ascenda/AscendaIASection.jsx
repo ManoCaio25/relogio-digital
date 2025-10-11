@@ -1,9 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 
 const ACCENT_STYLES = {
   sky: {
-    cardRing: "ring-sky-400/40",
     checkbox: "text-sky-300 focus-visible:ring-sky-300/40",
     chipBorder: "border-sky-400/40",
     chipBg: "bg-sky-400/10",
@@ -12,7 +10,6 @@ const ACCENT_STYLES = {
     inputFocus: "focus:border-sky-300/60 focus:ring-sky-300/30",
   },
   violet: {
-    cardRing: "ring-violet-400/40",
     checkbox: "text-violet-300 focus-visible:ring-violet-300/40",
     chipBorder: "border-violet-400/40",
     chipBg: "bg-violet-400/10",
@@ -21,7 +18,6 @@ const ACCENT_STYLES = {
     inputFocus: "focus:border-violet-300/60 focus:ring-violet-300/30",
   },
   fuchsia: {
-    cardRing: "ring-fuchsia-400/40",
     checkbox: "text-fuchsia-300 focus-visible:ring-fuchsia-300/40",
     chipBorder: "border-fuchsia-400/40",
     chipBg: "bg-fuchsia-400/10",
@@ -60,19 +56,17 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 }
 
 /** ---- small UI helpers ---- */
-function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
-  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
+function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
   return (
     <motion.div
       whileHover={{ y: -3 }}
       className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${accent.cardRing} transition-all duration-200 hover:shadow-md`}
     >
+      {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h4 className="truncate text-sm font-semibold text-white" title={title}>
-            {title}
-          </h4>
-          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
+        <div className="min-w-0">
+          <p className="text-base font-medium whitespace-normal break-words normal-case">{title}</p>
+          <p className="text-sm opacity-80 whitespace-normal break-words normal-case">{subtitle}</p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
           <input
@@ -118,6 +112,21 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
   );
 }
 
+export function CardsContainer({ children }) {
+  return (
+    <div
+      className="
+      grid gap-6
+      grid-cols-1
+      md:[grid-template-columns:repeat(3,minmax(260px,1fr))]
+      items-stretch isolate
+    "
+    >
+      {children}
+    </div>
+  );
+}
+
 function StatChip({ label, count, color = "sky" }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
   return (
@@ -159,19 +168,16 @@ export default function AscendaIASection() {
         code: "easy",
         title: "Básico",
         desc: "Vitórias rápidas e aquecimento",
-        accent: "sky",
       },
       {
         code: "intermediate",
         title: "Intermediário",
         desc: "Raciocínio baseado em cenários",
-        accent: "violet",
       },
       {
         code: "advanced",
         title: "Avançado",
         desc: "Profundidade estratégica e arquitetural",
-        accent: "fuchsia",
       },
     ],
     []
@@ -306,19 +312,15 @@ export default function AscendaIASection() {
       </div>
 
       {/* actions */}
-      <div className="mt-8 flex flex-col items-center gap-3 text-center">
-        <span
-          className="text-sm text-white/80"
-          aria-live="polite"
-        >
-          Total solicitado:{" "}
-          <span className="rounded-md bg-white/10 px-2 py-0.5 font-semibold text-white">{totalRequested}</span>
-        </span>
+      <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <p className="text-sm text-white/80" aria-live="polite">
+          Total solicitado: <span className="font-semibold text-white">{totalRequested}</span>
+        </p>
         <button
           type="button"
           onClick={generate}
           disabled={loading || !canGenerate}
-          className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-500/80 via-violet-500/70 to-fuchsia-500/80 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-fuchsia-500/10 transition-all duration-200 hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:opacity-60 md:w-auto"
         >
           {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
         </button>
