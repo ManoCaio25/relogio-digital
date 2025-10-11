@@ -340,25 +340,21 @@ export default function AscendaIASection({ asModal = false }) {
             </p>
           </div>
 
-          <div className="space-y-4 rounded-xl border border-white/10 bg-background/40 p-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-xs uppercase tracking-wide text-white/50">Total solicitado</span>
-              <span className="text-2xl font-semibold text-white" aria-live="polite">
-                {totalRequested}
-              </span>
-            </div>
-            <ul className="space-y-2">
-              {summaryItems.map((item) => (
-                <li key={item.code} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="flex items-center gap-2 text-white/80">
-                    <span className={cn("h-2.5 w-2.5 rounded-full", SUMMARY_DOT_COLORS[item.accent])} />
-                    {item.title}
-                  </span>
-                  <span className={cn("font-semibold", item.enabled ? "text-white" : "text-white/35")}>{item.total}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* level cards */}
+      <div id="quiz-cards" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {levels.map((level) => (
+          <LevelCard
+            key={level.code}
+            color={level.accent}
+            title={level.title}
+            desc={level.desc}
+            checked={Boolean(sel[level.code])}
+            onToggle={() => handleToggleLevel(level.code)}
+            value={counts[level.code]}
+            onChange={(next) => handleCountChange(level.code, next)}
+          />
+        ))}
+      </div>
 
           <button
             type="button"
