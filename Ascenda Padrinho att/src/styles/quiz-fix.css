@@ -1,0 +1,20 @@
+/* Quiz card layout hotfix */
+#quiz-cards,
+#quiz-cards * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  transform: none !important;
+  rotate: 0deg !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+#quiz-cards .quiz-card {
+  min-width: 220px;
+  max-width: 100%;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
