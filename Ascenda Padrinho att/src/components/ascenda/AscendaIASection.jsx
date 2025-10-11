@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 
 const ACCENT_STYLES = {
   sky: {
@@ -54,58 +53,70 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 }
 
 /** ---- small UI helpers ---- */
-function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onChange }) {
-  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
-  const displayValue = checked ? value ?? 0 : 0;
+function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
   return (
-    <motion.div
-      className={`relative flex h-full min-w-[260px] flex-col rounded-2xl border ${
-        checked ? "border-primary/60" : "border-border/60"
-      } bg-surface/80 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:z-10 focus-within:z-10`}
+    <div
+      className="
+      relative flex h-full flex-col
+      rounded-2xl border border-border/60 bg-surface/80 p-5
+      shadow-sm hover:shadow-md transition
+      min-w-[260px]
+      hover:z-10 focus-within:z-10
+    "
     >
+      {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-base font-medium text-white whitespace-normal break-words normal-case">{title}</p>
-          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
+          <p className="text-base font-medium whitespace-normal break-words normal-case">{title}</p>
+          <p className="text-sm opacity-80 whitespace-normal break-words normal-case">{subtitle}</p>
         </div>
-        <label className="flex items-center gap-2 text-sm text-white/70 select-none">
-          <input
-            type="checkbox"
-            checked={checked}
-            onChange={onToggle}
-            className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
-            aria-label={`Incluir nível ${title}`}
-          />
+        <label className="flex items-center gap-2 text-sm select-none">
+          <input type="checkbox" checked={enabled} onChange={onToggle} />
           Habilitar
         </label>
       </div>
 
-      <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-white/60">Questões</div>
+      {/* Conteúdo */}
+      <div className="mt-4 text-xs font-semibold opacity-80">QUESTÕES</div>
 
+      {/* Rodapé fixo no fundo do card */}
       <div className="mt-auto flex items-center gap-3 pt-3">
         <button
-          type="button"
-          onClick={() => onChange(Math.max(0, displayValue - 1))}
-          disabled={!checked || displayValue === 0}
-          className="h-9 w-9 rounded-lg border border-white/15 bg-background/70 text-lg text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`Remover questão de nível ${title}`}
+          className="h-9 w-9 rounded-lg border bg-background/70 disabled:opacity-40"
+          onClick={() => onStep(-1)}
+          disabled={!enabled || count <= 0}
+          aria-label="Diminuir"
         >
-          −
+          –
         </button>
-        <span className="w-10 text-center tabular-nums text-white" aria-live="polite">
-          {displayValue}
+        <span className="w-10 text-center tabular-nums" aria-live="polite">
+          {enabled ? count : 0}
         </span>
         <button
-          type="button"
-          onClick={() => onChange(displayValue + 1)}
-          disabled={!checked}
-          className="h-9 w-9 rounded-lg border border-white/15 bg-background/70 text-lg text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`Adicionar questão de nível ${title}`}
+          className="h-9 w-9 rounded-lg border bg-background/70 disabled:opacity-40"
+          onClick={() => onStep(+1)}
+          disabled={!enabled}
+          aria-label="Aumentar"
         >
           +
         </button>
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+export function CardsContainer({ children }) {
+  return (
+    <div
+      className="
+      grid gap-6
+      grid-cols-1
+      md:[grid-template-columns:repeat(3,minmax(260px,1fr))]
+      items-stretch isolate
+    "
+    >
+      {children}
+    </div>
   );
 }
 
@@ -150,19 +161,16 @@ export default function AscendaIASection() {
         code: "easy",
         title: "Básico",
         desc: "Vitórias rápidas e aquecimento",
-        accent: "sky",
       },
       {
         code: "intermediate",
         title: "Intermediário",
         desc: "Raciocínio baseado em cenários",
-        accent: "violet",
       },
       {
         code: "advanced",
         title: "Avançado",
         desc: "Profundidade estratégica e arquitetural",
-        accent: "fuchsia",
       },
     ],
     []
@@ -180,13 +188,15 @@ export default function AscendaIASection() {
     }));
   };
 
-  const handleCountChange = (code, value) => {
-    const numeric = Number(value);
-    const safe = Number.isFinite(numeric) ? numeric : 0;
-    setCounts((prev) => ({
-      ...prev,
-      [code]: Math.max(0, safe),
-    }));
+  const handleStep = (code, delta) => {
+    setCounts((prev) => {
+      const current = Number(prev[code] ?? 0);
+      const next = Math.max(0, current + delta);
+      return {
+        ...prev,
+        [code]: next,
+      };
+    });
   };
 
   const generate = async () => {
@@ -281,19 +291,20 @@ export default function AscendaIASection() {
       </div>
 
       {/* level cards */}
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3 items-stretch isolate">
-        {levels.map((level) => (
-          <LevelCard
-            key={level.code}
-            color={level.accent}
-            title={level.title}
-            desc={level.desc}
-            checked={Boolean(sel[level.code])}
-            onToggle={() => handleToggleLevel(level.code)}
-            value={counts[level.code]}
-            onChange={(next) => handleCountChange(level.code, next)}
-          />
-        ))}
+      <div className="mt-6">
+        <CardsContainer>
+          {levels.map((level) => (
+            <DifficultyCard
+              key={level.code}
+              title={level.title}
+              subtitle={level.desc}
+              enabled={Boolean(sel[level.code])}
+              count={counts[level.code] ?? 0}
+              onToggle={() => handleToggleLevel(level.code)}
+              onStep={(delta) => handleStep(level.code, delta)}
+            />
+          ))}
+        </CardsContainer>
       </div>
 
       {/* actions */}
