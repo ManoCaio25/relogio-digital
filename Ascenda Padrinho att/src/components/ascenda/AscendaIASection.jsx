@@ -1,33 +1,26 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 
 const ACCENT_STYLES = {
   sky: {
-    cardRing: "ring-sky-400/20",
     checkbox: "text-sky-300 focus-visible:ring-sky-300/40",
     chipBorder: "border-sky-400/40",
     chipBg: "bg-sky-400/10",
     chipText: "text-sky-100",
     previewBorder: "border-sky-400/40",
-    inputFocus: "focus:border-sky-300/60 focus:ring-sky-300/30",
   },
   violet: {
-    cardRing: "ring-violet-400/20",
     checkbox: "text-violet-300 focus-visible:ring-violet-300/40",
     chipBorder: "border-violet-400/40",
     chipBg: "bg-violet-400/10",
     chipText: "text-violet-100",
     previewBorder: "border-violet-400/40",
-    inputFocus: "focus:border-violet-300/60 focus:ring-violet-300/30",
   },
   fuchsia: {
-    cardRing: "ring-fuchsia-400/20",
     checkbox: "text-fuchsia-300 focus-visible:ring-fuchsia-300/40",
     chipBorder: "border-fuchsia-400/40",
     chipBg: "bg-fuchsia-400/10",
     chipText: "text-fuchsia-100",
     previewBorder: "border-fuchsia-400/40",
-    inputFocus: "focus:border-fuchsia-300/60 focus:ring-fuchsia-300/30",
   },
 };
 
@@ -62,11 +55,25 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 /** ---- small UI helpers ---- */
 function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color = "sky" }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
+  const enabled = Boolean(checked);
+  const count = Number.isFinite(Number(value)) ? Number(value) : 0;
+
+  const handleStep = (delta) => {
+    if (!onChange) return;
+    const next = Math.max(0, count + delta);
+    onChange(next);
+  };
 
   return (
-    <motion.div
-      whileHover={{ y: -3 }}
-      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${accent.cardRing} transition-all duration-200 hover:shadow-md`}
+    <div
+      className="
+    relative box-border overflow-hidden  /* <- impede vazamento lateral */
+    flex h-full min-w-0 flex-col
+    rounded-2xl border border-border/60 bg-surface/80 p-5
+    shadow-sm transition
+    /* sem hover translate-x; se quiser leve lift vertical: */
+    hover:-translate-y-0.5 hover:shadow-md
+  "
     >
       {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
@@ -77,7 +84,7 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
         <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
           <input
             type="checkbox"
-            checked={checked}
+            checked={enabled}
             onChange={() => onToggle?.()}
             className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
             aria-label={`Incluir nível ${title}`}
@@ -85,42 +92,40 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
           <span className="whitespace-nowrap">Incluir</span>
         </label>
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questões</span>
-        <div className="mt-3 flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => onChange?.(Math.max(0, (value || 0) - 1))}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
-            aria-label={`Remover questão de nível ${title}`}
-          >
-            −
-          </button>
-          <input
-            type="number"
-            min={0}
-            value={value ?? 0}
-            onChange={(e) => onChange?.(Number(e.target.value))}
-            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:ring-2 ${accent.inputFocus}`}
-            aria-label={`Quantidade de questões nível ${title}`}
-          />
-          <button
-            type="button"
-            onClick={() => onChange?.((value || 0) + 1)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
-            aria-label={`Adicionar questão de nível ${title}`}
-          >
-            +
-          </button>
-        </div>
+      <div className="mt-4 text-xs font-semibold opacity-80">QUESTÕES</div>
+
+      <div className="mt-auto flex items-center justify-center gap-3 pt-3">
+        <button
+          type="button"
+          onClick={() => handleStep(-1)}
+          disabled={!enabled || count <= 0}
+          className="h-10 w-10 rounded-xl border border-white/15 bg-background/60 text-lg disabled:opacity-40"
+          aria-label={`Remover questão de nível ${title}`}
+        >
+          −
+        </button>
+
+        <span className="w-10 text-center tabular-nums" aria-live="polite">
+          {enabled ? count : 0}
+        </span>
+
+        <button
+          type="button"
+          onClick={() => handleStep(1)}
+          disabled={!enabled}
+          className="h-10 w-10 rounded-xl border border-white/15 bg-background/60 text-lg disabled:opacity-40"
+          aria-label={`Adicionar questão de nível ${title}`}
+        >
+          +
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 export function CardsContainer({ children }) {
   return (
-    <div className="grid gap-6 grid-cols-1 md:[grid-template-columns:repeat(3,minmax(260px,1fr))] items-stretch isolate">
+    <div className="grid gap-6 grid-cols-1 md:[grid-template-columns:repeat(3,minmax(260px,1fr))] auto-rows-fr items-stretch isolate">
       {children}
     </div>
   );
