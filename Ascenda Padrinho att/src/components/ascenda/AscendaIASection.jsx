@@ -69,7 +69,6 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
         accent.cardRing,
       )}
     >
-      {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <p className="text-base font-semibold whitespace-normal break-words normal-case">{title}</p>
