@@ -65,14 +65,14 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
     <motion.div
       whileHover={{ y: -3 }}
       className={cn(
-        "flex min-h-[180px] min-w-[200px] flex-col justify-between rounded-2xl border border-border/60 bg-surface/80 p-5 text-left shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
+        "flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
         accent.cardRing,
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <h3 className="text-lg font-semibold text-foreground whitespace-normal break-words">{title}</h3>
-          <p className="text-sm text-muted-foreground whitespace-normal break-words">{desc}</p>
+          <p className="text-base font-semibold whitespace-normal break-words normal-case">{title}</p>
+          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
           <input
@@ -85,7 +85,7 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
           <span className="whitespace-nowrap">Incluir</span>
         </label>
       </div>
-      <div className="mt-6 flex items-center justify-between gap-3">
+      <div className="mt-auto flex items-end justify-between gap-3 pt-4">
         <div className="flex flex-col text-xs uppercase tracking-wide text-white/50">
           <span className="font-medium">Questões</span>
           <span className="text-[11px] text-white/40">Disponíveis para este nível</span>
@@ -302,7 +302,7 @@ export default function AscendaIASection({ asModal = false }) {
       </div>
 
       {/* level cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {levels.map((level) => (
           <LevelCard
             key={level.code}
