@@ -7,6 +7,7 @@ const ACCENT_STYLES = {
     chipBg: "bg-sky-400/10",
     chipText: "text-sky-100",
     previewBorder: "border-sky-400/40",
+    inputFocus: "focus:border-sky-300/60 focus:ring-sky-300/30",
   },
   violet: {
     checkbox: "text-violet-300 focus-visible:ring-violet-300/40",
@@ -14,6 +15,7 @@ const ACCENT_STYLES = {
     chipBg: "bg-violet-400/10",
     chipText: "text-violet-100",
     previewBorder: "border-violet-400/40",
+    inputFocus: "focus:border-violet-300/60 focus:ring-violet-300/30",
   },
   fuchsia: {
     checkbox: "text-fuchsia-300 focus-visible:ring-fuchsia-300/40",
@@ -21,6 +23,7 @@ const ACCENT_STYLES = {
     chipBg: "bg-fuchsia-400/10",
     chipText: "text-fuchsia-100",
     previewBorder: "border-fuchsia-400/40",
+    inputFocus: "focus:border-fuchsia-300/60 focus:ring-fuchsia-300/30",
   },
 };
 
@@ -55,14 +58,9 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 /** ---- small UI helpers ---- */
 function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
   return (
-    <div
-      className="
-      relative flex h-full flex-col
-      rounded-2xl border border-border/60 bg-surface/80 p-5
-      shadow-sm hover:shadow-md transition
-      min-w-[260px]
-      hover:z-10 focus-within:z-10
-    "
+    <motion.div
+      whileHover={{ y: -3 }}
+      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${accent.cardRing} transition-all duration-200 hover:shadow-md`}
     >
       {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
@@ -70,37 +68,61 @@ function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
           <p className="text-base font-medium whitespace-normal break-words normal-case">{title}</p>
           <p className="text-sm opacity-80 whitespace-normal break-words normal-case">{subtitle}</p>
         </div>
-        <label className="flex items-center gap-2 text-sm select-none">
-          <input type="checkbox" checked={enabled} onChange={onToggle} />
-          Habilitar
+        <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={onToggle}
+            className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
+            aria-label={`Incluir nível ${title}`}
+          />
+          <span className="whitespace-nowrap">Incluir</span>
         </label>
       </div>
-
-      {/* Conteúdo */}
-      <div className="mt-4 text-xs font-semibold opacity-80">QUESTÕES</div>
-
-      {/* Rodapé fixo no fundo do card */}
-      <div className="mt-auto flex items-center gap-3 pt-3">
-        <button
-          className="h-9 w-9 rounded-lg border bg-background/70 disabled:opacity-40"
-          onClick={() => onStep(-1)}
-          disabled={!enabled}
-          aria-label="Diminuir"
-        >
-          –
-        </button>
-        <span className="w-10 text-center tabular-nums" aria-live="polite">
-          {enabled ? count : 0}
-        </span>
-        <button
-          className="h-9 w-9 rounded-lg border bg-background/70 disabled:opacity-40"
-          onClick={() => onStep(+1)}
-          disabled={!enabled}
-          aria-label="Aumentar"
-        >
-          +
-        </button>
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questões</span>
+        <div className="flex items-center justify-center gap-3 mt-3">
+          <button
+            type="button"
+            onClick={() => onChange(Math.max(0, (value || 0) - 1))}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
+            aria-label={`Remover questão de nível ${title}`}
+          >
+            −
+          </button>
+          <input
+            type="number"
+            min={0}
+            value={value ?? 0}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:ring-2 ${accent.inputFocus}`}
+            aria-label={`Quantidade de questões nível ${title}`}
+          />
+          <button
+            type="button"
+            onClick={() => onChange((value || 0) + 1)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
+            aria-label={`Adicionar questão de nível ${title}`}
+          >
+            +
+          </button>
+        </div>
       </div>
+    </motion.div>
+  );
+}
+
+export function CardsContainer({ children }) {
+  return (
+    <div
+      className="
+      grid gap-6
+      grid-cols-1
+      md:[grid-template-columns:repeat(3,minmax(260px,1fr))]
+      items-stretch isolate
+    "
+    >
+      {children}
     </div>
   );
 }
@@ -121,6 +143,20 @@ export function CardsContainer({ children }) {
     </div>
   );
 }
+
+export const LevelCard = DifficultyCard;
+
+function CardsContainerLayout({ children }) {
+  return (
+    <div
+      className="grid gap-6 grid-cols-1 md:[grid-template-columns:repeat(3,minmax(260px,1fr))] items-stretch isolate"
+    >
+      {children}
+    </div>
+  );
+}
+
+export const CardsContainer = CardsContainerLayout;
 
 function StatChip({ label, count, color = "sky" }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
@@ -190,15 +226,13 @@ export default function AscendaIASection() {
     }));
   };
 
-  const handleStep = (code, delta) => {
-    setCounts((prev) => {
-      const current = Number(prev[code] ?? 0);
-      const next = Math.max(0, current + delta);
-      return {
-        ...prev,
-        [code]: next,
-      };
-    });
+  const handleCountChange = (code, value) => {
+    const numeric = Number(value);
+    const safe = Number.isFinite(numeric) ? numeric : 0;
+    setCounts((prev) => ({
+      ...prev,
+      [code]: Math.max(0, safe),
+    }));
   };
 
   const generate = async () => {
@@ -293,20 +327,19 @@ export default function AscendaIASection() {
       </div>
 
       {/* level cards */}
-      <div className="mt-6">
-        <CardsContainer>
-          {levels.map((level) => (
-            <DifficultyCard
-              key={level.code}
-              title={level.title}
-              subtitle={level.desc}
-              enabled={Boolean(sel[level.code])}
-              count={counts[level.code] ?? 0}
-              onToggle={() => handleToggleLevel(level.code)}
-              onStep={(delta) => handleStep(level.code, delta)}
-            />
-          ))}
-        </CardsContainer>
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {levels.map((level) => (
+          <LevelCard
+            key={level.code}
+            color={level.accent}
+            title={level.title}
+            desc={level.desc}
+            checked={Boolean(sel[level.code])}
+            onToggle={() => handleToggleLevel(level.code)}
+            value={counts[level.code]}
+            onChange={(next) => handleCountChange(level.code, next)}
+          />
+        ))}
       </div>
 
       {/* actions */}
