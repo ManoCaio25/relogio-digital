@@ -29,6 +29,12 @@ const ACCENT_STYLES = {
   },
 };
 
+const SUMMARY_DOT_COLORS = {
+  sky: "bg-sky-300/80",
+  violet: "bg-violet-300/80",
+  fuchsia: "bg-fuchsia-300/80",
+};
+
 /** ---- mock IA: generate questions per level (front-only) ---- */
 function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
   const build = (level, n) =>
@@ -65,7 +71,7 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
     <motion.div
       whileHover={{ y: -3 }}
       className={cn(
-        "flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
+        "quiz-card flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
         accent.cardRing,
       )}
     >
@@ -251,98 +257,139 @@ export default function AscendaIASection({ asModal = false }) {
     alert("✅ Quiz saved locally!");
   };
 
+  const summaryItems = levels.map((level) => ({
+    ...level,
+    enabled: Boolean(sel[level.code]),
+    total: sel[level.code] ? Number(counts[level.code] || 0) : 0,
+  }));
+
   const wrapperProps = {
     role: "region",
     "aria-label": "Gerar Quizzes",
+    "data-quiz-scope": "",
     className: cn(
-      "w-full max-w-4xl mx-auto space-y-6 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm",
-      asModal && "max-w-full",
+      "w-full space-y-8 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
+      asModal ? "max-w-full" : "mx-auto max-w-6xl",
     ),
   };
 
   const content = (
     <>
-      {/* header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
-          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-            Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
-          </p>
+      <div className="grid items-start gap-6 xl:grid-cols-[1fr_320px] xl:gap-8">
+        <div className="min-w-0 space-y-6">
+          {/* header */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
+              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+                Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
+              </p>
+            </div>
+            {quiz && (
+              <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
+                Rascunho pronto
+              </span>
+            )}
+          </div>
+
+          {/* inputs */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2 text-sm text-white/70">
+              <span className="text-sm font-medium text-white">Tópico</span>
+              <input
+                className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+                placeholder="Tópico (ex.: React, Lógica, SQL)"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                aria-label="Tópico do quiz"
+              />
+            </label>
+            <label className="flex flex-col gap-2 text-sm text-white/70">
+              <span className="text-sm font-medium text-white">Link do YouTube</span>
+              <input
+                className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+                placeholder="Link do YouTube (opcional)"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
+                aria-label="Link do YouTube para referência"
+              />
+            </label>
+          </div>
+
+          {/* level cards */}
+          <div className="quiz-cards grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {levels.map((level) => (
+              <LevelCard
+                key={level.code}
+                color={level.accent}
+                title={level.title}
+                desc={level.desc}
+                checked={Boolean(sel[level.code])}
+                onToggle={() => handleToggleLevel(level.code)}
+                value={counts[level.code]}
+                onChange={(next) => handleCountChange(level.code, next)}
+              />
+            ))}
+          </div>
         </div>
-        {quiz && (
-          <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
-            Rascunho pronto
-          </span>
-        )}
-      </div>
 
-      {/* inputs */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="flex flex-col gap-2 text-sm text-white/70">
-          <span className="text-sm font-medium text-white">Tópico</span>
-          <input
-            className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-            placeholder="Tópico (ex.: React, Lógica, SQL)"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            aria-label="Tópico do quiz"
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm text-white/70">
-          <span className="text-sm font-medium text-white">Link do YouTube</span>
-          <input
-            className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-            placeholder="Link do YouTube (opcional)"
-            value={youtubeUrl}
-            onChange={(e) => setYoutubeUrl(e.target.value)}
-            aria-label="Link do YouTube para referência"
-          />
-        </label>
-      </div>
+        <aside className="w-full space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 xl:w-[320px] xl:shrink-0">
+          <div className="space-y-1">
+            <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
+            <p className="text-xs text-white/60">
+              Ajuste os níveis e quantidades antes de gerar o quiz com a AscendaIA.
+            </p>
+          </div>
 
-      {/* level cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {levels.map((level) => (
-          <LevelCard
-            key={level.code}
-            color={level.accent}
-            title={level.title}
-            desc={level.desc}
-            checked={Boolean(sel[level.code])}
-            onToggle={() => handleToggleLevel(level.code)}
-            value={counts[level.code]}
-            onChange={(next) => handleCountChange(level.code, next)}
-          />
-        ))}
-      </div>
+          <div className="space-y-4 rounded-xl border border-white/10 bg-background/40 p-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-xs uppercase tracking-wide text-white/50">Total solicitado</span>
+              <span className="text-2xl font-semibold text-white" aria-live="polite">
+                {totalRequested}
+              </span>
+            </div>
+            <ul className="space-y-2">
+              {summaryItems.map((item) => (
+                <li key={item.code} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="flex items-center gap-2 text-white/80">
+                    <span className={cn("h-2.5 w-2.5 rounded-full", SUMMARY_DOT_COLORS[item.accent])} />
+                    {item.title}
+                  </span>
+                  <span className={cn("font-semibold", item.enabled ? "text-white" : "text-white/35")}>{item.total}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      {/* actions */}
-      <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-white/80" aria-live="polite">
-          Total solicitado: <span className="font-semibold text-white">{totalRequested}</span>
-        </p>
-        <button
-          type="button"
-          onClick={generate}
-          disabled={loading || !canGenerate}
-          className="w-full rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:opacity-60 md:w-auto"
-        >
-          {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={generate}
+            disabled={loading || !canGenerate}
+            className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
+          </button>
 
-      {/* loading */}
-      {loading && (
-        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/10">
-          <div className="h-full w-1/3 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
-        </div>
-      )}
+          {loading ? (
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="status" aria-live="polite">
+              <div className="h-full w-1/2 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
+            </div>
+          ) : quiz ? (
+            <p className="text-xs font-medium text-emerald-200">
+              Quiz pronto! Revise o conteúdo abaixo ou salve como rascunho.
+            </p>
+          ) : (
+            <p className="text-xs text-white/60">
+              Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
+            </p>
+          )}
+        </aside>
+      </div>
 
       {/* preview */}
       {quiz && (
-        <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="text-sm text-white/70">
               <span className="font-semibold">{quiz.topic}</span>
               <span className="mx-2 hidden md:inline">•</span>
@@ -363,7 +410,7 @@ export default function AscendaIASection({ asModal = false }) {
             <PreviewCol label="Avançado" color="fuchsia" items={quiz.advanced} />
           </div>
 
-          <div className="mt-4 flex justify-end gap-2">
+          <div className="mt-5 flex flex-col justify-end gap-2 sm:flex-row">
             <button
               type="button"
               onClick={() => setQuiz(null)}
