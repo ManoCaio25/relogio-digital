@@ -275,8 +275,8 @@ export default function AscendaIASection({ asModal = false }) {
 
   const content = (
     <>
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-8">
-        <div className="min-w-0 space-y-6">
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:gap-8">
+        <div className="flex-1 space-y-6">
           {/* header */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-1">
@@ -317,7 +317,7 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
 
           {/* level cards */}
-          <div className="quiz-cards grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div id="quiz-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {levels.map((level) => (
               <LevelCard
                 key={level.code}
@@ -333,7 +333,7 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
         </div>
 
-        <aside className="w-full space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 xl:w-[320px] xl:shrink-0">
+        <aside className="w-full shrink-0 space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 xl:max-w-xs">
           <div className="space-y-1">
             <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
             <p className="text-xs text-white/60">
@@ -341,25 +341,21 @@ export default function AscendaIASection({ asModal = false }) {
             </p>
           </div>
 
-          <div className="space-y-4 rounded-xl border border-white/10 bg-background/40 p-4">
-            <div className="flex items-baseline justify-between gap-3">
-              <span className="text-xs uppercase tracking-wide text-white/50">Total solicitado</span>
-              <span className="text-2xl font-semibold text-white" aria-live="polite">
-                {totalRequested}
-              </span>
-            </div>
-            <ul className="space-y-2">
-              {summaryItems.map((item) => (
-                <li key={item.code} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="flex items-center gap-2 text-white/80">
-                    <span className={cn("h-2.5 w-2.5 rounded-full", SUMMARY_DOT_COLORS[item.accent])} />
-                    {item.title}
-                  </span>
-                  <span className={cn("font-semibold", item.enabled ? "text-white" : "text-white/35")}>{item.total}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* level cards */}
+      <div id="quiz-cards" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {levels.map((level) => (
+          <LevelCard
+            key={level.code}
+            color={level.accent}
+            title={level.title}
+            desc={level.desc}
+            checked={Boolean(sel[level.code])}
+            onToggle={() => handleToggleLevel(level.code)}
+            value={counts[level.code]}
+            onChange={(next) => handleCountChange(level.code, next)}
+          />
+        ))}
+      </div>
 
           <button
             type="button"
