@@ -9,6 +9,7 @@ const ACCENT_STYLES = {
     chipBg: "bg-sky-400/10",
     chipText: "text-sky-100",
     previewBorder: "border-sky-400/40",
+    inputFocus: "focus:border-sky-300/60 focus:ring-sky-300/30",
   },
   violet: {
     cardRing: "ring-violet-400/40",
@@ -17,6 +18,7 @@ const ACCENT_STYLES = {
     chipBg: "bg-violet-400/10",
     chipText: "text-violet-100",
     previewBorder: "border-violet-400/40",
+    inputFocus: "focus:border-violet-300/60 focus:ring-violet-300/30",
   },
   fuchsia: {
     cardRing: "ring-fuchsia-400/40",
@@ -25,6 +27,7 @@ const ACCENT_STYLES = {
     chipBg: "bg-fuchsia-400/10",
     chipText: "text-fuchsia-100",
     previewBorder: "border-fuchsia-400/40",
+    inputFocus: "focus:border-fuchsia-300/60 focus:ring-fuchsia-300/30",
   },
 };
 
@@ -62,7 +65,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
   return (
     <motion.div
       whileHover={{ y: -3 }}
-      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${ring} transition-all duration-200 hover:shadow-md`}
+      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${accent.cardRing} transition-all duration-200 hover:shadow-md`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
@@ -76,7 +79,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
             type="checkbox"
             checked={checked}
             onChange={onToggle}
-            className="h-4 w-4 rounded border border-white/40 bg-transparent accent-current"
+            className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
             aria-label={`Incluir nível ${title}`}
           />
           <span className="whitespace-nowrap">Incluir</span>
@@ -98,7 +101,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
             min={0}
             value={value ?? 0}
             onChange={(e) => onChange(Number(e.target.value))}
-            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 ${focus}`}
+            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:ring-2 ${accent.inputFocus}`}
             aria-label={`Quantidade de questões nível ${title}`}
           />
           <button
@@ -111,7 +114,7 @@ function LevelCard({ color = "sky", title, desc, checked, onToggle, value, onCha
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -179,6 +182,22 @@ export default function AscendaIASection() {
     (sel.intermediate ? counts.intermediate : 0) +
     (sel.advanced ? counts.advanced : 0);
 
+  const handleToggleLevel = (code) => {
+    setSel((prev) => ({
+      ...prev,
+      [code]: !prev[code],
+    }));
+  };
+
+  const handleCountChange = (code, value) => {
+    const numeric = Number(value);
+    const safe = Number.isFinite(numeric) ? numeric : 0;
+    setCounts((prev) => ({
+      ...prev,
+      [code]: Math.max(0, safe),
+    }));
+  };
+
   const generate = async () => {
     const topicClean = topic.trim();
     const youtubeClean = youtubeUrl.trim();
@@ -207,7 +226,6 @@ export default function AscendaIASection() {
   const canGenerate =
     totalRequested > 0 &&
     (topic.trim().length > 0 || youtubeUrl.trim().length > 0);
-  const disableGenerate = loading || !canGenerate;
 
   const save = () => {
     const key = "ascenda_quizzes";
@@ -273,9 +291,18 @@ export default function AscendaIASection() {
 
       {/* level cards */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Level code="easy" title="Básico" desc="Vitórias rápidas e aquecimento" color="sky" />
-        <Level code="intermediate" title="Intermediário" desc="Raciocínio baseado em cenários" color="violet" />
-        <Level code="advanced" title="Avançado" desc="Profundidade estratégica e arquitetural" color="fuchsia" />
+        {levels.map((level) => (
+          <LevelCard
+            key={level.code}
+            color={level.accent}
+            title={level.title}
+            desc={level.desc}
+            checked={Boolean(sel[level.code])}
+            onToggle={() => handleToggleLevel(level.code)}
+            value={counts[level.code]}
+            onChange={(next) => handleCountChange(level.code, next)}
+          />
+        ))}
       </div>
 
       {/* actions */}
