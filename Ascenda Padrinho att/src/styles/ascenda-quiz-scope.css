@@ -27,3 +27,33 @@
 [data-quiz-scope] {
   overflow-x: hidden;
 }
+
+/* Layout fixo em duas colunas com barra lateral estável */
+[data-quiz-scope] .quiz-layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+[data-quiz-scope] .quiz-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+[data-quiz-scope] .quiz-summary {
+  width: 100%;
+  max-width: 320px;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  [data-quiz-scope] .quiz-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  [data-quiz-scope] .quiz-summary {
+    width: 320px;
+  }
+}
