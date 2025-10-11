@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 const ACCENT_STYLES = {
   sky: {
+    cardRing: "ring-sky-400/20",
     checkbox: "text-sky-300 focus-visible:ring-sky-300/40",
     chipBorder: "border-sky-400/40",
     chipBg: "bg-sky-400/10",
@@ -10,6 +12,7 @@ const ACCENT_STYLES = {
     inputFocus: "focus:border-sky-300/60 focus:ring-sky-300/30",
   },
   violet: {
+    cardRing: "ring-violet-400/20",
     checkbox: "text-violet-300 focus-visible:ring-violet-300/40",
     chipBorder: "border-violet-400/40",
     chipBg: "bg-violet-400/10",
@@ -18,6 +21,7 @@ const ACCENT_STYLES = {
     inputFocus: "focus:border-violet-300/60 focus:ring-violet-300/30",
   },
   fuchsia: {
+    cardRing: "ring-fuchsia-400/20",
     checkbox: "text-fuchsia-300 focus-visible:ring-fuchsia-300/40",
     chipBorder: "border-fuchsia-400/40",
     chipBg: "bg-fuchsia-400/10",
@@ -56,7 +60,9 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 }
 
 /** ---- small UI helpers ---- */
-function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
+function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color = "sky" }) {
+  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
+
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -66,13 +72,13 @@ function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-base font-medium whitespace-normal break-words normal-case">{title}</p>
-          <p className="text-sm opacity-80 whitespace-normal break-words normal-case">{subtitle}</p>
+          <p className="text-sm opacity-80 whitespace-normal break-words normal-case">{desc}</p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
           <input
             type="checkbox"
             checked={checked}
-            onChange={onToggle}
+            onChange={() => onToggle?.()}
             className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
             aria-label={`Incluir nível ${title}`}
           />
@@ -81,10 +87,10 @@ function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
       </div>
       <div className="flex flex-col gap-2">
         <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questões</span>
-        <div className="flex items-center justify-center gap-3 mt-3">
+        <div className="mt-3 flex items-center justify-center gap-3">
           <button
             type="button"
-            onClick={() => onChange(Math.max(0, (value || 0) - 1))}
+            onClick={() => onChange?.(Math.max(0, (value || 0) - 1))}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
             aria-label={`Remover questão de nível ${title}`}
           >
@@ -94,13 +100,13 @@ function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
             type="number"
             min={0}
             value={value ?? 0}
-            onChange={(e) => onChange(Number(e.target.value))}
+            onChange={(e) => onChange?.(Number(e.target.value))}
             className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:ring-2 ${accent.inputFocus}`}
             aria-label={`Quantidade de questões nível ${title}`}
           />
           <button
             type="button"
-            onClick={() => onChange((value || 0) + 1)}
+            onClick={() => onChange?.((value || 0) + 1)}
             className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
             aria-label={`Adicionar questão de nível ${title}`}
           >
@@ -114,49 +120,13 @@ function DifficultyCard({ title, subtitle, enabled, count, onToggle, onStep }) {
 
 export function CardsContainer({ children }) {
   return (
-    <div
-      className="
-      grid gap-6
-      grid-cols-1
-      md:[grid-template-columns:repeat(3,minmax(260px,1fr))]
-      items-stretch isolate
-    "
-    >
+    <div className="grid gap-6 grid-cols-1 md:[grid-template-columns:repeat(3,minmax(260px,1fr))] items-stretch isolate">
       {children}
     </div>
   );
 }
 
 export const LevelCard = DifficultyCard;
-
-export function CardsContainer({ children }) {
-  return (
-    <div
-      className="
-      grid gap-6
-      grid-cols-1
-      md:[grid-template-columns:repeat(3,minmax(260px,1fr))]
-      items-stretch isolate
-    "
-    >
-      {children}
-    </div>
-  );
-}
-
-export const LevelCard = DifficultyCard;
-
-function CardsContainerLayout({ children }) {
-  return (
-    <div
-      className="grid gap-6 grid-cols-1 md:[grid-template-columns:repeat(3,minmax(260px,1fr))] items-stretch isolate"
-    >
-      {children}
-    </div>
-  );
-}
-
-export const CardsContainer = CardsContainerLayout;
 
 function StatChip({ label, count, color = "sky" }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
@@ -199,16 +169,19 @@ export default function AscendaIASection() {
         code: "easy",
         title: "Básico",
         desc: "Vitórias rápidas e aquecimento",
+        accent: "sky",
       },
       {
         code: "intermediate",
         title: "Intermediário",
         desc: "Raciocínio baseado em cenários",
+        accent: "violet",
       },
       {
         code: "advanced",
         title: "Avançado",
         desc: "Profundidade estratégica e arquitetural",
+        accent: "fuchsia",
       },
     ],
     []
