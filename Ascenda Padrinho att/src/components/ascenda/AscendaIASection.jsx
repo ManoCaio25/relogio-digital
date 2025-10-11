@@ -305,21 +305,19 @@ export default function AscendaIASection() {
       </div>
 
       {/* level cards */}
-      <div className="mt-6">
-        <CardsContainer>
-          {levels.map((level) => (
-            <LevelCard
-              key={level.code}
-              color={level.accent}
-              title={level.title}
-              desc={level.desc}
-              checked={Boolean(sel[level.code])}
-              onToggle={() => handleToggleLevel(level.code)}
-              value={counts[level.code]}
-              onChange={(next) => handleCountChange(level.code, next)}
-            />
-          ))}
-        </CardsContainer>
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {levels.map((level) => (
+          <LevelCard
+            key={level.code}
+            color={level.accent}
+            title={level.title}
+            desc={level.desc}
+            checked={Boolean(sel[level.code])}
+            onToggle={() => handleToggleLevel(level.code)}
+            value={counts[level.code]}
+            onChange={(next) => handleCountChange(level.code, next)}
+          />
+        ))}
       </div>
 
       {/* actions */}
