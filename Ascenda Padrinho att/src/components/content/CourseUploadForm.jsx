@@ -282,7 +282,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <AscendaIASection />
+            <div className="w-full overflow-x-hidden">
+              <AscendaIASection />
+            </div>
 
             {previewData && (
               <Button

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { cn } from "@/utils";
 
 const ACCENT_STYLES = {
   sky: {
@@ -9,7 +10,6 @@ const ACCENT_STYLES = {
     chipBg: "bg-sky-400/10",
     chipText: "text-sky-100",
     previewBorder: "border-sky-400/40",
-    inputFocus: "focus:border-sky-300/60 focus:ring-sky-300/30",
   },
   violet: {
     cardRing: "ring-violet-400/20",
@@ -18,7 +18,6 @@ const ACCENT_STYLES = {
     chipBg: "bg-violet-400/10",
     chipText: "text-violet-100",
     previewBorder: "border-violet-400/40",
-    inputFocus: "focus:border-violet-300/60 focus:ring-violet-300/30",
   },
   fuchsia: {
     cardRing: "ring-fuchsia-400/20",
@@ -27,7 +26,6 @@ const ACCENT_STYLES = {
     chipBg: "bg-fuchsia-400/10",
     chipText: "text-fuchsia-100",
     previewBorder: "border-fuchsia-400/40",
-    inputFocus: "focus:border-fuchsia-300/60 focus:ring-fuchsia-300/30",
   },
 };
 
@@ -66,13 +64,16 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
   return (
     <motion.div
       whileHover={{ y: -3 }}
-      className={`flex h-full min-w-[260px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 ${accent.cardRing} transition-all duration-200 hover:shadow-md`}
+      className={cn(
+        "flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
+        accent.cardRing,
+      )}
     >
       {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-base font-medium whitespace-normal break-words normal-case">{title}</p>
-          <p className="text-sm opacity-80 whitespace-normal break-words normal-case">{desc}</p>
+        <div className="min-w-0 space-y-1">
+          <p className="text-base font-semibold whitespace-normal break-words normal-case">{title}</p>
+          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
           <input
@@ -85,44 +86,37 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
           <span className="whitespace-nowrap">Incluir</span>
         </label>
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-wide text-white/50">Questões</span>
-        <div className="mt-3 flex items-center justify-center gap-3">
+      <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+        <div className="flex flex-col text-xs uppercase tracking-wide text-white/50">
+          <span className="font-medium">Questões</span>
+          <span className="text-[11px] text-white/40">Disponíveis para este nível</span>
+        </div>
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => onChange?.(Math.max(0, (value || 0) - 1))}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
-            aria-label={`Remover questão de nível ${title}`}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-background/60 text-base text-white transition-all duration-200 hover:bg-white/10"
+            aria-label={`Diminuir questões ${title}`}
           >
             −
           </button>
-          <input
-            type="number"
-            min={0}
-            value={value ?? 0}
-            onChange={(e) => onChange?.(Number(e.target.value))}
-            className={`h-10 w-20 rounded-xl border border-white/10 bg-background/80 px-3 text-center text-sm text-white outline-none transition focus:ring-2 ${accent.inputFocus}`}
-            aria-label={`Quantidade de questões nível ${title}`}
-          />
+          <div
+            className="flex h-9 min-w-[2.5rem] items-center justify-center rounded-xl border border-white/10 bg-background/80 px-2 text-center text-sm font-semibold text-white"
+            aria-live="polite"
+          >
+            {value ?? 0}
+          </div>
           <button
             type="button"
             onClick={() => onChange?.((value || 0) + 1)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-background/60 text-lg text-white transition-all duration-200 hover:bg-white/10"
-            aria-label={`Adicionar questão de nível ${title}`}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-background/60 text-base text-white transition-all duration-200 hover:bg-white/10"
+            aria-label={`Aumentar questões ${title}`}
           >
             +
           </button>
         </div>
       </div>
     </motion.div>
-  );
-}
-
-export function CardsContainer({ children }) {
-  return (
-    <div className="grid gap-6 grid-cols-1 md:[grid-template-columns:repeat(3,minmax(260px,1fr))] items-stretch isolate">
-      {children}
-    </div>
   );
 }
 
@@ -155,7 +149,7 @@ function PreviewCol({ label, items, color = "sky" }) {
 }
 
 /** ---- main component ---- */
-export default function AscendaIASection() {
+export default function AscendaIASection({ asModal = false }) {
   const [topic, setTopic] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [sel, setSel] = useState({ easy: true, intermediate: true, advanced: false });
@@ -258,10 +252,19 @@ export default function AscendaIASection() {
     alert("✅ Quiz saved locally!");
   };
 
-  return (
-    <section className="space-y-6 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-lg backdrop-blur">
+  const wrapperProps = {
+    role: "region",
+    "aria-label": "Gerar Quizzes",
+    className: cn(
+      "w-full max-w-4xl mx-auto space-y-6 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm",
+      asModal && "max-w-full",
+    ),
+  };
+
+  const content = (
+    <>
       {/* header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
           <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
@@ -269,7 +272,7 @@ export default function AscendaIASection() {
           </p>
         </div>
         {quiz && (
-          <span className="rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
+          <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
             Rascunho pronto
           </span>
         )}
@@ -300,7 +303,7 @@ export default function AscendaIASection() {
       </div>
 
       {/* level cards */}
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {levels.map((level) => (
           <LevelCard
             key={level.code}
@@ -379,6 +382,16 @@ export default function AscendaIASection() {
           </div>
         </div>
       )}
-    </section>
+    </>
   );
+
+  if (asModal) {
+    return (
+      <motion.div {...wrapperProps}>
+        {content}
+      </motion.div>
+    );
+  }
+
+  return <section {...wrapperProps}>{content}</section>;
 }
