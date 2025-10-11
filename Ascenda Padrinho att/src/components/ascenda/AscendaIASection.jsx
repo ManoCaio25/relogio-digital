@@ -65,7 +65,7 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
     <motion.div
       whileHover={{ y: -3 }}
       className={cn(
-        "flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
+        "quiz-card flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
         accent.cardRing,
       )}
     >
@@ -302,7 +302,7 @@ export default function AscendaIASection({ asModal = false }) {
       </div>
 
       {/* level cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div id="quiz-cards" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {levels.map((level) => (
           <LevelCard
             key={level.code}
