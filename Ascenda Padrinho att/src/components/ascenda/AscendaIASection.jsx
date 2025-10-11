@@ -275,8 +275,8 @@ export default function AscendaIASection({ asModal = false }) {
 
   const content = (
     <>
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:gap-8">
-        <div className="flex-1 space-y-6">
+      <div className="quiz-layout">
+        <div className="quiz-main">
           {/* header */}
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-1">
@@ -317,7 +317,7 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
 
           {/* level cards */}
-          <div id="quiz-cards" className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {levels.map((level) => (
               <LevelCard
                 key={level.code}
@@ -333,29 +333,13 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
         </div>
 
-        <aside className="w-full shrink-0 space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 xl:max-w-xs">
+        <aside className="quiz-summary space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
           <div className="space-y-1">
             <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
             <p className="text-xs text-white/60">
               Ajuste os níveis e quantidades antes de gerar o quiz com a AscendaIA.
             </p>
           </div>
-
-      {/* level cards */}
-      <div id="quiz-cards" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {levels.map((level) => (
-          <LevelCard
-            key={level.code}
-            color={level.accent}
-            title={level.title}
-            desc={level.desc}
-            checked={Boolean(sel[level.code])}
-            onToggle={() => handleToggleLevel(level.code)}
-            value={counts[level.code]}
-            onChange={(next) => handleCountChange(level.code, next)}
-          />
-        ))}
-      </div>
 
           <button
             type="button"
