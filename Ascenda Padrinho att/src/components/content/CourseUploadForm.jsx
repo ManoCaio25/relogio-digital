@@ -149,15 +149,15 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
-    <>
-      <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
+    <section className="space-y-6">
+      <Card className="border-border/60 bg-surface shadow-e1">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
             <Upload className="h-5 w-5" />
             {t("content.addCourse")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0 space-y-6">
+        <CardContent className="space-y-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">{t("courseForm.titleLabel")}</Label>
@@ -289,9 +289,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 type="button"
                 variant="outline"
                 onClick={() => onPreview && onPreview(previewData)}
-                className="w-full border-brand/30 hover:bg-brand/10 text-brand"
+                className="w-full border-brand/30 text-brand hover:bg-brand/10"
               >
-                <Eye className="w-4 h-4 mr-2" />
+                <Eye className="mr-2 h-4 w-4" />
                 {t("courseForm.previewButton")}
               </Button>
             )}
@@ -299,11 +299,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <Button
               type="submit"
               disabled={isUploading}
-              className="w-full bg-brand hover:bg-brand/90 text-white"
+              className="w-full bg-brand text-white hover:bg-brand/90"
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t("common.actions.uploading")}
                 </>
               ) : (
@@ -313,6 +313,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
           </form>
         </CardContent>
       </Card>
-    </>
+
+      <AscendaIASection variant="embedded" />
+    </section>
   );
 }
