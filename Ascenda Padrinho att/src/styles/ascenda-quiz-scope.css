@@ -3,7 +3,6 @@
 [data-quiz-scope] * {
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
-  transform: none !important;
   rotate: 0deg !important;
 }
 
