@@ -282,6 +282,8 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
+            <AscendaIASection variant="embedded" />
+
             {previewData && (
               <Button
                 type="button"
