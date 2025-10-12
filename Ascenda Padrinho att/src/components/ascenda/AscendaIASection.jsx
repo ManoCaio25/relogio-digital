@@ -152,7 +152,7 @@ function PreviewCol({ label, items, color = "sky" }) {
   return (
     <div className={`rounded-xl border p-3 ${accent.previewBorder}`}>
       <div className="mb-2 text-sm font-semibold">{label}</div>
-      <ul className="max-h-56 space-y-1 overflow-auto pr-1 text-sm text-white/70">
+      <ul className="quiz-preview-list max-h-56 space-y-1 overflow-auto pr-1 text-sm text-white/70">
         {items.length === 0 && <li className="text-white/40">Sem itens</li>}
         {items.slice(0, 8).map((q) => (
           <li key={q.id}>• {q.prompt}</li>
@@ -283,11 +283,12 @@ export default function AscendaIASection({ asModal = false, variant = "standalon
       "w-full rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-7",
       asModal ? "max-w-full" : "",
     ),
+    style: { height: "auto", minHeight: 0, overflow: "visible" },
   };
 
   const content = (
     <>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
+      <div className="quiz-layout grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
         <aside className="quiz-sidebar flex w-full flex-col gap-5 rounded-2xl border border-border/60 bg-surface/70 p-5 shadow-sm backdrop-blur-sm">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold text-white">AscendAI - Gerar Quizzes</h2>
@@ -410,46 +411,43 @@ export default function AscendaIASection({ asModal = false, variant = "standalon
           </div>
         </aside>
 
-        <div className="quiz-main flex-1">
-          <div className="flex h-full flex-col gap-5">
-            {quiz && (
-              <span className="inline-flex w-full items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200 lg:justify-start">
-                Rascunho pronto
-              </span>
-            )}
+        <div className="quiz-main flex flex-col gap-5">
+          {quiz && (
+            <span className="inline-flex w-full items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200 lg:justify-start">
+              Rascunho pronto
+            </span>
+          )}
 
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-white">Níveis do curso</h3>
-              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-                Ajuste a seleção de níveis e defina quantas questões deseja gerar para cada etapa do aprendizado.
-              </p>
-            </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-white">Níveis do curso</h3>
+            <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+              Ajuste a seleção de níveis e defina quantas questões deseja gerar para cada etapa do aprendizado.
+            </p>
           </div>
 
-            {/* level cards */}
-            <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-5">
-              {levels.map((level) => (
-                <div key={level.code} className="w-full md:flex-1">
-                  <LevelCard
-                    color={level.accent}
-                    title={level.title}
-                    desc={level.desc}
-                    checked={Boolean(sel[level.code])}
-                    onToggle={() => handleToggleLevel(level.code)}
-                    value={counts[level.code]}
-                    onChange={(next) => handleCountChange(level.code, next)}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              className="mt-5 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
-            >
-              Adicionar novo curso
-            </button>
+          {/* level cards */}
+          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-5">
+            {levels.map((level) => (
+              <div key={level.code} className="quiz-card w-full md:min-w-[280px]">
+                <LevelCard
+                  color={level.accent}
+                  title={level.title}
+                  desc={level.desc}
+                  checked={Boolean(sel[level.code])}
+                  onToggle={() => handleToggleLevel(level.code)}
+                  value={counts[level.code]}
+                  onChange={(next) => handleCountChange(level.code, next)}
+                />
+              </div>
+            ))}
           </div>
+
+          <button
+            type="button"
+            className="mt-5 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
+          >
+            Adicionar novo curso
+          </button>
         </div>
       </div>
 
