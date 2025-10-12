@@ -71,31 +71,30 @@ function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color
     <motion.div
       whileHover={{ y: -3 }}
       className={cn(
-        "quiz-card flex h-full min-h-[200px] w-full flex-col gap-4 rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
+        "quiz-card flex h-full min-h-[200px] w-full flex-col rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
         accent.cardRing,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <p className="text-base font-semibold whitespace-normal break-words normal-case">{title}</p>
-          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-semibold text-white whitespace-normal break-words normal-case">{title}</h3>
+          <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => onToggle?.()}
+              className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
+              aria-label={`Incluir nível ${title}`}
+            />
+            <span>Incluir</span>
+          </label>
         </div>
-        <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
-          <input
-            type="checkbox"
-            checked={checked}
-            onChange={() => onToggle?.()}
-            className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
-            aria-label={`Incluir nível ${title}`}
-          />
-          <span>Incluir</span>
-        </label>
+        <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
       </div>
-      <div className="mt-auto flex items-end justify-between gap-3 pt-4">
-        <div className="flex flex-col text-xs uppercase tracking-wide text-white/50">
-          <span className="font-medium">Questões</span>
-          <span className="text-[11px] text-white/40">Disponíveis para este nível</span>
-        </div>
+      <div className="mt-auto flex items-end justify-between gap-3 pt-5">
+        <p className="max-w-[140px] text-[11px] uppercase tracking-[0.08em] text-white/60">
+          Questões disponíveis para este nível
+        </p>
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -155,8 +154,7 @@ function PreviewCol({ label, items, color = "sky" }) {
 
 /** ---- main component ---- */
 export default function AscendaIASection({ asModal = false }) {
-  const [topic, setTopic] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [topicEntry, setTopicEntry] = useState("");
   const [sel, setSel] = useState({ easy: true, intermediate: true, advanced: false });
   const [counts, setCounts] = useState({ easy: 4, intermediate: 4, advanced: 2 });
   const [loading, setLoading] = useState(false);
@@ -166,7 +164,7 @@ export default function AscendaIASection({ asModal = false }) {
     () => [
       {
         code: "easy",
-        title: "Básico",
+        title: "Iniciante",
         desc: "Vitórias rápidas e aquecimento",
         accent: "sky",
       },
@@ -208,8 +206,10 @@ export default function AscendaIASection({ asModal = false }) {
   };
 
   const generate = async () => {
-    const topicClean = topic.trim();
-    const youtubeClean = youtubeUrl.trim();
+    const raw = topicEntry.trim();
+    const looksLikeUrl = /^https?:\/\//i.test(raw);
+    const topicClean = looksLikeUrl ? "" : raw;
+    const youtubeClean = looksLikeUrl ? raw : "";
     if (!topicClean && !youtubeClean) return;
     const req = {
       topic: topicClean || youtubeClean,
@@ -234,7 +234,7 @@ export default function AscendaIASection({ asModal = false }) {
 
   const canGenerate =
     totalRequested > 0 &&
-    (topic.trim().length > 0 || youtubeUrl.trim().length > 0);
+    topicEntry.trim().length > 0;
 
   const save = () => {
     const key = "ascenda_quizzes";
@@ -268,102 +268,130 @@ export default function AscendaIASection({ asModal = false }) {
     "aria-label": "Gerar Quizzes",
     "data-quiz-scope": "",
     className: cn(
-      "w-full space-y-8 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
+      "w-full rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
       asModal ? "max-w-full" : "mx-auto max-w-6xl",
     ),
   };
 
-  const content = (
-    <>
-      <div className="quiz-layout">
-        <div className="quiz-main">
-          {/* header */}
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+  const Content = () => (
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <aside className="quiz-sidebar flex w-full flex-col gap-6 rounded-3xl border border-border/60 bg-surface/70 p-6 shadow-sm backdrop-blur-sm lg:w-[25rem] lg:min-w-[25rem] lg:flex-shrink-0">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-white">AscendAI - Gerar Quizzes</h2>
+            <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+              Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
+            </p>
+          </div>
+
+          <label className="flex flex-col gap-2 text-sm text-white/70">
+            <span className="text-sm font-medium text-white">Tópico ou link do YouTube</span>
+            <input
+              className="h-11 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+              placeholder="Informe um tema ou cole o link do vídeo"
+              value={topicEntry}
+              onChange={(e) => setTopicEntry(e.target.value)}
+              aria-label="Tópico ou link do YouTube"
+            />
+          </label>
+
+          <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
             <div className="space-y-1">
-              <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
-              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-                Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
+              <h3 className="text-base font-semibold text-white">Resumo do pedido</h3>
+              <p className="text-xs text-white/60">
+                Ajuste os níveis e quantidades antes de gerar com a AscendAI.
               </p>
             </div>
+
+            <ul className="space-y-2 text-xs">
+              {summaryItems.map((item) => (
+                <li
+                  key={item.code}
+                  className={cn(
+                    "flex items-center justify-between rounded-xl border border-white/5 bg-white/0 px-3 py-2 transition",
+                    item.enabled ? "text-white" : "text-white/40",
+                  )}
+                >
+                  <span className="flex items-center gap-2 font-medium">
+                    <span
+                      className={cn(
+                        "h-2.5 w-2.5 rounded-full",
+                        SUMMARY_DOT_COLORS[item.accent] ?? "bg-white/40",
+                      )}
+                    />
+                    {item.title}
+                  </span>
+                  <span className="text-[11px] uppercase tracking-[0.08em] text-white/60">
+                    {item.enabled ? `${item.total} questões` : "Desativado"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              type="button"
+              onClick={generate}
+              disabled={loading || !canGenerate}
+              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? "Gerando…" : "Gerar com AscendAI"}
+            </button>
+
+            {loading ? (
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="status" aria-live="polite">
+                <div className="h-full w-1/2 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
+              </div>
+            ) : quiz ? (
+              <p className="text-xs font-medium text-emerald-200">
+                Quiz pronto! Revise o conteúdo abaixo ou salve como rascunho.
+              </p>
+            ) : (
+              <p className="text-xs text-white/60">
+                Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
+              </p>
+            )}
+          </div>
+        </aside>
+
+        <div className="quiz-main flex-1">
+          <div className="flex h-full flex-col gap-6">
             {quiz && (
-              <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
+              <span className="inline-flex w-full items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200 lg:justify-start">
                 Rascunho pronto
               </span>
             )}
-          </div>
 
-          {/* inputs */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm text-white/70">
-              <span className="text-sm font-medium text-white">Tópico</span>
-              <input
-                className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-                placeholder="Tópico (ex.: React, Lógica, SQL)"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                aria-label="Tópico do quiz"
-              />
-            </label>
-            <label className="flex flex-col gap-2 text-sm text-white/70">
-              <span className="text-sm font-medium text-white">Link do YouTube</span>
-              <input
-                className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-                placeholder="Link do YouTube (opcional)"
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                aria-label="Link do YouTube para referência"
-              />
-            </label>
-          </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-white">Níveis do curso</h3>
+              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+                Ajuste a seleção de níveis e defina quantas questões deseja gerar para cada etapa do aprendizado.
+              </p>
+            </div>
 
-          {/* level cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {levels.map((level) => (
-              <LevelCard
-                key={level.code}
-                color={level.accent}
-                title={level.title}
-                desc={level.desc}
-                checked={Boolean(sel[level.code])}
-                onToggle={() => handleToggleLevel(level.code)}
-                value={counts[level.code]}
-                onChange={(next) => handleCountChange(level.code, next)}
-              />
-            ))}
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
+              {levels.map((level) => (
+                <div key={level.code} className="w-full lg:flex-1 lg:min-w-[18rem]">
+                  <LevelCard
+                    color={level.accent}
+                    title={level.title}
+                    desc={level.desc}
+                    checked={Boolean(sel[level.code])}
+                    onToggle={() => handleToggleLevel(level.code)}
+                    value={counts[level.code]}
+                    onChange={(next) => handleCountChange(level.code, next)}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="mt-6 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
+            >
+              Adicionar novo curso
+            </button>
           </div>
         </div>
-
-        <aside className="quiz-summary space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
-          <div className="space-y-1">
-            <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
-            <p className="text-xs text-white/60">
-              Ajuste os níveis e quantidades antes de gerar o quiz com a AscendaIA.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={generate}
-            disabled={loading || !canGenerate}
-            className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? "Gerando…" : "✨ Gerar com AscendaIA"}
-          </button>
-
-          {loading ? (
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="status" aria-live="polite">
-              <div className="h-full w-1/2 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
-            </div>
-          ) : quiz ? (
-            <p className="text-xs font-medium text-emerald-200">
-              Quiz pronto! Revise o conteúdo abaixo ou salve como rascunho.
-            </p>
-          ) : (
-            <p className="text-xs text-white/60">
-              Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
-            </p>
-          )}
-        </aside>
       </div>
 
       {/* preview */}
@@ -408,16 +436,20 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 
   if (asModal) {
     return (
       <motion.div {...wrapperProps}>
-        {content}
+        <Content />
       </motion.div>
     );
   }
 
-  return <section {...wrapperProps}>{content}</section>;
+  return (
+    <section {...wrapperProps}>
+      <Content />
+    </section>
+  );
 }
