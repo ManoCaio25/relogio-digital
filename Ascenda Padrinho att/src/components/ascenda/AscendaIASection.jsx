@@ -274,9 +274,9 @@ export default function AscendaIASection({ asModal = false }) {
   };
 
   const content = (
-    <div className="flex flex-col gap-8">
+    <>
       <div className="flex flex-col gap-8 lg:flex-row">
-        <aside className="quiz-sidebar flex w-full flex-col gap-6 rounded-3xl border border-border/60 bg-surface/70 p-6 shadow-sm backdrop-blur-sm lg:w-[25rem] lg:min-w-[25rem] lg:flex-shrink-0">
+        <aside className="quiz-sidebar flex w-full flex-col gap-6 rounded-3xl border border-border/60 bg-surface/70 p-6 shadow-sm backdrop-blur-sm lg:min-w-[25rem] lg:max-w-sm">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold text-white">AscendAI - Gerar Quizzes</h2>
             <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
@@ -299,7 +299,7 @@ export default function AscendaIASection({ asModal = false }) {
             <div className="space-y-1">
               <h3 className="text-base font-semibold text-white">Resumo do pedido</h3>
               <p className="text-xs text-white/60">
-                Ajuste os níveis e quantidades antes de gerar com a AscendAI.
+                Ajuste os níveis e quantidades antes de gerar com a AscendalA.
               </p>
             </div>
 
@@ -368,21 +368,23 @@ export default function AscendaIASection({ asModal = false }) {
               </p>
             </div>
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
-              {levels.map((level) => (
-                <div key={level.code} className="w-full lg:flex-1 lg:min-w-[18rem]">
-                  <LevelCard
-                    color={level.accent}
-                    title={level.title}
-                    desc={level.desc}
-                    checked={Boolean(sel[level.code])}
-                    onToggle={() => handleToggleLevel(level.code)}
-                    value={counts[level.code]}
-                    onChange={(next) => handleCountChange(level.code, next)}
-                  />
-                </div>
-              ))}
-            </div>
+          {/* level cards */}
+          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-6">
+            {levels.map((level) => (
+              <div key={level.code} className="w-full md:flex-1">
+                <LevelCard
+                  color={level.accent}
+                  title={level.title}
+                  desc={level.desc}
+                  checked={Boolean(sel[level.code])}
+                  onToggle={() => handleToggleLevel(level.code)}
+                  value={counts[level.code]}
+                  onChange={(next) => handleCountChange(level.code, next)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
             <button
               type="button"
