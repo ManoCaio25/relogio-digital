@@ -1,8 +1,9 @@
 // ContentManagement.jsx
 
 import React, { useState, useEffect, useCallback, useMemo } from "react"; // hooks do React
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion"; // animações
-import { Sparkles, Search, Filter, XCircle } from "lucide-react"; // ícones
+import { Sparkles, Search, Filter, XCircle, Bot } from "lucide-react"; // ícones
 
 // Entidades e componentes internos
 import { Course } from "@/entities/Course";
@@ -15,6 +16,7 @@ import AssignCourseModal from "../components/courses/AssignCourseModal";
 // i18n e utils
 import { useTranslation } from "../i18n";
 import { useTrainingTypeOptions } from "@/utils/labels";
+import { PAGE_URLS } from "@/utils";
 
 // UI (shadcn)
 import { Input } from "@/components/ui/input";
@@ -267,6 +269,43 @@ export default function ContentManagement() {
                   })}
                   hint={t("content.stats.activeLearnersHint", "Currently enrolled")}
                 />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-3xl border border-violet-400/40 bg-gradient-to-br from-violet-600/40 via-fuchsia-500/40 to-pink-500/40 p-6 shadow-e1 backdrop-blur-sm"
+            >
+              <div className="flex items-start gap-3 text-white">
+                <div className="rounded-xl bg-white/10 p-2">
+                  <Bot className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
+                    {t("courseForm.ascendaIA.subtitle", "Quiz Generator")}
+                  </p>
+                  <h3 className="text-lg font-semibold">
+                    {t("courseForm.ascendaIA.title", "AscendaIA quiz generator")}
+                  </h3>
+                  <p className="text-sm text-white/80">
+                    {t(
+                      "courseForm.ascendaIA.description",
+                      "Generate quizzes with AscendaIA on the dedicated page.",
+                    )}
+                  </p>
+                  <Button
+                    asChild
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 h-9 rounded-xl border-white/40 bg-white/15 text-xs font-semibold text-white hover:bg-white/20"
+                  >
+                    <Link to={PAGE_URLS.AscendaIA} className="inline-flex items-center gap-2">
+                      {t("courseForm.ascendaIA.action", "Open AscendaIA")}
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </div>
