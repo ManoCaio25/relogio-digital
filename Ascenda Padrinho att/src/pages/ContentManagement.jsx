@@ -2,12 +2,21 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react"; // hooks do React
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
 import { motion } from "framer-motion"; // animações
 import { Sparkles, Search, Filter, XCircle, Bot } from "lucide-react"; // ícones
 
 // Entidades e componentes internos
 import { Course } from "@/entities/Course";
 import CourseUploadForm from "../components/content/CourseUploadForm";
+=======
+import { motion } from "framer-motion"; // animações
+import { Sparkles, Search, Filter, XCircle, Bot } from "lucide-react"; // ícones
+
+// Entidades e componentes internos
+import { Course } from "@/entities/Course";
+import CourseUploadForm from "../components/content/CourseUploadForm";
+>>>>>>> master
 import CourseCard from "../components/content/CourseCard";
 import CourseEditModal from "../components/content/CourseEditModal";
 import PreviewDrawer from "../components/media/PreviewDrawer";
@@ -16,6 +25,7 @@ import AssignCourseModal from "../components/courses/AssignCourseModal";
 // i18n e utils
 import { useTranslation } from "../i18n";
 import { useTrainingTypeOptions } from "@/utils/labels";
+import { PAGE_URLS } from "@/utils";
 
 // UI (shadcn)
 import { Input } from "@/components/ui/input";
