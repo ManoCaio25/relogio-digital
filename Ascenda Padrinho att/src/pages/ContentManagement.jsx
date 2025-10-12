@@ -7,11 +7,11 @@ import { Sparkles, Search, Filter, XCircle, Bot } from "lucide-react"; // ícone
 
 // Entidades e componentes internos
 import { Course } from "@/entities/Course";
-import CourseUploadForm from "@/components/content/CourseUploadForm";
-import CourseCard from "@/components/content/CourseCard";
-import CourseEditModal from "@/components/content/CourseEditModal";
-import PreviewDrawer from "@/components/media/PreviewDrawer";
-import AssignCourseModal from "@/components/courses/AssignCourseModal";
+import CourseUploadForm from "../components/content/CourseUploadForm";
+import CourseCard from "../components/content/CourseCard";
+import CourseEditModal from "../components/content/CourseEditModal";
+import PreviewDrawer from "../components/media/PreviewDrawer";
+import AssignCourseModal from "../components/courses/AssignCourseModal";
 
 // i18n e utils
 import { useTranslation } from "@/i18n";
