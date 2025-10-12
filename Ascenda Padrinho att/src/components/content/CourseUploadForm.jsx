@@ -282,9 +282,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 </label>
               </div>
             </div>
-
-<<<<<<< HEAD
-=======
             <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-5">
               <div className="flex items-start gap-3">
                 <div className="rounded-xl bg-gradient-to-br from-violet-500/70 to-fuchsia-500/70 p-2 text-white">
@@ -310,8 +307,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 <Link to={PAGE_URLS.AscendaIA}>{t("courseForm.ascendaIA.action", "Open AscendaIA")}</Link>
               </Button>
             </div>
-
->>>>>>> master
             {previewData && (
               <Button
                 type="button"

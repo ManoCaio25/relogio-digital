@@ -2,28 +2,19 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react"; // hooks do React
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
 import { motion } from "framer-motion"; // animações
 import { Sparkles, Search, Filter, XCircle, Bot } from "lucide-react"; // ícones
 
 // Entidades e componentes internos
 import { Course } from "@/entities/Course";
-import CourseUploadForm from "../components/content/CourseUploadForm";
-=======
-import { motion } from "framer-motion"; // animações
-import { Sparkles, Search, Filter, XCircle, Bot } from "lucide-react"; // ícones
-
-// Entidades e componentes internos
-import { Course } from "@/entities/Course";
-import CourseUploadForm from "../components/content/CourseUploadForm";
->>>>>>> master
-import CourseCard from "../components/content/CourseCard";
-import CourseEditModal from "../components/content/CourseEditModal";
-import PreviewDrawer from "../components/media/PreviewDrawer";
-import AssignCourseModal from "../components/courses/AssignCourseModal";
+import CourseUploadForm from "@/components/content/CourseUploadForm";
+import CourseCard from "@/components/content/CourseCard";
+import CourseEditModal from "@/components/content/CourseEditModal";
+import PreviewDrawer from "@/components/media/PreviewDrawer";
+import AssignCourseModal from "@/components/courses/AssignCourseModal";
 
 // i18n e utils
-import { useTranslation } from "../i18n";
+import { useTranslation } from "@/i18n";
 import { useTrainingTypeOptions } from "@/utils/labels";
 import { PAGE_URLS } from "@/utils";
 
@@ -533,32 +524,3 @@ export default function ContentManagement() {
   );
 }
 
-/*
-
-1) Tags JSX balanceadas:
-   - Havia um erro “Expected corresponding JSX closing tag for <motion.div>” porque um bloco abriu com <motion.div>
-     e fechava com </motion.section> em outra parte; além de <div>/<section> sem par.
-   - Agora cada <motion.div> fecha com </motion.div> e cada <motion.section> fecha com </motion.section>.
-
-2) Função “LibrarySummary” no meio do JSX:
-   - O arquivo trazia uma função declarada entre tags JSX, o que quebra o parse.
-   - Removi esse bloco “invadido” e mantive duas <motion.section> claras: (a) título/estatísticas da biblioteca; (b) filtros.
-
-3) Parênteses/Chaves de i18n:
-   - Alguns `t("key", "fallback", { ... })` estavam sem parêntese/chaves de fechamento.
-   - Corrigi todos, inclusive o trecho do “resultsCount”.
-
-4) Estrutura de layout:
-   - Reorganizei o grid em duas colunas: esquerda (Upload + Dicas/Stats) e direita (Library + Filtros + Lista).
-   - Coloquei os modais/drawer fora do grid principal, no final do componente, evitando conflitos.
-
-5) Pequenos ajustes de estado:
-   - Ao salvar edição, fecho o modal e limpo `editingCourse` antes do `loadCourses()` para evitar estados “pendurados”.
-
-Dica: quando aparecer esse erro de “Expected corresponding JSX closing tag…”, procure:
-   - A tag citada no erro e verifique se o fechamento bate exatamente (inclusive o mesmo tipo: motion.div vs motion.section).
-   - Conte as aberturas/fechamentos de <div>/<section> ao redor do trecho indicado pela linha no stack trace.
-   - Desconfie de funções/consts que tenham “caído” dentro do JSX durante um merge ou copy/paste.
-
-Qualquer coisa me chama que a gente lapida mais 💪✨
-*/
