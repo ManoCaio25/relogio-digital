@@ -277,22 +277,39 @@ export default function AscendaIASection({ asModal = false }) {
     role: "region",
     "aria-label": "Gerar Quizzes",
     "data-quiz-scope": "",
-    className: cn("w-full", !asModal && "mx-auto max-w-6xl px-4 md:px-6"),
+    className: cn(
+      "w-full rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-7",
+      asModal ? "max-w-full" : "",
+    ),
   };
 
   const content = (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-border/60 bg-surface/80 shadow-e1">
-        <div className="border-b border-border/50 p-6">
-          <h2 className="text-lg font-semibold text-white">Resumo do pedido</h2>
-          <p className="text-sm text-white/60">Dados gerais do curso antes de gerar o quiz.</p>
-        </div>
-        <div className="p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <span className="text-xs uppercase tracking-[0.08em] text-white/50">Tema atual</span>
-              <p className="mt-2 text-sm font-medium text-white/80 break-words">
-                {topicEntry.trim() ? topicEntry : "Nenhum tema definido."}
+    <>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
+        <aside className="quiz-sidebar flex w-full flex-col gap-5 rounded-2xl border border-border/60 bg-surface/70 p-5 shadow-sm backdrop-blur-sm">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-white">AscendAI - Gerar Quizzes</h2>
+            <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+              Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
+            </p>
+          </div>
+
+          <label className="flex flex-col gap-2 text-sm text-white/70">
+            <span className="text-sm font-medium text-white">Tópico ou link do YouTube</span>
+            <input
+              className="h-11 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
+              placeholder="Informe um tema ou cole o link do vídeo"
+              value={topicEntry}
+              onChange={(e) => setTopicEntry(e.target.value)}
+              aria-label="Tópico ou link do YouTube"
+            />
+          </label>
+
+          <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-white">Resumo do pedido</h3>
+              <p className="text-xs text-white/60">
+                Ajuste os níveis e quantidades antes de gerar com a AscendalA.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
@@ -379,46 +396,60 @@ export default function AscendaIASection({ asModal = false }) {
                   );
                 })}
               </div>
-              <p className="mt-2 text-xs text-white/50">Selecione as dificuldades que deseja incluir.</p>
+            ) : quiz ? (
+              <p className="text-xs font-medium text-emerald-200">
+                Quiz pronto! Revise o conteúdo abaixo ou salve como rascunho.
+              </p>
+            ) : (
+              <p className="text-xs text-white/60">
+                Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
+              </p>
+            )}
+          </div>
+        </aside>
+
+        <div className="quiz-main flex-1">
+          <div className="flex h-full flex-col gap-5">
+            {quiz && (
+              <span className="inline-flex w-full items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200 lg:justify-start">
+                Rascunho pronto
+              </span>
+            )}
+
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold text-white">Níveis do curso</h3>
+              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+                Ajuste a seleção de níveis e defina quantas questões deseja gerar para cada etapa do aprendizado.
+              </p>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-sm font-medium text-white">Quantidade de questões por nível</h3>
-            <p className="mt-1 text-xs text-white/50">Ajuste os valores conforme a complexidade desejada.</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            {/* level cards */}
+            <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-5">
               {levels.map((level) => (
-                <CountField
-                  key={level.code}
-                  title={level.title}
-                  desc={level.desc}
-                  accent={level.accent}
-                  value={counts[level.code]}
-                  disabled={!sel[level.code]}
-                  onDecrease={() => handleCountChange(level.code, Math.max(0, (counts[level.code] || 0) - 1))}
-                  onIncrease={() => handleCountChange(level.code, (counts[level.code] || 0) + 1)}
-                  onValueChange={(next) => handleCountChange(level.code, next)}
-                />
+                <div key={level.code} className="w-full md:flex-1">
+                  <LevelCard
+                    color={level.accent}
+                    title={level.title}
+                    desc={level.desc}
+                    checked={Boolean(sel[level.code])}
+                    onToggle={() => handleToggleLevel(level.code)}
+                    value={counts[level.code]}
+                    onChange={(next) => handleCountChange(level.code, next)}
+                  />
+                </div>
               ))}
             </div>
-          </div>
 
-          {quiz && (
-            <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-5">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="text-sm text-white/70">
-                  <span className="font-semibold text-white">{quiz.topic}</span>
-                  <span className="mx-2 hidden md:inline">•</span>
-                  <span className="block md:inline">
-                    Total de <span className="font-semibold text-white">{quiz.easy.length + quiz.intermediate.length + quiz.advanced.length}</span> questões
-                  </span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatChip label="Básico" count={quiz.easy.length} color="sky" />
-                  <StatChip label="Intermediário" count={quiz.intermediate.length} color="violet" />
-                  <StatChip label="Avançado" count={quiz.advanced.length} color="fuchsia" />
-                </div>
-              </div>
+            <button
+              type="button"
+              className="mt-5 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
+            >
+              Adicionar novo curso
+            </button>
+          </div>
+        </div>
+      </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <PreviewCol label="Básico" color="sky" items={quiz.easy} />
