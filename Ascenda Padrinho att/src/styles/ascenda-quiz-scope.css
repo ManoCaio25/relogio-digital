@@ -1,3 +1,35 @@
+/* Modal container & overlay */
+.ascenda-quiz-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  background: rgba(8, 11, 24, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow-y: auto;
+}
+
+[data-quiz-scope].quiz-modal {
+  max-width: 900px;
+  width: min(900px, 100%);
+  max-height: min(90vh, 820px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+}
+
+@media (max-width: 640px) {
+  .ascenda-quiz-overlay {
+    padding: clamp(0.75rem, 6vw, 1.25rem);
+    align-items: flex-start;
+  }
+}
+
 /* Isolamento: neutraliza efeitos do CSS global dentro da aba */
 [data-quiz-scope],
 [data-quiz-scope] * {
