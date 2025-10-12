@@ -163,7 +163,7 @@ function PreviewCol({ label, items, color = "sky" }) {
 }
 
 /** ---- main component ---- */
-export default function AscendaIASection({ asModal = false }) {
+export default function AscendaIASection({ asModal = false, variant = "standalone" }) {
   const [topicEntry, setTopicEntry] = useState("");
   const [sel, setSel] = useState(() => ({ ...INITIAL_LEVEL_SELECTION }));
   const [counts, setCounts] = useState(() => ({ ...INITIAL_COUNTS }));
@@ -272,6 +272,8 @@ export default function AscendaIASection({ asModal = false }) {
     enabled: Boolean(sel[level.code]),
     total: sel[level.code] ? Number(counts[level.code] || 0) : 0,
   }));
+
+  const isEmbedded = variant === "embedded";
 
   const wrapperProps = {
     role: "region",
