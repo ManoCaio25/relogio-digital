@@ -268,7 +268,7 @@ export default function AscendaIASection({ asModal = false }) {
     "aria-label": "Gerar Quizzes",
     "data-quiz-scope": "",
     className: cn(
-      "w-full space-y-8 rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
+      "w-full rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
       asModal ? "max-w-full" : "mx-auto max-w-6xl",
     ),
   };
@@ -438,7 +438,7 @@ export default function AscendaIASection({ asModal = false }) {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 
   if (asModal) {
