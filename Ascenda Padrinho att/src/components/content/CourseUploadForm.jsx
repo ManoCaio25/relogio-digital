@@ -15,7 +15,6 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import AscendaIASection from "../ascenda/AscendaIASection";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -282,8 +281,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <AscendaIASection variant="embedded" />
-
             {previewData && (
               <Button
                 type="button"
@@ -314,7 +311,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         </CardContent>
       </Card>
 
-      <AscendaIASection variant="embedded" />
     </section>
   );
 }

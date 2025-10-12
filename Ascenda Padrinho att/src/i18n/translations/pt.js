@@ -111,6 +111,10 @@ const pt = {
       dashboard: "Dashboard",
       interns: "Equipe",
       content: "Gestão de conteúdo",
+      ascendaIA: {
+        title: "AscendaIA",
+        subtitle: "Gerador de Quiz",
+      },
       vacation: "Férias",
       reports: "Relatórios"
     },
@@ -289,6 +293,12 @@ const pt = {
       sapHrPmo: "SAP HR PMO",
       webDevelopment: "Desenvolvimento Web",
       google: "Google",
+    },
+    ascendaIA: {
+      title: "Gerador de quizzes AscendaIA",
+      subtitle: "Gerador de Quizzes",
+      description: "Crie questões inteligentes na página dedicada da AscendaIA.",
+      action: "Abrir AscendaIA",
     }
   },
   courseCard: {

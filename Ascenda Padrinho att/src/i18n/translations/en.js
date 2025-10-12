@@ -111,6 +111,10 @@ const en = {
       dashboard: "Dashboard",
       interns: "Team Overview",
       content: "Content Management",
+      ascendaIA: {
+        title: "AscendaIA",
+        subtitle: "Quiz Generator",
+      },
       vacation: "Vacation Requests",
       reports: "Reports"
     },
@@ -289,6 +293,12 @@ const en = {
       sapHrPmo: "SAP HR PMO",
       webDevelopment: "Web Development",
       google: "Google",
+    },
+    ascendaIA: {
+      title: "AscendaIA quiz generator",
+      subtitle: "Quiz Generator",
+      description: "Create AI-powered questions on the dedicated AscendaIA page.",
+      action: "Open AscendaIA",
     }
   },
   courseCard: {
