@@ -6,6 +6,7 @@ import Interns from './pages/Interns.jsx';
 import ContentManagement from './pages/ContentManagement.jsx';
 import VacationRequests from './pages/VacationRequests.jsx';
 import Reports from './pages/Reports.jsx';
+import AscendaIAQuizzesPage from './pages/AscendaIA/AscendaIAQuizzesPage.jsx';
 import { PAGE_URLS } from './utils/index.js';
 
 const router = createBrowserRouter([
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: PAGE_URLS.ContentManagement.replace(/^\//, ''),
         element: <ContentManagement />,
+      },
+      {
+        path: PAGE_URLS.AscendaIA.replace(/^\//, ''),
+        element: <AscendaIAQuizzesPage />,
       },
       {
         path: PAGE_URLS.VacationRequests.replace(/^\//, ''),

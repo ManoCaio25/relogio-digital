@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UploadFile } from "@/integrations/Core";
-import { Upload, Loader2, Youtube, Eye } from "lucide-react";
+import { Upload, Loader2, Youtube, Eye, Bot } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import AscendaIASection from "../ascenda/AscendaIASection";
+import { PAGE_URLS } from "@/utils";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -149,15 +150,15 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   }, [category, description, difficulty, durationHours, file, onSuccess, title, trainingType, youtubeUrl, youtubeVideoId]);
 
   return (
-    <>
-      <Card className="overflow-visible border-border/60 bg-surface shadow-e1">
+    <section className="space-y-6">
+      <Card className="border-border/60 bg-surface shadow-e1">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-xl font-semibold text-primary">
             <Upload className="h-5 w-5" />
             {t("content.addCourse")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0 space-y-6">
+        <CardContent className="space-y-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">{t("courseForm.titleLabel")}</Label>
@@ -282,8 +283,30 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <div className="w-full overflow-x-hidden">
-              <AscendaIASection />
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-gradient-to-br from-violet-500/70 to-fuchsia-500/70 p-2 text-white">
+                  <Bot className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-white">
+                    {t("courseForm.ascendaIA.title", "AscendaIA quiz generator")}
+                  </h3>
+                  <p className="text-xs text-white/70">
+                    {t(
+                      "courseForm.ascendaIA.description",
+                      "Generate quizzes with AscendaIA on the dedicated page.",
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                variant="outline"
+                className="mt-4 h-9 rounded-xl border-violet-400/40 bg-transparent text-xs font-semibold text-white hover:bg-white/10"
+              >
+                <Link to={PAGE_URLS.AscendaIA}>{t("courseForm.ascendaIA.action", "Open AscendaIA")}</Link>
+              </Button>
             </div>
 
             {previewData && (
@@ -291,9 +314,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
                 type="button"
                 variant="outline"
                 onClick={() => onPreview && onPreview(previewData)}
-                className="w-full border-brand/30 hover:bg-brand/10 text-brand"
+                className="w-full border-brand/30 text-brand hover:bg-brand/10"
               >
-                <Eye className="w-4 h-4 mr-2" />
+                <Eye className="mr-2 h-4 w-4" />
                 {t("courseForm.previewButton")}
               </Button>
             )}
@@ -301,11 +324,11 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             <Button
               type="submit"
               disabled={isUploading}
-              className="w-full bg-brand hover:bg-brand/90 text-white"
+              className="w-full bg-brand text-white hover:bg-brand/90"
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t("common.actions.uploading")}
                 </>
               ) : (
@@ -315,6 +338,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
           </form>
         </CardContent>
       </Card>
-    </>
+
+    </section>
   );
 }
