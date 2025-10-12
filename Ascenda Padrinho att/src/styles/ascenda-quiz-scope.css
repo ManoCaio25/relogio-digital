@@ -32,7 +32,6 @@
   display: grid;
   gap: 1.5rem;
   align-items: start;
-  grid-template-columns: minmax(0, 1fr);
 }
 
 [data-quiz-scope] .quiz-main {
