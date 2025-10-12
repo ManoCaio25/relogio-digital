@@ -222,168 +222,55 @@ export default function AscendaIASection({ open = false, onClose, onComplete }) 
 
     cancellationRef.current = false;
 
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        cancellationRef.current = true;
-        onClose?.();
-      }
-    };
+  const content = (
+    <>
+      <div className="quiz-layout">
+        <div className="quiz-main">
+          {/* header */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold text-white">AscendaIA – Gerar Quizzes</h3>
+              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
+                Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
+              </p>
+            </div>
+            {quiz && (
+              <span className="inline-flex items-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200">
+                Rascunho pronto
+              </span>
+            )}
+          </div>
 
     document.addEventListener("keydown", handleKeyDown);
     const focusTimer = window.setTimeout(() => {
       topicInputRef.current?.focus();
     }, 150);
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      window.clearTimeout(focusTimer);
-    };
-  }, [open, onClose]);
-
-  if (!open) {
-    return null;
-  }
-
-  const handleOverlayMouseDown = (event) => {
-    if (event.target === overlayRef.current) {
-      event.preventDefault();
-      cancellationRef.current = true;
-      onClose?.();
-    }
-  };
-
-  return (
-    <div
-      ref={overlayRef}
-      className="ascenda-quiz-overlay"
-      role="presentation"
-      onMouseDown={handleOverlayMouseDown}
-    >
-      <motion.div
-        data-quiz-scope=""
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="ascenda-quiz-title"
-        className={cn(
-          "quiz-modal w-full space-y-6 rounded-3xl border border-border/60 bg-surface/90 p-6 shadow-e1 backdrop-blur-xl sm:p-8",
-        )}
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <div className="quiz-header flex flex-col gap-2">
-          <h3 id="ascenda-quiz-title" className="text-xl font-semibold text-white">
-            AscendaIA – Gerar Quizzes
-          </h3>
-          <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-            Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
-          </p>
-        </div>
-
-        <div className="quiz-body space-y-6">
-          <div className="quiz-layout">
-            <div className="quiz-main">
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm text-white/70">
-                  <span className="text-sm font-medium text-white">Tópico</span>
-                  <input
-                    ref={topicInputRef}
-                    className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-                    placeholder="Tópico (ex.: React, Lógica, SQL)"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    aria-label="Tópico do quiz"
-                  />
-                </label>
-                <label className="flex flex-col gap-2 text-sm text-white/70">
-                  <span className="text-sm font-medium text-white">Link do YouTube</span>
-                  <input
-                    className="h-10 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-                    placeholder="Link do YouTube (opcional)"
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
-                    aria-label="Link do YouTube para referência"
-                  />
-                </label>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {levels.map((level) => (
-                  <LevelCard
-                    key={level.code}
-                    color={level.accent}
-                    title={level.title}
-                    desc={level.desc}
-                    checked={Boolean(sel[level.code])}
-                    onToggle={() => handleToggleLevel(level.code)}
-                    value={counts[level.code]}
-                    onChange={(next) => handleCountChange(level.code, next)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <aside className="quiz-summary space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
-              <div className="space-y-1">
-                <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
-                <p className="text-xs text-white/60">
-                  Ajuste os níveis e quantidades antes de gerar o quiz com a AscendaIA.
-                </p>
-              </div>
-
-              <ul className="space-y-3">
-                {summaryItems.map((item) => (
-                  <li
-                    key={item.code}
-                    className={cn(
-                      "flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-background/40 px-3 py-2",
-                      item.enabled ? "text-white" : "text-white/50",
-                    )}
-                  >
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <span
-                        className={cn(
-                          "h-2.5 w-2.5 rounded-full",
-                          SUMMARY_DOT_COLORS[item.accent] ?? "bg-white/40",
-                        )}
-                      />
-                      {item.title}
-                    </span>
-                    <span className="text-sm font-semibold">{item.total}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
-                Total solicitado: <span className="font-semibold text-white">{totalRequested}</span> questões
-              </div>
-
-              {loading ? (
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="status" aria-live="polite">
-                  <div className="h-full w-1/2 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
-                </div>
-              ) : (
-                <p className="text-xs text-white/60">
-                  Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
-                </p>
-              )}
-            </aside>
+          {/* level cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {levels.map((level) => (
+              <LevelCard
+                key={level.code}
+                color={level.accent}
+                title={level.title}
+                desc={level.desc}
+                checked={Boolean(sel[level.code])}
+                onToggle={() => handleToggleLevel(level.code)}
+                value={counts[level.code]}
+                onChange={(next) => handleCountChange(level.code, next)}
+              />
+            ))}
           </div>
         </div>
 
-        <div className="quiz-footer flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              cancellationRef.current = true;
-              onClose?.();
-            }}
-            className="w-full rounded-2xl border border-white/15 bg-transparent px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10 sm:w-auto"
-          >
-            Cancelar
-          </button>
+        <aside className="quiz-summary space-y-5 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
+          <div className="space-y-1">
+            <h4 className="text-base font-semibold text-white">Resumo do pedido</h4>
+            <p className="text-xs text-white/60">
+              Ajuste os níveis e quantidades antes de gerar o quiz com a AscendaIA.
+            </p>
+          </div>
+
           <button
             type="button"
             onClick={generate}

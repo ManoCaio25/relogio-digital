@@ -64,14 +64,6 @@
   display: grid;
   gap: 1.5rem;
   align-items: start;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-[data-quiz-scope] .quiz-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
 }
 
 [data-quiz-scope] .quiz-main {
@@ -95,8 +87,4 @@
   [data-quiz-scope] .quiz-summary {
     width: 320px;
   }
-}
-
-[data-quiz-scope] .quiz-footer {
-  margin-top: auto;
 }
