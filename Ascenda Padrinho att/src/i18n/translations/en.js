@@ -296,7 +296,6 @@ const en = {
     },
     ascendaIA: {
       title: "AscendaIA quiz generator",
-      subtitle: "Quiz Generator",
       description: "Create AI-powered questions on the dedicated AscendaIA page.",
       action: "Open AscendaIA",
     }

@@ -296,7 +296,6 @@ const pt = {
     },
     ascendaIA: {
       title: "Gerador de quizzes AscendaIA",
-      subtitle: "Gerador de Quizzes",
       description: "Crie questões inteligentes na página dedicada da AscendaIA.",
       action: "Abrir AscendaIA",
     }
