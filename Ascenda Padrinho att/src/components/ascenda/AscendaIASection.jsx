@@ -444,10 +444,14 @@ export default function AscendaIASection({ asModal = false }) {
   if (asModal) {
     return (
       <motion.div {...wrapperProps}>
-        {content}
+        {body}
       </motion.div>
     );
   }
 
-  return <section {...wrapperProps}>{content}</section>;
+  return (
+    <section {...wrapperProps}>
+      {body}
+    </section>
+  );
 }
