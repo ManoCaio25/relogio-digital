@@ -29,8 +29,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
-  const [quizDraft, setQuizDraft] = useState(null);
-  const [isQuizModalOpen, setQuizModalOpen] = useState(false);
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -82,10 +80,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
 
   const handleVideoIdChange = React.useCallback((videoId) => {
     setYoutubeVideoId(videoId);
-  }, []);
-
-  const handleQuizComplete = React.useCallback((quiz) => {
-    setQuizDraft(quiz);
   }, []);
 
   const handleSubmit = React.useCallback(async (e) => {
@@ -288,66 +282,9 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setQuizModalOpen(true)}
-                className="w-full border-brand/30 text-brand hover:bg-brand/10"
-              >
-                ✨ AscendaIA — Gerar Quizzes
-              </Button>
-
-              {quizDraft && (
-                <div className="rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-4 text-sm text-emerald-100">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="space-y-1">
-                      <p className="text-base font-semibold text-emerald-50">{quizDraft.topic}</p>
-                      {quizDraft.source && (
-                        <p className="text-xs text-emerald-200/80">Fonte: {quizDraft.source}</p>
-                      )}
-                      <p className="text-xs text-emerald-200/70">
-                        Total de {quizDraft.easy.length + quizDraft.intermediate.length + quizDraft.advanced.length} questões geradas.
-                      </p>
-                    </div>
-                    <div className="flex flex-col gap-1 text-xs text-emerald-100">
-                      <span>
-                        Básico: <b>{quizDraft.easy.length}</b>
-                      </span>
-                      <span>
-                        Intermediário: <b>{quizDraft.intermediate.length}</b>
-                      </span>
-                      <span>
-                        Avançado: <b>{quizDraft.advanced.length}</b>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-emerald-50">
-                    <button
-                      type="button"
-                      onClick={() => setQuizDraft(null)}
-                      className="rounded-lg border border-emerald-200/40 px-3 py-1 text-emerald-50 transition hover:bg-emerald-200/10"
-                    >
-                      Descartar rascunho
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setQuizModalOpen(true)}
-                      className="rounded-lg border border-transparent bg-emerald-400/30 px-3 py-1 font-medium text-emerald-950 transition hover:bg-emerald-300/70"
-                    >
-                      Gerar novamente
-                    </button>
-                  </div>
-                </div>
-              )}
+            <div className="w-full overflow-x-hidden">
+              <AscendaIASection />
             </div>
-
-            <AscendaIASection
-              open={isQuizModalOpen}
-              onClose={() => setQuizModalOpen(false)}
-              onComplete={handleQuizComplete}
-            />
 
             {previewData && (
               <Button
