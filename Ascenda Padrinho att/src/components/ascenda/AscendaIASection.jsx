@@ -268,15 +268,15 @@ export default function AscendaIASection({ asModal = false }) {
     "aria-label": "Gerar Quizzes",
     "data-quiz-scope": "",
     className: cn(
-      "w-full rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
-      asModal ? "max-w-full" : "mx-auto max-w-6xl",
+      "w-full rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-7",
+      asModal ? "max-w-full" : "",
     ),
   };
 
   const content = (
     <>
-      <div className="flex flex-col gap-8 lg:flex-row">
-        <aside className="quiz-sidebar flex w-full flex-col gap-6 rounded-3xl border border-border/60 bg-surface/70 p-6 shadow-sm backdrop-blur-sm lg:min-w-[25rem] lg:max-w-sm">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
+        <aside className="quiz-sidebar flex w-full flex-col gap-5 rounded-2xl border border-border/60 bg-surface/70 p-5 shadow-sm backdrop-blur-sm">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold text-white">AscendAI - Gerar Quizzes</h2>
             <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
@@ -354,7 +354,7 @@ export default function AscendaIASection({ asModal = false }) {
         </aside>
 
         <div className="quiz-main flex-1">
-          <div className="flex h-full flex-col gap-6">
+          <div className="flex h-full flex-col gap-5">
             {quiz && (
               <span className="inline-flex w-full items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200 lg:justify-start">
                 Rascunho pronto
@@ -368,27 +368,26 @@ export default function AscendaIASection({ asModal = false }) {
               </p>
             </div>
 
-          {/* level cards */}
-          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-6">
-            {levels.map((level) => (
-              <div key={level.code} className="w-full md:flex-1">
-                <LevelCard
-                  color={level.accent}
-                  title={level.title}
-                  desc={level.desc}
-                  checked={Boolean(sel[level.code])}
-                  onToggle={() => handleToggleLevel(level.code)}
-                  value={counts[level.code]}
-                  onChange={(next) => handleCountChange(level.code, next)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+            {/* level cards */}
+            <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-5">
+              {levels.map((level) => (
+                <div key={level.code} className="w-full md:flex-1">
+                  <LevelCard
+                    color={level.accent}
+                    title={level.title}
+                    desc={level.desc}
+                    checked={Boolean(sel[level.code])}
+                    onToggle={() => handleToggleLevel(level.code)}
+                    value={counts[level.code]}
+                    onChange={(next) => handleCountChange(level.code, next)}
+                  />
+                </div>
+              ))}
+            </div>
 
             <button
               type="button"
-              className="mt-6 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
+              className="mt-5 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
             >
               Adicionar novo curso
             </button>
@@ -442,16 +441,8 @@ export default function AscendaIASection({ asModal = false }) {
   );
 
   if (asModal) {
-    return (
-      <motion.div {...wrapperProps}>
-        {body}
-      </motion.div>
-    );
+    return <motion.div {...wrapperProps}>{content}</motion.div>;
   }
 
-  return (
-    <section {...wrapperProps}>
-      {body}
-    </section>
-  );
+  return <section {...wrapperProps}>{content}</section>;
 }
