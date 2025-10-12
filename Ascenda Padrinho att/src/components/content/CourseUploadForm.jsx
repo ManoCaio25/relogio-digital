@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UploadFile } from "@/integrations/Core";
-import { Upload, Loader2, Youtube, Eye } from "lucide-react";
+import { Upload, Loader2, Youtube, Eye, Bot } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import AscendaIASection from "../ascenda/AscendaIASection";
+import { PAGE_URLS } from "@/utils";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -282,7 +283,31 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <AscendaIASection variant="embedded" />
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-gradient-to-br from-violet-500/70 to-fuchsia-500/70 p-2 text-white">
+                  <Bot className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-white">
+                    {t("courseForm.ascendaIA.title", "AscendaIA quiz generator")}
+                  </h3>
+                  <p className="text-xs text-white/70">
+                    {t(
+                      "courseForm.ascendaIA.description",
+                      "Generate quizzes with AscendaIA on the dedicated page.",
+                    )}
+                  </p>
+                </div>
+              </div>
+              <Button
+                asChild
+                variant="outline"
+                className="mt-4 h-9 rounded-xl border-violet-400/40 bg-transparent text-xs font-semibold text-white hover:bg-white/10"
+              >
+                <Link to={PAGE_URLS.AscendaIA}>{t("courseForm.ascendaIA.action", "Open AscendaIA")}</Link>
+              </Button>
+            </div>
 
             {previewData && (
               <Button
@@ -314,7 +339,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         </CardContent>
       </Card>
 
-      <AscendaIASection variant="embedded" />
     </section>
   );
 }

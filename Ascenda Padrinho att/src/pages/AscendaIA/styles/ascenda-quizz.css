@@ -1,0 +1,43 @@
+[data-quiz-scope] {
+  position: relative;
+  overflow-x: hidden;
+}
+
+[data-quiz-scope] .layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 1280px) {
+  [data-quiz-scope] .layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+[data-quiz-scope] .panel {
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-quiz-scope] .preview-list {
+  max-height: 14rem;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+[data-quiz-scope] .preview-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+[data-quiz-scope] .preview-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+[data-quiz-scope] button:focus-visible,
+[data-quiz-scope] input:focus-visible {
+  outline: 2px solid rgba(167, 139, 250, 0.65);
+  outline-offset: 2px;
+}

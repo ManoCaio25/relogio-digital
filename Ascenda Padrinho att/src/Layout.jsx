@@ -8,7 +8,8 @@ import {
   BarChart3,
   Calendar,
   Sparkles,
-  LogOut
+  Bot,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/entities/User";
@@ -52,6 +53,12 @@ function LayoutContent() {
       title: t("layout.nav.content", "Content Management"),
       url: createPageUrl("ContentManagement"),
       icon: BookOpen,
+    },
+    {
+      title: t("layout.nav.ascendaIA.title", "AscendaIA"),
+      subtitle: t("layout.nav.ascendaIA.subtitle", "Quiz Generator"),
+      url: createPageUrl("AscendaIA"),
+      icon: Bot,
     },
     {
       title: t("layout.nav.vacation", "Vacation Requests"),
@@ -219,20 +226,32 @@ function LayoutContent() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => {
-                    const isActive = location.pathname === item.url;
+                    const isActive =
+                      location.pathname === item.url || location.pathname.startsWith(`${item.url}/`);
                     return (
                       <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton 
-                          asChild 
-                          className={`transition-all duration-200 rounded-xl mb-1 ${
-                            isActive 
-                              ? 'bg-brand text-white hover:bg-brand' 
+                        <SidebarMenuButton
+                          asChild
+                          className={`transition-all duration-200 rounded-2xl mb-1 ${
+                            isActive
+                              ? 'bg-brand text-white hover:bg-brand'
                               : 'hover:bg-surface2 text-secondary hover:text-primary'
                           }`}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                             <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.title}</span>
+                            <div className="flex flex-col text-left">
+                              <span className="font-medium leading-tight">{item.title}</span>
+                              {item.subtitle && (
+                                <span
+                                  className={`text-xs ${
+                                    isActive ? 'text-white/80' : 'text-secondary/70'
+                                  }`}
+                                >
+                                  {item.subtitle}
+                                </span>
+                              )}
+                            </div>
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
