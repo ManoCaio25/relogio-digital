@@ -368,21 +368,23 @@ export default function AscendaIASection({ asModal = false }) {
               </p>
             </div>
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:justify-between">
-              {levels.map((level) => (
-                <div key={level.code} className="w-full lg:flex-1 lg:min-w-[18rem]">
-                  <LevelCard
-                    color={level.accent}
-                    title={level.title}
-                    desc={level.desc}
-                    checked={Boolean(sel[level.code])}
-                    onToggle={() => handleToggleLevel(level.code)}
-                    value={counts[level.code]}
-                    onChange={(next) => handleCountChange(level.code, next)}
-                  />
-                </div>
-              ))}
-            </div>
+          {/* level cards */}
+          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-6">
+            {levels.map((level) => (
+              <div key={level.code} className="w-full md:flex-1">
+                <LevelCard
+                  color={level.accent}
+                  title={level.title}
+                  desc={level.desc}
+                  checked={Boolean(sel[level.code])}
+                  onToggle={() => handleToggleLevel(level.code)}
+                  value={counts[level.code]}
+                  onChange={(next) => handleCountChange(level.code, next)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
             <button
               type="button"
