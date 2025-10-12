@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import AscendaIASection from "../ascenda/AscendaIASection";
+import { PAGE_URLS } from "@/utils";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -282,8 +283,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
               </div>
             </div>
 
-            <AscendaIASection variant="embedded" />
-
             {previewData && (
               <Button
                 type="button"
@@ -314,7 +313,6 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         </CardContent>
       </Card>
 
-      <AscendaIASection variant="embedded" />
     </section>
   );
 }
