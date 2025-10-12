@@ -35,6 +35,9 @@ const SUMMARY_DOT_COLORS = {
   fuchsia: "bg-fuchsia-300/80",
 };
 
+const INITIAL_LEVEL_SELECTION = { easy: true, intermediate: true, advanced: false };
+const INITIAL_COUNTS = { easy: 4, intermediate: 4, advanced: 2 };
+
 /** ---- mock IA: generate questions per level (front-only) ---- */
 function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
   const build = (level, n) =>
@@ -64,67 +67,74 @@ function fakeAscendaIAByLevels({ topic, youtubeUrl, counts }) {
 }
 
 /** ---- small UI helpers ---- */
-function DifficultyCard({ title, desc, checked, onToggle, value, onChange, color = "sky" }) {
-  const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
+function CountField({
+  title,
+  desc,
+  accent = "sky",
+  value,
+  disabled,
+  onDecrease,
+  onIncrease,
+  onValueChange,
+}) {
+  const accentStyles = ACCENT_STYLES[accent] ?? ACCENT_STYLES.sky;
 
   return (
-    <motion.div
-      whileHover={{ y: -3 }}
+    <div
       className={cn(
-        "quiz-card flex h-full min-h-[200px] w-full flex-col rounded-2xl border border-border/60 bg-surface/80 p-5 shadow-sm backdrop-blur-sm ring-1 transition-all duration-200 hover:shadow-md",
-        accent.cardRing,
+        "rounded-2xl border border-border/60 bg-surface/70 p-4 transition",
+        disabled && "opacity-60",
       )}
     >
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-lg font-semibold text-white whitespace-normal break-words normal-case">{title}</h3>
-          <label className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/70">
-            <input
-              type="checkbox"
-              checked={checked}
-              onChange={() => onToggle?.()}
-              className={`h-4 w-4 rounded border border-white/40 bg-transparent accent-current ${accent.checkbox}`}
-              aria-label={`Incluir nível ${title}`}
-            />
-            <span>Incluir</span>
-          </label>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-white">{title}</p>
+          <p className="text-xs text-white/60">{desc}</p>
         </div>
-        <p className="text-sm text-white/70 whitespace-normal break-words normal-case">{desc}</p>
+        <span
+          className={cn(
+            "rounded-full px-2 py-1 text-[11px] font-semibold uppercase tracking-wide",
+            disabled ? "bg-white/5 text-white/40" : `${accentStyles.chipBg} ${accentStyles.chipText} ${accentStyles.chipBorder}`,
+          )}
+        >
+          {disabled ? "Off" : "On"}
+        </span>
       </div>
-      <div className="mt-auto flex items-end justify-between gap-3 pt-5">
-        <p className="max-w-[140px] text-[11px] uppercase tracking-[0.08em] text-white/60">
-          Questões disponíveis para este nível
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onChange?.(Math.max(0, (value || 0) - 1))}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-background/60 text-base text-white transition-all duration-200 hover:bg-white/10"
-            aria-label={`Diminuir questões ${title}`}
-          >
-            −
-          </button>
-          <div
-            className="flex h-9 min-w-[2.5rem] items-center justify-center rounded-xl border border-white/10 bg-background/80 px-2 text-center text-sm font-semibold text-white"
-            aria-live="polite"
-          >
-            {value ?? 0}
-          </div>
-          <button
-            type="button"
-            onClick={() => onChange?.((value || 0) + 1)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-background/60 text-base text-white transition-all duration-200 hover:bg-white/10"
-            aria-label={`Aumentar questões ${title}`}
-          >
-            +
-          </button>
-        </div>
+
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onDecrease}
+          disabled={disabled}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-background/70 text-base text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label={`Diminuir questões ${title}`}
+        >
+          −
+        </button>
+        <input
+          type="number"
+          min={0}
+          inputMode="numeric"
+          value={value ?? 0}
+          onChange={(event) => onValueChange?.(event.target.value)}
+          onBlur={(event) => onValueChange?.(event.target.value)}
+          disabled={disabled}
+          className="h-9 w-full rounded-xl border border-border/50 bg-background/80 px-3 text-center text-sm font-semibold text-white outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed"
+          aria-label={`Quantidade de questões para ${title}`}
+        />
+        <button
+          type="button"
+          onClick={onIncrease}
+          disabled={disabled}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/60 bg-background/70 text-base text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label={`Aumentar questões ${title}`}
+        >
+          +
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
-
-export const LevelCard = DifficultyCard;
 
 function StatChip({ label, count, color = "sky" }) {
   const accent = ACCENT_STYLES[color] ?? ACCENT_STYLES.sky;
@@ -155,8 +165,8 @@ function PreviewCol({ label, items, color = "sky" }) {
 /** ---- main component ---- */
 export default function AscendaIASection({ asModal = false }) {
   const [topicEntry, setTopicEntry] = useState("");
-  const [sel, setSel] = useState({ easy: true, intermediate: true, advanced: false });
-  const [counts, setCounts] = useState({ easy: 4, intermediate: 4, advanced: 2 });
+  const [sel, setSel] = useState(() => ({ ...INITIAL_LEVEL_SELECTION }));
+  const [counts, setCounts] = useState(() => ({ ...INITIAL_COUNTS }));
   const [loading, setLoading] = useState(false);
   const [quiz, setQuiz] = useState(null);
 
@@ -267,48 +277,39 @@ export default function AscendaIASection({ asModal = false }) {
     role: "region",
     "aria-label": "Gerar Quizzes",
     "data-quiz-scope": "",
-    className: cn(
-      "w-full rounded-3xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm sm:p-8",
-      asModal ? "max-w-full" : "mx-auto max-w-6xl",
-    ),
+    className: cn("w-full", !asModal && "mx-auto max-w-6xl px-4 md:px-6"),
   };
 
   const content = (
-    <>
-      <div className="flex flex-col gap-8 lg:flex-row">
-        <aside className="quiz-sidebar flex w-full flex-col gap-6 rounded-3xl border border-border/60 bg-surface/70 p-6 shadow-sm backdrop-blur-sm lg:min-w-[25rem] lg:max-w-sm">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-white">AscendAI - Gerar Quizzes</h2>
-            <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-              Gere quizzes a partir de um tópico ou link do YouTube. Escolha os níveis e quantidades desejadas.
-            </p>
-          </div>
-
-          <label className="flex flex-col gap-2 text-sm text-white/70">
-            <span className="text-sm font-medium text-white">Tópico ou link do YouTube</span>
-            <input
-              className="h-11 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:ring-2 focus:ring-primary/40"
-              placeholder="Informe um tema ou cole o link do vídeo"
-              value={topicEntry}
-              onChange={(e) => setTopicEntry(e.target.value)}
-              aria-label="Tópico ou link do YouTube"
-            />
-          </label>
-
-          <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70">
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-white">Resumo do pedido</h3>
-              <p className="text-xs text-white/60">
-                Ajuste os níveis e quantidades antes de gerar com a AscendalA.
+    <div className="space-y-6">
+      <div className="rounded-3xl border border-border/60 bg-surface/80 shadow-e1">
+        <div className="border-b border-border/50 p-6">
+          <h2 className="text-lg font-semibold text-white">Resumo do pedido</h2>
+          <p className="text-sm text-white/60">Dados gerais do curso antes de gerar o quiz.</p>
+        </div>
+        <div className="p-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <span className="text-xs uppercase tracking-[0.08em] text-white/50">Tema atual</span>
+              <p className="mt-2 text-sm font-medium text-white/80 break-words">
+                {topicEntry.trim() ? topicEntry : "Nenhum tema definido."}
               </p>
             </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <span className="text-xs uppercase tracking-[0.08em] text-white/50">Total solicitado</span>
+              <p className="mt-2 text-2xl font-semibold text-white">{totalRequested}</p>
+              <p className="text-xs text-white/50">Quantidade total de questões planejadas.</p>
+            </div>
+          </div>
 
-            <ul className="space-y-2 text-xs">
+          <div className="mt-6 space-y-3">
+            <h3 className="text-sm font-medium text-white">Distribuição por nível</h3>
+            <ul className="space-y-2">
               {summaryItems.map((item) => (
                 <li
                   key={item.code}
                   className={cn(
-                    "flex items-center justify-between rounded-xl border border-white/5 bg-white/0 px-3 py-2 transition",
+                    "flex items-center justify-between rounded-2xl border border-white/5 bg-white/0 px-4 py-3 text-sm transition",
                     item.enabled ? "text-white" : "text-white/40",
                   )}
                 >
@@ -321,137 +322,172 @@ export default function AscendaIASection({ asModal = false }) {
                     />
                     {item.title}
                   </span>
-                  <span className="text-[11px] uppercase tracking-[0.08em] text-white/60">
+                  <span className="text-xs uppercase tracking-[0.08em] text-white/60">
                     {item.enabled ? `${item.total} questões` : "Desativado"}
                   </span>
                 </li>
               ))}
             </ul>
-
-            <button
-              type="button"
-              onClick={generate}
-              disabled={loading || !canGenerate}
-              className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "Gerando…" : "Gerar com AscendAI"}
-            </button>
-
-            {loading ? (
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="status" aria-live="polite">
-                <div className="h-full w-1/2 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
-              </div>
-            ) : quiz ? (
-              <p className="text-xs font-medium text-emerald-200">
-                Quiz pronto! Revise o conteúdo abaixo ou salve como rascunho.
-              </p>
-            ) : (
-              <p className="text-xs text-white/60">
-                Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
-              </p>
-            )}
           </div>
-        </aside>
 
-        <div className="quiz-main flex-1">
-          <div className="flex h-full flex-col gap-6">
-            {quiz && (
-              <span className="inline-flex w-full items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-400/15 px-3 py-1 text-xs font-medium text-emerald-200 lg:justify-start">
-                Rascunho pronto
-              </span>
-            )}
-
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-white">Níveis do curso</h3>
-              <p className="text-sm text-white/70 whitespace-normal break-words normal-case">
-                Ajuste a seleção de níveis e defina quantas questões deseja gerar para cada etapa do aprendizado.
-              </p>
+          {quiz && (
+            <div className="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-4">
+              <p className="text-sm font-medium text-emerald-200">Quiz pronto! Revise abaixo antes de salvar.</p>
             </div>
-
-          {/* level cards */}
-          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-6">
-            {levels.map((level) => (
-              <div key={level.code} className="w-full md:flex-1">
-                <LevelCard
-                  color={level.accent}
-                  title={level.title}
-                  desc={level.desc}
-                  checked={Boolean(sel[level.code])}
-                  onToggle={() => handleToggleLevel(level.code)}
-                  value={counts[level.code]}
-                  onChange={(next) => handleCountChange(level.code, next)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-            <button
-              type="button"
-              className="mt-6 w-full rounded-2xl border border-dashed border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/5"
-            >
-              Adicionar novo curso
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* preview */}
-      {quiz && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
-          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm text-white/70">
-              <span className="font-semibold">{quiz.topic}</span>
-              <span className="mx-2 hidden md:inline">•</span>
-              <span className="block md:inline">
-                Total de <span className="font-semibold">{quiz.easy.length + quiz.intermediate.length + quiz.advanced.length}</span> questões
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <StatChip label="Básico" count={quiz.easy.length} color="sky" />
-              <StatChip label="Intermediário" count={quiz.intermediate.length} color="violet" />
-              <StatChip label="Avançado" count={quiz.advanced.length} color="fuchsia" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <PreviewCol label="Básico" color="sky" items={quiz.easy} />
-            <PreviewCol label="Intermediário" color="violet" items={quiz.intermediate} />
-            <PreviewCol label="Avançado" color="fuchsia" items={quiz.advanced} />
-          </div>
-
-          <div className="mt-5 flex flex-col justify-end gap-2 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => setQuiz(null)}
-              className="rounded-lg border border-white/15 px-3 py-2 text-sm transition-all duration-200 hover:bg-white/5"
-            >
-              Descartar
-            </button>
-            <button
-              type="button"
-              onClick={save}
-              className="rounded-lg bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-md transition-all duration-200 hover:brightness-110"
-            >
-              Salvar quiz
-            </button>
-          </div>
+      <div className="rounded-3xl border border-border/60 bg-surface/80 shadow-e1">
+        <div className="border-b border-border/50 p-6">
+          <h2 className="text-lg font-semibold text-white">Adicionar curso</h2>
+          <p className="text-sm text-white/60">Configure o tema, níveis e gere o quiz automaticamente.</p>
         </div>
-      )}
+        <div className="p-6 space-y-6">
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-2">
+              <label className="text-sm font-medium text-white">Tópico ou link do YouTube</label>
+              <input
+                className="h-11 w-full rounded-xl border border-border/60 bg-background/80 px-3 text-sm text-white outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/30"
+                placeholder="Informe um tema ou cole o link do vídeo"
+                value={topicEntry}
+                onChange={(e) => setTopicEntry(e.target.value)}
+                aria-label="Tópico ou link do YouTube"
+              />
+              <p className="text-xs text-white/50">Use um tema descritivo ou um vídeo que sirva como base para o conteúdo.</p>
+            </div>
+
+            <div className="lg:col-span-1">
+              <label className="mb-2 block text-sm font-medium text-white">Dificuldade</label>
+              <div className="grid grid-cols-3 gap-2">
+                {levels.map((level) => {
+                  const isActive = Boolean(sel[level.code]);
+                  const accent = ACCENT_STYLES[level.accent] ?? ACCENT_STYLES.sky;
+                  return (
+                    <button
+                      key={level.code}
+                      type="button"
+                      onClick={() => handleToggleLevel(level.code)}
+                      className={cn(
+                        "rounded-xl border border-border/60 px-3 py-2 text-xs font-semibold text-white/70 transition hover:border-border/40 hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                        isActive && cn(accent.chipBorder, accent.chipBg, accent.chipText),
+                      )}
+                      data-active={isActive}
+                    >
+                      {level.title}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-xs text-white/50">Selecione as dificuldades que deseja incluir.</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-medium text-white">Quantidade de questões por nível</h3>
+            <p className="mt-1 text-xs text-white/50">Ajuste os valores conforme a complexidade desejada.</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {levels.map((level) => (
+                <CountField
+                  key={level.code}
+                  title={level.title}
+                  desc={level.desc}
+                  accent={level.accent}
+                  value={counts[level.code]}
+                  disabled={!sel[level.code]}
+                  onDecrease={() => handleCountChange(level.code, Math.max(0, (counts[level.code] || 0) - 1))}
+                  onIncrease={() => handleCountChange(level.code, (counts[level.code] || 0) + 1)}
+                  onValueChange={(next) => handleCountChange(level.code, next)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {quiz && (
+            <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="text-sm text-white/70">
+                  <span className="font-semibold text-white">{quiz.topic}</span>
+                  <span className="mx-2 hidden md:inline">•</span>
+                  <span className="block md:inline">
+                    Total de <span className="font-semibold text-white">{quiz.easy.length + quiz.intermediate.length + quiz.advanced.length}</span> questões
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatChip label="Básico" count={quiz.easy.length} color="sky" />
+                  <StatChip label="Intermediário" count={quiz.intermediate.length} color="violet" />
+                  <StatChip label="Avançado" count={quiz.advanced.length} color="fuchsia" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <PreviewCol label="Básico" color="sky" items={quiz.easy} />
+                <PreviewCol label="Intermediário" color="violet" items={quiz.intermediate} />
+                <PreviewCol label="Avançado" color="fuchsia" items={quiz.advanced} />
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="border-t border-border/50 p-6">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-sm text-white/60">
+              {quiz ? "Revise e salve quando estiver pronto." : "Defina tema e níveis para liberar a geração."}
+            </span>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => {
+                  setQuiz(null);
+                  setTopicEntry("");
+                  setSel({ ...INITIAL_LEVEL_SELECTION });
+                  setCounts({ ...INITIAL_COUNTS });
+                }}
+                className="shrink-0 rounded-xl border border-border/60 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/5"
+              >
+                Descartar
+              </button>
+              <button
+                type="button"
+                onClick={save}
+                disabled={!quiz}
+                className="shrink-0 rounded-xl bg-emerald-500/80 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Salvar Quiz
+              </button>
+              <button
+                type="button"
+                onClick={generate}
+                disabled={loading || !canGenerate}
+                className="shrink-0 rounded-xl bg-gradient-to-r from-primary/90 to-fuchsia-600/80 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Gerando…" : "Gerar Quiz com IA"}
+              </button>
+            </div>
+          </div>
+
+          {loading && (
+            <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-white/10" role="status" aria-live="polite">
+              <div className="h-full w-1/2 animate-loading-stripes rounded-full bg-gradient-to-r from-violet-400/60 via-violet-300/80 to-fuchsia-400/60" />
+            </div>
+          )}
+          {!loading && !quiz && (
+            <p className="mt-4 text-xs text-white/50">
+              Informe um tópico ou link do YouTube e mantenha ao menos um nível selecionado para habilitar a geração.
+            </p>
+          )}
+          {!loading && quiz && (
+            <p className="mt-4 text-xs font-medium text-emerald-200">
+              Quiz pronto! Você pode salvar o rascunho ou gerar novamente se quiser ajustar.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 
   if (asModal) {
-    return (
-      <motion.div {...wrapperProps}>
-        {body}
-      </motion.div>
-    );
+    return <motion.div {...wrapperProps}>{content}</motion.div>;
   }
 
-  return (
-    <section {...wrapperProps}>
-      {body}
-    </section>
-  );
+  return <section {...wrapperProps}>{content}</section>;
 }
