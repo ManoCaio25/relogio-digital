@@ -15,7 +15,7 @@ import { UploadFile } from "@/integrations/Core";
 import { Upload, Loader2, Youtube, Eye } from "lucide-react";
 import YouTubePreview from "./YouTubePreview";
 import { useTranslation } from "@/i18n";
-import AscendaIASection from "../ascenda/AscendaIASection";
+import QuizGeneratorCard from "@/components/ascendaia/QuizGeneratorCard";
 
 export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [title, setTitle] = useState("");
@@ -29,6 +29,12 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
   const [isUploading, setIsUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState(null);
+  const [savedQuizId, setSavedQuizId] = useState(null);
+  const [draftCourseId] = useState(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `draft-${Date.now()}`,
+  );
   const { t } = useTranslation();
   const categoryOptions = useMemo(
     () => [
@@ -117,6 +123,10 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
         published: true,
       };
 
+      if (savedQuizId) {
+        courseData.generated_quiz_id = savedQuizId;
+      }
+
       if (fileUrl) {
         courseData.file_url = fileUrl;
         courseData.file_name = fileName;
@@ -141,6 +151,7 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
       setTrainingType("");
       setFile(null);
       setPreviewData(null);
+      setSavedQuizId(null);
     } catch (error) {
       console.error("Error uploading course:", error);
     }
@@ -283,7 +294,10 @@ export default function CourseUploadForm({ onSuccess, onPreview }) {
             </div>
 
             <div className="w-full overflow-x-hidden">
-              <AscendaIASection />
+              <QuizGeneratorCard
+                courseId={draftCourseId}
+                onSaved={(quizId) => setSavedQuizId(quizId)}
+              />
             </div>
 
             {previewData && (
