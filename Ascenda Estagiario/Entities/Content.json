@@ -1,0 +1,61 @@
+{
+  "name": "Content",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "Content title"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Content description"
+    },
+    "tipo_conteudo": {
+      "type": "string",
+      "enum": [
+        "Video",
+        "PDF",
+        "SCORM",
+        "Link Externo",
+        "Documento"
+      ],
+      "description": "Content type"
+    },
+    "url_acesso": {
+      "type": "string",
+      "description": "Access URL"
+    },
+    "duracao_estimada_minutos": {
+      "type": "number",
+      "description": "Estimated duration in minutes"
+    },
+    "status_conclusao": {
+      "type": "string",
+      "enum": [
+        "Nao Iniciado",
+        "Em Progresso",
+        "Concluido"
+      ],
+      "default": "Nao Iniciado",
+      "description": "Completion status"
+    },
+    "ordem_na_trilha": {
+      "type": "number",
+      "description": "Order in learning path"
+    },
+    "id_trilha": {
+      "type": "string",
+      "description": "Learning path ID"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "Basic",
+        "Medium",
+        "Advanced"
+      ],
+      "description": "Difficulty level of the content"
+    }
+  },
+  "required": []
+}

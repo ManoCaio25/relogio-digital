@@ -1,0 +1,78 @@
+/* Reset de altura/posição para neutralizar layouts globais */
+[data-quiz-scope] {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+[data-quiz-scope]::before,
+[data-quiz-scope]::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Isolamento: neutraliza efeitos do CSS global dentro da aba */
+[data-quiz-scope],
+[data-quiz-scope] * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  rotate: 0deg !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Layout fixo em duas colunas com barra lateral estável */
+[data-quiz-scope] .quiz-layout {
+  display: grid !important;
+  gap: 1.5rem !important;
+  align-items: flex-start !important;
+}
+
+/* Barra lateral com rolagem isolada */
+[data-quiz-scope] .quiz-sidebar {
+  position: sticky !important;
+  top: 16px !important;
+  max-height: calc(100vh - 32px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Desativa sticky no mobile */
+@media (max-width: 1024px) {
+  [data-quiz-scope] .quiz-sidebar {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* Coluna principal sem alturas forçadas */
+[data-quiz-scope] .quiz-main,
+[data-quiz-scope] .quiz-main > * {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* Cards com altura saudável */
+[data-quiz-scope] .quiz-card {
+  min-width: 220px !important;
+  min-height: 180px !important;
+  height: auto !important;
+}
+
+/* Lista de pré-visualização com rolagem interna controlada */
+[data-quiz-scope] .quiz-preview-list {
+  max-height: 14rem !important;
+  overflow-y: auto !important;
+  padding-right: 0.25rem !important;
+}
+
+@media (min-width: 1024px) {
+  [data-quiz-scope] .quiz-layout {
+    grid-template-columns: minmax(0, 1fr) 320px !important;
+  }
+}
