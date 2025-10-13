@@ -3,6 +3,7 @@ export const PAGE_URLS = {
   Interns: '/interns',
   ContentManagement: '/content',
   AscendaIA: '/ascenda/ai-quizzes',
+  AscendaIAAssign: '/ascenda/ai-quizzes/assign',
   VacationRequests: '/vacation-requests',
   Reports: '/reports',
 };

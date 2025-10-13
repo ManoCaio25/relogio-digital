@@ -10,6 +10,7 @@ import {
   Sparkles,
   Bot,
   LogOut,
+  UserRoundCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { User } from "@/entities/User";
@@ -62,6 +63,13 @@ function LayoutContent() {
       subtitle: null,
       url: createPageUrl("AscendaIA"),
       icon: Bot,
+      children: [
+        {
+          title: t("ascendaQuiz.tabs.assign", "Assign Quizzes"),
+          url: createPageUrl("AscendaIAAssign"),
+          icon: UserRoundCheck,
+        },
+      ],
     },
     {
       title: t("layout.nav.vacation", "Vacation Requests"),
@@ -229,35 +237,64 @@ function LayoutContent() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => {
+                    const childActive = item.children?.some((child) =>
+                      location.pathname === child.url || location.pathname.startsWith(`${child.url}/`),
+                    );
                     const isActive =
-                      location.pathname === item.url || location.pathname.startsWith(`${item.url}/`);
+                      location.pathname === item.url ||
+                      location.pathname.startsWith(`${item.url}/`) ||
+                      childActive;
                     return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                          asChild
-                          className={`transition-all duration-200 rounded-2xl mb-1 ${
-                            isActive
-                              ? 'bg-brand text-white hover:bg-brand'
-                              : 'hover:bg-surface2 text-secondary hover:text-primary'
-                          }`}
-                        >
-                          <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                            <item.icon className="w-5 h-5" />
-                            <div className="flex flex-col text-left">
-                              <span className="font-medium leading-tight">{item.title}</span>
-                              {item.subtitle && (
-                                <span
-                                  className={`text-xs ${
-                                    isActive ? 'text-white/80' : 'text-secondary/70'
-                                  }`}
-                                >
-                                  {item.subtitle}
-                                </span>
-                              )}
-                            </div>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
+                      <React.Fragment key={item.title}>
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            asChild
+                            className={`transition-all duration-200 rounded-2xl mb-1 ${
+                              isActive
+                                ? 'bg-brand text-white hover:bg-brand'
+                                : 'hover:bg-surface2 text-secondary hover:text-primary'
+                            }`}
+                          >
+                            <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                              <item.icon className="w-5 h-5" />
+                              <div className="flex flex-col text-left">
+                                <span className="font-medium leading-tight">{item.title}</span>
+                                {item.subtitle && (
+                                  <span
+                                    className={`text-xs ${
+                                      isActive ? 'text-white/80' : 'text-secondary/70'
+                                    }`}
+                                  >
+                                    {item.subtitle}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        {item.children?.map((child) => {
+                          const isChildActive =
+                            location.pathname === child.url ||
+                            location.pathname.startsWith(`${child.url}/`);
+                          return (
+                            <SidebarMenuItem key={`${item.title}-${child.title}`}>
+                              <SidebarMenuButton
+                                asChild
+                                className={`ml-8 rounded-xl px-3 py-2 text-sm transition-all duration-200 ${
+                                  isChildActive
+                                    ? 'bg-brand/80 text-white hover:bg-brand'
+                                    : 'text-secondary hover:bg-surface2 hover:text-primary'
+                                }`}
+                              >
+                                <Link to={child.url} className="flex items-center gap-3">
+                                  <child.icon className="h-4 w-4" />
+                                  <span className="font-medium leading-tight">{child.title}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </React.Fragment>
                     );
                   })}
                 </SidebarMenu>

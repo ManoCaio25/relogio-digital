@@ -43,6 +43,30 @@ export default function AscendaIAQuizzesPage() {
 
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const basePath = PAGE_URLS.AscendaIA;
+  const assignPath = PAGE_URLS.AscendaIAAssign;
+  const isAssignRoute = location.pathname.startsWith(assignPath);
+  const [activeTab, setActiveTab] = React.useState(isAssignRoute ? 'assign' : 'generator');
+
+  React.useEffect(() => {
+    setActiveTab(isAssignRoute ? 'assign' : 'generator');
+  }, [isAssignRoute]);
+
+  const handleTabChange = React.useCallback(
+    (next) => {
+      setActiveTab(next);
+      if (next === 'assign') {
+        if (!location.pathname.startsWith(assignPath)) {
+          navigate(assignPath);
+        }
+      } else if (location.pathname !== basePath) {
+        navigate(basePath);
+      }
+    },
+    [assignPath, basePath, location.pathname, navigate],
+  );
 
   const handleSave = React.useCallback(() => {
     if (!quiz) return;

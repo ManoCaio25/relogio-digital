@@ -31,6 +31,10 @@ const router = createBrowserRouter([
         element: <AscendaIAQuizzesPage />,
       },
       {
+        path: PAGE_URLS.AscendaIAAssign.replace(/^\//, ''),
+        element: <AscendaIAQuizzesPage />,
+      },
+      {
         path: PAGE_URLS.VacationRequests.replace(/^\//, ''),
         element: <VacationRequests />,
       },
