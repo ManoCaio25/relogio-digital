@@ -54,9 +54,6 @@
       "en": "English",
       "pt": "Português"
     },
-    "nav": {
-      "quizGen": "AscendaIA — Quiz Generator"
-    },
     "placeholders": {
       "searchInterns": "Search interns...",
       "courseTitleExample": "e.g., Advanced React Patterns",
@@ -439,10 +436,6 @@
       "backNote": "Need to attach quizzes back to a course? Return to the content dashboard when you are ready.",
       "backCta": "Back to content management"
     },
-    "tabs": {
-      "generator": "Generator",
-      "assign": "Assign Quizzes"
-    },
     "form": {
       "title": "Content sources",
       "subtitle": "Combine topics, videos or text files to feed the generator.",
@@ -486,17 +479,10 @@
     },
     "preview": {
       "title": "Preview",
-      "subtitle": "Generated questions are grouped by level. Review before saving.",
       "description": "Generated questions are grouped by level. Review before saving.",
       "emptyState": "No quiz generated yet.",
       "totalItems": "{{count}} items",
-      "totalItemsAria": "Total items: {{count}}",
-      "totalItemsTooltip": "{{count}} items in total",
-      "topicAria": "Selected topic: {{topic}}",
       "noItems": "No items",
-      "basicCol": "Basic",
-      "intermediateCol": "Intermediate",
-      "advancedCol": "Advanced",
       "columns": {
         "easy": "Basic",
         "intermediate": "Intermediate",
@@ -510,111 +496,6 @@
         "quickCheckN": "Quick check {{n}} about {{topic}}.",
         "scenarioN": "Scenario {{n}}: apply the knowledge on {{topic}}.",
         "challengeN": "Challenge {{n}}: exploring advanced insights on {{topic}}."
-      }
-    },
-    "assign": {
-      "title": "Assign generated quizzes",
-      "subtitle": "Pick the interns or mentors that should receive the latest quizzes and tailor the delivery details.",
-      "backToGenerator": "Regenerate in the Generator",
-      "backToGeneratorAria": "Go back to the quiz generator tab",
-      "assignees": {
-        "title": "Select assignees",
-        "subtitle": "Choose one or multiple interns and optionally add a group.",
-        "selected": "{{count}} assignee",
-        "selected_plural": "{{count}} assignees",
-        "selectedAria": "{{count}} assignee selected",
-        "selectedAria_plural": "{{count}} assignees selected",
-        "internsTitle": "Interns",
-        "groupsTitle": "Groups",
-        "checkboxAria": "Toggle selection for {{name}}",
-        "groups": {
-          "none": "No group",
-          "noneHint": "Keep the manual selection only.",
-          "allInterns": "All interns",
-          "allInternsHint": "Adds every intern ({{count}}) to the delivery list.",
-          "padrinhos": "Mentor team",
-          "padrinhosHint": "Adds every mentor ({{count}}) for visibility."
-        }
-      },
-      "toolbar": {
-        "title": "Delivery settings",
-        "subtitle": "Adjust deadlines, visibility and tags before assigning.",
-        "selection": "{{count}} quiz selected",
-        "selection_plural": "{{count}} quizzes selected",
-        "selectionAria": "{{count}} quiz selected",
-        "selectionAria_plural": "{{count}} quizzes selected",
-        "dueDate": "Due date",
-        "difficulty": "Difficulty",
-        "visibility": "Visibility",
-        "visibilityPrivate": "Private",
-        "visibilityTeam": "Team",
-        "tags": "Tags",
-        "tagsPlaceholder": "separate tags with commas",
-        "tagsHelper": "Tags help organize assignments by theme or squad.",
-        "assignSelected": "Assign selected",
-        "assignAria": "Assign selected quizzes"
-      },
-      "difficulties": {
-        "easy": "Easy",
-        "medium": "Medium",
-        "hard": "Hard"
-      },
-      "generatedList": {
-        "title": "Generated quizzes",
-        "subtitle": "Review titles, tags and question counts before assigning.",
-        "count": "{{count}} quiz",
-        "count_plural": "{{count}} quizzes",
-        "loading": "Loading generated quizzes…",
-        "emptyTitle": "No quizzes available",
-        "emptySubtitle": "Generate a new quiz batch or refresh the generator tab to populate this list."
-      },
-      "cards": {
-        "selectAria": "Select {{title}} for assignment",
-        "items": "{{count}} question",
-        "items_plural": "{{count}} questions",
-        "difficultyAria": "Difficulty: {{difficulty}}",
-        "editMeta": "Edit meta",
-        "editMetaAria": "Edit quiz meta for {{title}}"
-      },
-      "editModal": {
-        "title": "Update quiz metadata",
-        "subtitle": "Keep titles concise and make tags discoverable.",
-        "fields": {
-          "title": "Quiz title",
-          "titlePlaceholder": "Name this quiz",
-          "difficulty": "Difficulty",
-          "tags": "Tags",
-          "tagsPlaceholder": "frontend, leadership",
-          "tagsHelper": "Separate tags with commas to create or update them."
-        }
-      },
-      "toasts": {
-        "loadError": {
-          "title": "Unable to load quizzes",
-          "description": "Refresh the page or try again in a moment."
-        },
-        "metaUpdated": {
-          "title": "Quiz updated",
-          "description": "The metadata changes are now reflected in the list."
-        },
-        "noAssignees": {
-          "title": "Choose at least one assignee",
-          "description": "Select an intern or pick a group to continue."
-        },
-        "noQuizzes": {
-          "title": "Select a quiz",
-          "description": "Pick the quizzes that should be delivered before assigning."
-        },
-        "success": {
-          "title": "Assigned to {{count}} user",
-          "title_plural": "Assigned to {{count}} users",
-          "description": "{{quizzes}} quiz dispatched",
-          "description_plural": "{{quizzes}} quizzes dispatched"
-        },
-        "assignError": {
-          "title": "Assignment failed",
-          "description": "We could not complete the assignment. Please try again."
-        }
       }
     },
     "actions": {

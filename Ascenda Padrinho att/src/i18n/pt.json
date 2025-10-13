@@ -54,9 +54,6 @@
       "en": "English",
       "pt": "Português"
     },
-    "nav": {
-      "quizGen": "AscendaIA — Gerador de Quiz"
-    },
     "placeholders": {
       "searchInterns": "Pesquisar estagiários...",
       "courseTitleExample": "ex.: Padrões Avançados de React",
@@ -439,10 +436,6 @@
       "backNote": "Precisa anexar os quizzes a um curso? Volte ao painel de conteúdo quando estiver pronto.",
       "backCta": "Voltar para gestão de conteúdo"
     },
-    "tabs": {
-      "generator": "Gerador",
-      "assign": "Designar Quizzes"
-    },
     "form": {
       "title": "Fontes de conteúdo",
       "subtitle": "Combine temas, vídeos ou arquivos de texto para alimentar o gerador.",
@@ -486,17 +479,10 @@
     },
     "preview": {
       "title": "Pré-visualização",
-      "subtitle": "As questões são agrupadas por nível. Revise antes de salvar.",
       "description": "As perguntas geradas são agrupadas por nível. Revise antes de salvar.",
       "emptyState": "Nenhum quiz gerado ainda.",
       "totalItems": "{{count}} itens",
-      "totalItemsAria": "Total de itens: {{count}}",
-      "totalItemsTooltip": "{{count}} itens no total",
-      "topicAria": "Tema selecionado: {{topic}}",
       "noItems": "Sem itens",
-      "basicCol": "Iniciante",
-      "intermediateCol": "Intermediário",
-      "advancedCol": "Avançado",
       "columns": {
         "easy": "Iniciante",
         "intermediate": "Intermediário",
@@ -510,111 +496,6 @@
         "quickCheckN": "Checagem rápida {{n}} sobre {{topic}}.",
         "scenarioN": "Cenário {{n}}: aplicando o conhecimento em {{topic}}.",
         "challengeN": "Desafio {{n}}: explorando conceitos avançados de {{topic}}."
-      }
-    },
-    "assign": {
-      "title": "Designar quizzes gerados",
-      "subtitle": "Escolha estagiários ou padrinhos para receber os quizzes e ajuste os detalhes antes de enviar.",
-      "backToGenerator": "Regerar no Gerador",
-      "backToGeneratorAria": "Voltar para a aba do gerador de quizzes",
-      "assignees": {
-        "title": "Selecionar destinatários",
-        "subtitle": "Escolha um ou mais estagiários e, se quiser, aplique um grupo.",
-        "selected": "{{count}} destino",
-        "selected_plural": "{{count}} destinos",
-        "selectedAria": "{{count}} destino selecionado",
-        "selectedAria_plural": "{{count}} destinos selecionados",
-        "internsTitle": "Estagiários",
-        "groupsTitle": "Grupos",
-        "checkboxAria": "Alternar seleção de {{name}}",
-        "groups": {
-          "none": "Sem grupo",
-          "noneHint": "Considerar apenas a seleção manual.",
-          "allInterns": "Todos os estagiários",
-          "allInternsHint": "Inclui automaticamente os {{count}} estagiários.",
-          "padrinhos": "Time de padrinhos",
-          "padrinhosHint": "Inclui os {{count}} padrinhos para acompanhamento."
-        }
-      },
-      "toolbar": {
-        "title": "Configurações de envio",
-        "subtitle": "Defina prazos, visibilidade e tags antes de designar.",
-        "selection": "{{count}} quiz selecionado",
-        "selection_plural": "{{count}} quizzes selecionados",
-        "selectionAria": "{{count}} quiz selecionado",
-        "selectionAria_plural": "{{count}} quizzes selecionados",
-        "dueDate": "Prazo",
-        "difficulty": "Dificuldade",
-        "visibility": "Visibilidade",
-        "visibilityPrivate": "Privado",
-        "visibilityTeam": "Time",
-        "tags": "Tags",
-        "tagsPlaceholder": "separe com vírgulas",
-        "tagsHelper": "Use tags para organizar os envios por tema ou squad.",
-        "assignSelected": "Designar selecionados",
-        "assignAria": "Designar quizzes selecionados"
-      },
-      "difficulties": {
-        "easy": "Fácil",
-        "medium": "Média",
-        "hard": "Difícil"
-      },
-      "generatedList": {
-        "title": "Quizzes gerados",
-        "subtitle": "Revise títulos, tags e quantidade de questões antes de enviar.",
-        "count": "{{count}} quiz",
-        "count_plural": "{{count}} quizzes",
-        "loading": "Carregando quizzes gerados…",
-        "emptyTitle": "Nenhum quiz disponível",
-        "emptySubtitle": "Gere um novo lote ou volte ao gerador para atualizar a lista."
-      },
-      "cards": {
-        "selectAria": "Selecionar {{title}} para designação",
-        "items": "{{count}} questão",
-        "items_plural": "{{count}} questões",
-        "difficultyAria": "Dificuldade: {{difficulty}}",
-        "editMeta": "Editar meta",
-        "editMetaAria": "Editar metadados do quiz {{title}}"
-      },
-      "editModal": {
-        "title": "Atualizar metadados do quiz",
-        "subtitle": "Use títulos objetivos e tags fáceis de encontrar.",
-        "fields": {
-          "title": "Título do quiz",
-          "titlePlaceholder": "Nomeie este quiz",
-          "difficulty": "Dificuldade",
-          "tags": "Tags",
-          "tagsPlaceholder": "frontend, liderança",
-          "tagsHelper": "Separe as tags com vírgulas para criar ou atualizar."
-        }
-      },
-      "toasts": {
-        "loadError": {
-          "title": "Não foi possível carregar os quizzes",
-          "description": "Atualize a página ou tente novamente em instantes."
-        },
-        "metaUpdated": {
-          "title": "Quiz atualizado",
-          "description": "As alterações de metadados já aparecem na lista."
-        },
-        "noAssignees": {
-          "title": "Escolha pelo menos um destino",
-          "description": "Selecione um estagiário ou escolha um grupo para continuar."
-        },
-        "noQuizzes": {
-          "title": "Selecione um quiz",
-          "description": "Escolha os quizzes que devem ser enviados antes de designar."
-        },
-        "success": {
-          "title": "Designado para {{count}} pessoa",
-          "title_plural": "Designado para {{count}} pessoas",
-          "description": "{{quizzes}} quiz enviado",
-          "description_plural": "{{quizzes}} quizzes enviados"
-        },
-        "assignError": {
-          "title": "Falha ao designar",
-          "description": "Não conseguimos concluir a designação. Tente novamente."
-        }
       }
     },
     "actions": {

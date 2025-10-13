@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { useAscendaIAQuizGen } from './hooks/useAscendaIAQuizGen';
@@ -10,10 +10,8 @@ import { QuizLevelsPanel } from './components/QuizLevelsPanel';
 import { PreviewPanel } from './components/PreviewPanel';
 import { SaveDraftBar } from './components/SaveDraftBar';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PAGE_URLS } from '@/utils';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-import AssignQuizzesPanel from './AssignQuizzesPanel';
 
 import './styles/ascenda-quizz.css';
 
@@ -123,73 +121,56 @@ export default function AscendaIAQuizzesPage() {
           </div>
         </motion.header>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-2 space-y-6">
-          <TabsList className="max-w-xl bg-surface/60 backdrop-blur">
-            <TabsTrigger value="generator">
-              {t('ascendaQuiz.tabs.generator')}
-            </TabsTrigger>
-            <TabsTrigger value="assign">
-              {t('ascendaQuiz.tabs.assign')}
-            </TabsTrigger>
-          </TabsList>
+        <section className="layout grid gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+          <div className="flex flex-col gap-6 lg:gap-8">
+            <SourceInputPanel
+              topic={topic}
+              setTopic={setTopic}
+              youtubeUrl={youtubeUrl}
+              setYoutubeUrl={setYoutubeUrl}
+              textFile={textFile}
+              setTextFile={setTextFile}
+              errors={errors}
+              setErrors={setErrors}
+              onClearTextFile={clearTextFile}
+              youtubeValid={youtubeValid}
+            />
 
-          <TabsContent value="generator" className="space-y-6 lg:space-y-8">
-            <section className="layout grid gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-              <div className="flex flex-col gap-6 lg:gap-8">
-                <SourceInputPanel
-                  topic={topic}
-                  setTopic={setTopic}
-                  youtubeUrl={youtubeUrl}
-                  setYoutubeUrl={setYoutubeUrl}
-                  textFile={textFile}
-                  setTextFile={setTextFile}
-                  errors={errors}
-                  setErrors={setErrors}
-                  onClearTextFile={clearTextFile}
-                  youtubeValid={youtubeValid}
-                />
+            <SummaryPanel
+              levels={levels}
+              setLevelEnabled={setLevelEnabled}
+              setLevelCount={setLevelCount}
+              totalRequested={totalRequested}
+              canGenerate={canGenerate}
+              loading={loading}
+              onGenerate={generate}
+              feedback={feedback}
+            />
+          </div>
 
-                <SummaryPanel
-                  levels={levels}
-                  setLevelEnabled={setLevelEnabled}
-                  setLevelCount={setLevelCount}
-                  totalRequested={totalRequested}
-                  canGenerate={canGenerate}
-                  loading={loading}
-                  onGenerate={generate}
-                  feedback={feedback}
-                />
-              </div>
+          <div className="flex flex-col gap-6 lg:gap-8">
+            <QuizLevelsPanel
+              levels={levels}
+              setLevelEnabled={setLevelEnabled}
+              setLevelCount={setLevelCount}
+            />
+            <PreviewPanel quiz={quiz} />
+          </div>
+        </section>
 
-              <div className="flex flex-col gap-6 lg:gap-8">
-                <QuizLevelsPanel
-                  levels={levels}
-                  setLevelEnabled={setLevelEnabled}
-                  setLevelCount={setLevelCount}
-                />
-                <PreviewPanel quiz={quiz} />
-              </div>
-            </section>
+        <SaveDraftBar quiz={quiz} onDiscard={handleDiscard} onSave={handleSave} />
 
-            <SaveDraftBar quiz={quiz} onDiscard={handleDiscard} onSave={handleSave} />
-
-            <div className="rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm lg:p-8">
-              <p className="text-sm text-white/70">{t('ascendaQuiz.page.backNote')}</p>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => navigate(PAGE_URLS.ContentManagement)}
-                className="mt-3 h-11 rounded-xl border border-white/10 bg-transparent text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                {t('ascendaQuiz.page.backCta')}
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="assign" className="space-y-6">
-            <AssignQuizzesPanel />
-          </TabsContent>
-        </Tabs>
+        <div className="rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm lg:p-8">
+          <p className="text-sm text-white/70">{t('ascendaQuiz.page.backNote')}</p>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => navigate(PAGE_URLS.ContentManagement)}
+            className="mt-3 h-11 rounded-xl border border-white/10 bg-transparent text-sm font-semibold text-white transition hover:bg-white/10"
+          >
+            {t('ascendaQuiz.page.backCta')}
+          </Button>
+        </div>
       </div>
     </main>
   );
