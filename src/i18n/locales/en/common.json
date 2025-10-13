@@ -1,0 +1,153 @@
+{
+  "app": {
+    "name": "Ascenda Platform",
+    "logout": "Sign out",
+    "assign": "Assign",
+    "cancel": "Cancel",
+    "save": "Save",
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "archived": "Archived",
+    "confirm": "Confirm",
+    "dueDate": "Due date",
+    "visibility": "Visibility",
+    "public": "Public",
+    "private": "Private",
+    "status": "Status",
+    "pending": "Pending",
+    "done": "Completed",
+    "loading": "Loading...",
+    "filters": "Filters",
+    "search": "Search",
+    "apply": "Apply",
+    "clear": "Clear",
+    "version": "Version",
+    "assignments": "Assignments",
+    "assignees": "Interns",
+    "tags": "Tags",
+    "difficulty": "Difficulty",
+    "actions": "Actions",
+    "progress": "Progress",
+    "new": "New",
+    "edit": "Edit",
+    "create": "Create",
+    "request": "Request"
+  },
+  "loading": {
+    "postLogin": "Preparing your mission...",
+    "preLogin": "Leaving orbit..."
+  },
+  "login": {
+    "title": "Ascenda Login",
+    "subtitle": "Accelerate your growth with intelligent data.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Invalid credentials. Try again."
+  },
+  "nav": {
+    "dashboard": "Overview",
+    "quizzes": "Quizzes",
+    "tasks": "Tasks",
+    "videos": "Videos",
+    "vacations": "Vacations",
+    "forum": "Forum",
+    "ascendaIA": "AscendaIA",
+    "generator": "Generator",
+    "library": "Course Library",
+    "assign": "Assign",
+    "mentor": "Mentor"
+  },
+  "dashboard": {
+    "intern": {
+      "title": "Intern dashboard",
+      "pendingTasks": "Pending tasks",
+      "pendingQuizzes": "Pending quizzes",
+      "videosInProgress": "Videos in progress",
+      "overallScore": "Overall score"
+    },
+    "mentor": {
+      "title": "Mentor dashboard",
+      "vacationApprovals": "Vacation approvals",
+      "openAssignments": "Active assignments",
+      "notifications": "Latest notifications"
+    }
+  },
+  "generator": {
+    "title": "AscendaIA - Generator",
+    "description": "Create smart quizzes with assisted intelligence.",
+    "prompt": "Describe the quiz theme",
+    "generate": "Generate quiz",
+    "autoSaved": "Automatically saved into Course Library"
+  },
+  "library": {
+    "title": "Course Library",
+    "subtitle": "Manage your quiz templates.",
+    "newTemplate": "New template",
+    "editTemplate": "Edit template",
+    "name": "Name",
+    "description": "Description",
+    "content": "Content",
+    "visibility": "Visibility",
+    "assigned": "Assigned",
+    "empty": "No template found"
+  },
+  "assign": {
+    "title": "Assign quizzes",
+    "subtitle": "Pick templates and send them to the right interns.",
+    "selectTemplate": "Select a template",
+    "selectInterns": "Select interns",
+    "selected": "Selected",
+    "notify": "Notify interns",
+    "success": "Quiz assigned successfully!",
+    "missingSelection": "Pick a template and at least one intern"
+  },
+  "quizzes": {
+    "title": "Quiz inbox",
+    "empty": "No pending quizzes",
+    "markDone": "Mark as done",
+    "assignedBy": "Assigned by"
+  },
+  "tasks": {
+    "title": "Task board",
+    "todo": "To do",
+    "doing": "In progress",
+    "done": "Done",
+    "notifyMentor": "Notify mentor"
+  },
+  "videos": {
+    "title": "Video tracks",
+    "resume": "Resume",
+    "progress": "Progress",
+    "continue": "Continue watching"
+  },
+  "vacations": {
+    "title": "Vacation requests",
+    "request": "Request vacation",
+    "start": "Start",
+    "end": "End",
+    "reason": "Reason",
+    "submit": "Send request",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "mentorPanel": "Approval board",
+    "approve": "Approve",
+    "reject": "Reject",
+    "empty": "No pending requests"
+  },
+  "forum": {
+    "title": "Ascenda community",
+    "threads": "Threads",
+    "reply": "Reply",
+    "newMessage": "Write a message",
+    "participants": "Participants",
+    "empty": "No content available"
+  },
+  "notifications": {
+    "assigned": "You received a new quiz!",
+    "taskUpdated": "Task updated",
+    "vacationApproved": "Vacation approved",
+    "vacationRejected": "Vacation rejected"
+  }
+}
