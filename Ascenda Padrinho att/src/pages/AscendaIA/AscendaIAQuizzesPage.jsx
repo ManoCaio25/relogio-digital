@@ -161,31 +161,6 @@ export default function AscendaIAQuizzesPage() {
     navigate(`${PAGE_URLS.AscendaIALibrary}?focus=${encodeURIComponent(lastTemplateId)}`);
   }, [lastTemplateId, navigate]);
 
-  const handleAssign = React.useCallback(() => {
-    if (!quiz) {
-      pushToast({
-        variant: 'warning',
-        title: t('ascendaQuiz.summary.assignUnavailableTitle'),
-        description: t('ascendaQuiz.summary.assignUnavailableDescription'),
-      });
-      return;
-    }
-
-    const templateId = handleSaveTemplate() ?? lastTemplateId;
-    const targetId = templateId ?? lastTemplateId;
-
-    if (!targetId) {
-      pushToast({
-        variant: 'error',
-        title: t('ascendaQuiz.summary.assignNavigateErrorTitle'),
-        description: t('ascendaQuiz.summary.assignNavigateErrorDescription'),
-      });
-      return;
-    }
-
-    navigate(`${PAGE_URLS.AscendaIAAssign}?select=${encodeURIComponent(targetId)}`);
-  }, [handleSaveTemplate, lastTemplateId, navigate, pushToast, quiz, t]);
-
   const headerTitle = React.useMemo(() => {
     if (activeTab === 'assign') return t('ascendaQuiz.assign.title');
     if (activeTab === 'library') return t('common.course_library');
@@ -278,10 +253,8 @@ export default function AscendaIAQuizzesPage() {
                   setLevelCount={setLevelCount}
                   totalRequested={totalRequested}
                   canGenerate={canGenerate}
-                  canAssign={Boolean(quiz)}
                   loading={loading}
                   onGenerate={handleGenerate}
-                  onAssign={handleAssign}
                   feedback={feedback}
                 />
               </div>

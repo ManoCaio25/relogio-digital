@@ -51,21 +51,6 @@ export default function AssignQuizzesPanel() {
   const [selectedTemplateIds, setSelectedTemplateIds] = React.useState([]);
 
   React.useEffect(() => {
-    const search = location.search ?? '';
-    if (!search) return;
-    const params = new URLSearchParams(search);
-    const selectId = params.get('select');
-    if (!selectId) return;
-
-    setSelectedTemplateIds((prev) => {
-      if (prev.includes(selectId)) return prev;
-      return libraryTemplates.some((template) => template.id === selectId)
-        ? [...prev, selectId]
-        : prev;
-    });
-  }, [libraryTemplates, location.search]);
-
-  React.useEffect(() => {
     let active = true;
     if (!generatedQuizzes.length) {
       setLoading(true);
