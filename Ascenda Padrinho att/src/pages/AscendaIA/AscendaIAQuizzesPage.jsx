@@ -174,7 +174,7 @@ export default function AscendaIAQuizzesPage() {
   }, [activeTab, t]);
 
   return (
-    <main data-quiz-scope className="min-h-screen bg-surface/30 py-10">
+    <main data-quiz-scope className="min-h-screen py-10 transition-colors">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 lg:px-8">
         <motion.header
           initial={{ opacity: 0, y: -12 }}
