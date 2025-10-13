@@ -54,9 +54,6 @@
       "en": "English",
       "pt": "Português"
     },
-    "nav": {
-      "quizGen": "AscendaIA — Gerador de Quiz"
-    },
     "placeholders": {
       "searchInterns": "Pesquisar estagiários...",
       "courseTitleExample": "ex.: Padrões Avançados de React",
@@ -482,17 +479,10 @@
     },
     "preview": {
       "title": "Pré-visualização",
-      "subtitle": "As questões são agrupadas por nível. Revise antes de salvar.",
       "description": "As perguntas geradas são agrupadas por nível. Revise antes de salvar.",
       "emptyState": "Nenhum quiz gerado ainda.",
       "totalItems": "{{count}} itens",
-      "totalItemsAria": "Total de itens: {{count}}",
-      "totalItemsTooltip": "{{count}} itens no total",
-      "topicAria": "Tema selecionado: {{topic}}",
       "noItems": "Sem itens",
-      "basicCol": "Iniciante",
-      "intermediateCol": "Intermediário",
-      "advancedCol": "Avançado",
       "columns": {
         "easy": "Iniciante",
         "intermediate": "Intermediário",

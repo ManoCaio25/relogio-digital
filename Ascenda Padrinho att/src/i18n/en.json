@@ -54,9 +54,6 @@
       "en": "English",
       "pt": "Português"
     },
-    "nav": {
-      "quizGen": "AscendaIA — Quiz Generator"
-    },
     "placeholders": {
       "searchInterns": "Search interns...",
       "courseTitleExample": "e.g., Advanced React Patterns",
@@ -482,17 +479,10 @@
     },
     "preview": {
       "title": "Preview",
-      "subtitle": "Generated questions are grouped by level. Review before saving.",
       "description": "Generated questions are grouped by level. Review before saving.",
       "emptyState": "No quiz generated yet.",
       "totalItems": "{{count}} items",
-      "totalItemsAria": "Total items: {{count}}",
-      "totalItemsTooltip": "{{count}} items in total",
-      "topicAria": "Selected topic: {{topic}}",
       "noItems": "No items",
-      "basicCol": "Basic",
-      "intermediateCol": "Intermediate",
-      "advancedCol": "Advanced",
       "columns": {
         "easy": "Basic",
         "intermediate": "Intermediate",

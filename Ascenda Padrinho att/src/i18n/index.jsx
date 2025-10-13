@@ -18,19 +18,15 @@ import pt from './pt.json';
 const STORAGE_KEY = 'language';
 
 const resources = {
-  en: { common: en },
-  pt: { common: pt },
+  en: { translation: en },
+  pt: { translation: pt },
 };
-
-const defaultLanguage = getStoredLanguage();
 
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
     resources,
-    lng: defaultLanguage,
+    lng: 'pt',
     fallbackLng: 'en',
-    ns: ['common'],
-    defaultNS: 'common',
     interpolation: { escapeValue: false },
     returnObjects: true,
   });
@@ -49,7 +45,7 @@ function getStoredLanguage() {
 }
 
 export function LanguageProvider({ children }) {
-  const [language, setLanguageState] = useState(() => i18n.language || defaultLanguage);
+  const [language, setLanguageState] = useState(() => getStoredLanguage());
 
   useEffect(() => {
     if (typeof window === 'undefined') {
