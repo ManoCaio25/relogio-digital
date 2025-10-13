@@ -1,40 +1,37 @@
-import { useCallback, useMemo, useState } from "react";
-import { ascendaIAClient } from "../services/ascendaIAClient";
-import { ascendaIAStrings } from "../strings";
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from '@/i18n';
+import { ascendaIAClient } from '../services/ascendaIAClient';
+import { MAX_ITEMS_PER_LEVEL, QUIZ_LEVELS } from '../constants';
 
-const LEVEL_MAP = [
-  ascendaIAStrings.levels.easy,
-  ascendaIAStrings.levels.intermediate,
-  ascendaIAStrings.levels.advanced,
-];
-
-const DEFAULT_ERRORS = Object.freeze({ topic: "", youtubeUrl: "", textFile: "" });
-
-function sanitizeCount(value) {
-  if (value === "") return 0;
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return 0;
-  return Math.max(0, Math.min(ascendaIAStrings.limits.maxItemsPerLevel, Math.round(numeric)));
-}
+const DEFAULT_ERRORS = Object.freeze({ topic: '', youtubeUrl: '', textFile: '' });
 
 const YOUTUBE_REGEX = /^(https?:\/\/)?((www\.)?(youtube\.com|youtu\.be))(\/.*)?$/i;
 
+function sanitizeCount(value) {
+  if (value === '') return 0;
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.max(0, Math.min(MAX_ITEMS_PER_LEVEL, Math.round(numeric)));
+}
+
 export function useAscendaIAQuizGen() {
-  const [topic, setTopic] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const { t } = useTranslation();
+  const [topic, setTopic] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
   const [textFile, setTextFileState] = useState(null);
-  const [textFileContent, setTextFileContent] = useState("");
+  const [textFileContent, setTextFileContent] = useState('');
   const [errors, setErrors] = useState(DEFAULT_ERRORS);
   const [levels, setLevels] = useState(() =>
-    LEVEL_MAP.map((level) => ({
-      ...level,
+    QUIZ_LEVELS.map((level) => ({
+      code: level.code,
+      accent: level.accent,
       enabled: true,
       count: level.defaultCount,
     })),
   );
   const [loading, setLoading] = useState(false);
   const [quiz, setQuiz] = useState(null);
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState('');
 
   const totalRequested = useMemo(
     () =>
@@ -57,19 +54,19 @@ export function useAscendaIAQuizGen() {
   const resolvedSource = useMemo(() => {
     if (youtubeValid) {
       return {
-        type: "youtube",
+        type: 'youtube',
         value: youtubeUrl.trim(),
       };
     }
     if (hasTextSource) {
       return {
-        type: "text",
+        type: 'text',
         value: textFileContent.trim(),
       };
     }
     if (topicProvided) {
       return {
-        type: "topic",
+        type: 'topic',
         value: topic.trim(),
       };
     }
@@ -104,40 +101,43 @@ export function useAscendaIAQuizGen() {
     );
   }, []);
 
-  const setTextFile = useCallback((file) => {
-    setTextFileState(file);
-    if (!file) {
-      setTextFileContent("");
-      return;
-    }
+  const setTextFile = useCallback(
+    (file) => {
+      setTextFileState(file);
+      if (!file) {
+        setTextFileContent('');
+        return;
+      }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result ?? "";
-      setTextFileContent(typeof text === "string" ? text : "");
-    };
-    reader.onerror = () => {
-      setErrors((prev) => ({ ...prev, textFile: ascendaIAStrings.feedback.generationError }));
-      setTextFileContent("");
-    };
-    reader.readAsText(file, "utf-8");
-  }, [setErrors]);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result ?? '';
+        setTextFileContent(typeof text === 'string' ? text : '');
+      };
+      reader.onerror = () => {
+        setErrors((prev) => ({ ...prev, textFile: 'ascendaQuiz.feedback.generationError' }));
+        setTextFileContent('');
+      };
+      reader.readAsText(file, 'utf-8');
+    },
+    [setErrors],
+  );
 
   const clearTextFile = useCallback(() => {
     setTextFile(null);
-    setErrors((prev) => ({ ...prev, textFile: "" }));
+    setErrors((prev) => ({ ...prev, textFile: '' }));
   }, [setTextFile, setErrors]);
 
   const normalizeTopic = useCallback(() => {
     if (topicProvided) return topic.trim();
-    if (resolvedSource?.type === "youtube") {
-      return ascendaIAStrings.fallbacks.youtubeTopic;
+    if (resolvedSource?.type === 'youtube') {
+      return t('ascendaQuiz.fallbacks.youtubeTopic');
     }
-    if (resolvedSource?.type === "text") {
-      return ascendaIAStrings.fallbacks.documentTopic;
+    if (resolvedSource?.type === 'text') {
+      return t('ascendaQuiz.fallbacks.documentTopic');
     }
-    return "";
-  }, [topicProvided, topic, resolvedSource]);
+    return '';
+  }, [topicProvided, topic, resolvedSource, t]);
 
   const buildCounts = useCallback(
     () =>
@@ -153,32 +153,32 @@ export function useAscendaIAQuizGen() {
 
   const generate = useCallback(async () => {
     if (!canGenerate || !resolvedSource) {
-      setFeedback(ascendaIAStrings.inputs.sourceRequired);
+      setFeedback('ascendaQuiz.form.errors.sourceRequired');
       return;
     }
 
     const payload = {
       topic: normalizeTopic(),
-      youtubeUrl: resolvedSource.type === "youtube" ? resolvedSource.value : null,
-      textContent: resolvedSource.type === "text" ? resolvedSource.value : null,
+      youtubeUrl: resolvedSource.type === 'youtube' ? resolvedSource.value : null,
+      textContent: resolvedSource.type === 'text' ? resolvedSource.value : null,
       counts: buildCounts(),
     };
 
     if (Object.values(payload.counts).every((count) => count === 0)) {
-      setFeedback(ascendaIAStrings.inputs.sourceRequired);
+      setFeedback('ascendaQuiz.form.errors.sourceRequired');
       return;
     }
 
     setLoading(true);
     setQuiz(null);
-    setFeedback("");
+    setFeedback('');
 
     try {
       const result = await ascendaIAClient.generateQuizzes(payload);
       setQuiz(result);
     } catch (error) {
-      console.error("AscendaIA generation failed", error);
-      setFeedback(ascendaIAStrings.feedback.generationError);
+      console.error('AscendaIA generation failed', error);
+      setFeedback('ascendaQuiz.feedback.generationError');
     } finally {
       setLoading(false);
     }
@@ -186,15 +186,15 @@ export function useAscendaIAQuizGen() {
 
   const discard = useCallback(() => {
     setQuiz(null);
-    setFeedback("");
+    setFeedback('');
   }, []);
 
   const saveDraft = useCallback(() => {
     if (!quiz) return false;
 
     try {
-      const key = "ascenda_quizzes";
-      const existing = JSON.parse(window.localStorage.getItem(key) || "[]");
+      const key = 'ascenda_quizzes';
+      const existing = JSON.parse(window.localStorage.getItem(key) || '[]');
       const breakdown = {
         easy: quiz.easy.length,
         intermediate: quiz.intermediate.length,
@@ -209,13 +209,13 @@ export function useAscendaIAQuizGen() {
         createdAt: quiz.createdAt,
         items: [...quiz.easy, ...quiz.intermediate, ...quiz.advanced],
         breakdown,
-        status: "draft",
+        status: 'draft',
       });
 
       window.localStorage.setItem(key, JSON.stringify(existing));
       return true;
     } catch (error) {
-      console.error("Failed to save quiz", error);
+      console.error('Failed to save quiz', error);
       return false;
     }
   }, [quiz]);
