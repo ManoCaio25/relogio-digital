@@ -154,7 +154,7 @@ export function useAscendaIAQuizGen() {
   const generate = useCallback(async () => {
     if (!canGenerate || !resolvedSource) {
       setFeedback('ascendaQuiz.form.errors.sourceRequired');
-      return;
+      return null;
     }
 
     const payload = {
@@ -166,7 +166,7 @@ export function useAscendaIAQuizGen() {
 
     if (Object.values(payload.counts).every((count) => count === 0)) {
       setFeedback('ascendaQuiz.form.errors.sourceRequired');
-      return;
+      return null;
     }
 
     setLoading(true);
@@ -176,12 +176,15 @@ export function useAscendaIAQuizGen() {
     try {
       const result = await ascendaIAClient.generateQuizzes(payload);
       setQuiz(result);
+      return result;
     } catch (error) {
       console.error('AscendaIA generation failed', error);
       setFeedback('ascendaQuiz.feedback.generationError');
+      return null;
     } finally {
       setLoading(false);
     }
+    return null;
   }, [buildCounts, canGenerate, normalizeTopic, resolvedSource]);
 
   const discard = useCallback(() => {

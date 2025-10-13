@@ -20,9 +20,9 @@ export function ToastProvider({ children }) {
   }, []);
 
   const pushToast = React.useCallback(
-    ({ id, title, description, variant = 'default', duration = TOAST_DURATION }) => {
+    ({ id, title, description, variant = 'default', duration = TOAST_DURATION, action = null }) => {
       const toastId = id ?? `toast_${Date.now()}_${Math.round(Math.random() * 1000)}`;
-      setToasts((prev) => [...prev, { id: toastId, title, description, variant, duration }]);
+      setToasts((prev) => [...prev, { id: toastId, title, description, variant, duration, action }]);
 
       if (typeof window !== 'undefined' && duration !== Infinity) {
         window.setTimeout(() => {
@@ -87,10 +87,22 @@ function ToastViewport({ toasts, onDismiss }) {
             )}`}
           >
             <div className="flex items-start gap-3">
-              <div className="flex-1 space-y-1">
+              <div className="flex-1 space-y-2">
                 {toast.title && <p className="text-sm font-semibold">{toast.title}</p>}
                 {toast.description && (
                   <p className="text-xs text-white/70">{toast.description}</p>
+                )}
+                {toast.action && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toast.action?.onClick?.();
+                      onDismiss(toast.id);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 transition hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+                  >
+                    {toast.action.label}
+                  </button>
                 )}
               </div>
               <button
