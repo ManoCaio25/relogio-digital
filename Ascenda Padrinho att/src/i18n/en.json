@@ -511,7 +511,12 @@
       "levelOverview": "Level breakdown",
       "generate": "Generate",
       "generating": "Generating…",
-      "disabledHint": "Provide a source and enable at least one level to continue."
+      "disabledHint": "Provide a source and enable at least one level to continue.",
+      "assignHint": "Generate a quiz to enable assigning.",
+      "assignUnavailableTitle": "Generate a quiz first",
+      "assignUnavailableDescription": "Create or load a quiz before assigning it to interns.",
+      "assignNavigateErrorTitle": "Template not available",
+      "assignNavigateErrorDescription": "We couldn't find the quiz template to assign. Try generating again."
     },
     "preview": {
       "title": "Preview",

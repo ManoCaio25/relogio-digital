@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { RefreshCw } from 'lucide-react';
 import { useTranslation } from '@/i18n';
 import { PAGE_URLS } from '@/utils';
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 
 export default function AssignQuizzesPanel() {
   const { t } = useTranslation();
+  const location = useLocation();
   const { users } = useUsersStore();
   const interns = React.useMemo(() => users.filter((user) => user.role === 'intern'), [users]);
   const mentors = React.useMemo(() => users.filter((user) => user.role === 'padrinho'), [users]);

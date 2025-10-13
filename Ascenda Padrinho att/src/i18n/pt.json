@@ -511,7 +511,12 @@
       "levelOverview": "Distribuição por nível",
       "generate": "Gerar",
       "generating": "Gerando…",
-      "disabledHint": "Informe uma fonte e habilite ao menos um nível para continuar."
+      "disabledHint": "Informe uma fonte e habilite ao menos um nível para continuar.",
+      "assignHint": "Gere um quiz para habilitar a designação.",
+      "assignUnavailableTitle": "Gere um quiz primeiro",
+      "assignUnavailableDescription": "Crie ou carregue um quiz antes de designá-lo para os estagiários.",
+      "assignNavigateErrorTitle": "Template não disponível",
+      "assignNavigateErrorDescription": "Não encontramos o template do quiz para designar. Gere novamente."
     },
     "preview": {
       "title": "Pré-visualização",

@@ -98,8 +98,10 @@ export function SummaryPanel({
   setLevelCount,
   totalRequested,
   canGenerate,
+  canAssign,
   loading,
   onGenerate,
+  onAssign,
   feedback,
 }) {
   const { t } = useTranslation();
@@ -155,12 +157,24 @@ export function SummaryPanel({
         >
           {loading ? t('ascendaQuiz.summary.generating') : t('ascendaQuiz.summary.generate')}
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onAssign}
+          disabled={!canAssign}
+          className="h-11 rounded-xl border-white/20 bg-transparent text-base font-semibold text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {t('common.assign')}
+        </Button>
         {loading && <Progress value={70} className="h-2 overflow-hidden rounded-full bg-white/10" />}
         {!loading && feedback && (
           <p className="text-xs text-warning">{t(feedback)}</p>
         )}
         {!loading && !feedback && !canGenerate && (
           <p className="text-xs text-white/60">{t('ascendaQuiz.summary.disabledHint')}</p>
+        )}
+        {!loading && !feedback && canGenerate && !canAssign && (
+          <p className="text-xs text-white/60">{t('ascendaQuiz.summary.assignHint')}</p>
         )}
       </div>
     </motion.section>
