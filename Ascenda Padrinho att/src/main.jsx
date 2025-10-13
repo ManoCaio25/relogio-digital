@@ -5,11 +5,14 @@ import './index.css';
 import './styles/ascenda-quiz-scope.css';
 import 'flag-icons/css/flag-icons.min.css';
 import { LanguageProvider } from './i18n';
+import { ToastProvider } from './components/feedback/Toaster';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <LanguageProvider>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </LanguageProvider>
   </React.StrictMode>
 );

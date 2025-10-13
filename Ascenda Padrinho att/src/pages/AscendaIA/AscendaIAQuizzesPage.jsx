@@ -1,18 +1,21 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
-import { useAscendaIAQuizGen } from "./hooks/useAscendaIAQuizGen";
-import { SourceInputPanel } from "./components/SourceInputPanel";
-import { SummaryPanel } from "./components/SummaryPanel";
-import { QuizLevelsPanel } from "./components/QuizLevelsPanel";
-import { PreviewPanel } from "./components/PreviewPanel";
-import { SaveDraftBar } from "./components/SaveDraftBar";
-import { ascendaIAStrings } from "./strings";
-import { Button } from "@/components/ui/button";
-import { PAGE_URLS } from "@/utils";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
+import { useTranslation } from '@/i18n';
+import { useAscendaIAQuizGen } from './hooks/useAscendaIAQuizGen';
+import { SourceInputPanel } from './components/SourceInputPanel';
+import { SummaryPanel } from './components/SummaryPanel';
+import { QuizLevelsPanel } from './components/QuizLevelsPanel';
+import { PreviewPanel } from './components/PreviewPanel';
+import { SaveDraftBar } from './components/SaveDraftBar';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PAGE_URLS } from '@/utils';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import AssignQuizzesPanel from './AssignQuizzesPanel';
 
-import "./styles/ascenda-quizz.css";
+import './styles/ascenda-quizz.css';
 
 export default function AscendaIAQuizzesPage() {
   const {
@@ -39,110 +42,154 @@ export default function AscendaIAQuizzesPage() {
     setFeedback,
     youtubeValid,
   } = useAscendaIAQuizGen();
+
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const basePath = PAGE_URLS.AscendaIA;
+  const assignPath = PAGE_URLS.AscendaIAAssign;
+  const isAssignRoute = location.pathname.startsWith(assignPath);
+  const [activeTab, setActiveTab] = React.useState(isAssignRoute ? 'assign' : 'generator');
+
+  React.useEffect(() => {
+    setActiveTab(isAssignRoute ? 'assign' : 'generator');
+  }, [isAssignRoute]);
+
+  const handleTabChange = React.useCallback(
+    (next) => {
+      setActiveTab(next);
+      if (next === 'assign') {
+        if (!location.pathname.startsWith(assignPath)) {
+          navigate(assignPath);
+        }
+      } else if (location.pathname !== basePath) {
+        navigate(basePath);
+      }
+    },
+    [assignPath, basePath, location.pathname, navigate],
+  );
 
   const handleSave = React.useCallback(() => {
     if (!quiz) return;
     const success = saveDraft();
-    if (success) {
-      window.alert(ascendaIAStrings.actions.saved);
-    } else {
-      window.alert(ascendaIAStrings.actions.saveError);
-    }
-  }, [quiz, saveDraft]);
+    window.alert(success ? t('ascendaQuiz.actions.saved') : t('ascendaQuiz.actions.saveError'));
+  }, [quiz, saveDraft, t]);
 
   const handleDiscard = React.useCallback(() => {
     discard();
-    setFeedback("");
+    setFeedback('');
   }, [discard, setFeedback]);
 
   return (
-    <main data-quiz-scope className="min-h-screen bg-surface/30 px-6 py-8 md:px-10">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+    <main data-quiz-scope className="min-h-screen bg-surface/30 py-10">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 lg:px-8">
         <motion.header
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-6"
         >
-          <div className="flex items-center gap-3 text-sm text-white/60">
-            <button
-              type="button"
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 transition hover:bg-white/10"
-              onClick={() => navigate(PAGE_URLS.ContentManagement)}
-            >
-              {ascendaIAStrings.page.breadcrumbHome}
-            </button>
-            <span className="text-white/40">/</span>
-            <span className="text-xs uppercase tracking-[0.2em] text-white/60">
-              {ascendaIAStrings.page.breadcrumbCurrent}
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-white/60">
+              <button
+                type="button"
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 transition hover:bg-white/10"
+                onClick={() => navigate(PAGE_URLS.ContentManagement)}
+              >
+                {t('ascendaQuiz.page.breadcrumbHome')}
+              </button>
+              <span className="text-white/40">/</span>
+              <span className="text-xs uppercase tracking-[0.2em] text-white/60">
+                {t('ascendaQuiz.page.breadcrumbCurrent')}
+              </span>
+            </div>
+            <LanguageSwitcher />
           </div>
 
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
             <div className="space-y-2">
-              <h1 className="text-3xl font-semibold text-white">{ascendaIAStrings.page.title}</h1>
-              <p className="max-w-2xl text-sm text-white/70">{ascendaIAStrings.page.subtitle}</p>
+              <h1 className="text-3xl font-semibold text-white lg:text-4xl">
+                {t('ascendaQuiz.page.title')}
+              </h1>
+              <p className="max-w-2xl text-sm text-white/70">
+                {t('ascendaQuiz.page.subtitle')}
+              </p>
             </div>
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/70">
               <Sparkles className="h-5 w-5 text-white" aria-hidden="true" />
-              <span>Powered by AscendaIA mock service</span>
+              <span>{t('ascendaQuiz.page.powered')}</span>
             </div>
           </div>
         </motion.header>
 
-        <section className="layout">
-          <div className="flex flex-col gap-5">
-            <SourceInputPanel
-              topic={topic}
-              setTopic={setTopic}
-              youtubeUrl={youtubeUrl}
-              setYoutubeUrl={setYoutubeUrl}
-              textFile={textFile}
-              setTextFile={setTextFile}
-              errors={errors}
-              setErrors={setErrors}
-              onClearTextFile={clearTextFile}
-              youtubeValid={youtubeValid}
-            />
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-2 space-y-6">
+          <TabsList className="max-w-xl bg-surface/60 backdrop-blur">
+            <TabsTrigger value="generator">
+              {t('ascendaQuiz.tabs.generator')}
+            </TabsTrigger>
+            <TabsTrigger value="assign">
+              {t('ascendaQuiz.tabs.assign')}
+            </TabsTrigger>
+          </TabsList>
 
-            <SummaryPanel
-              levels={levels}
-              setLevelEnabled={setLevelEnabled}
-              setLevelCount={setLevelCount}
-              totalRequested={totalRequested}
-              canGenerate={canGenerate}
-              loading={loading}
-              onGenerate={generate}
-              feedback={feedback}
-            />
-          </div>
+          <TabsContent value="generator" className="space-y-6 lg:space-y-8">
+            <section className="layout grid gap-6 lg:gap-8 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+              <div className="flex flex-col gap-6 lg:gap-8">
+                <SourceInputPanel
+                  topic={topic}
+                  setTopic={setTopic}
+                  youtubeUrl={youtubeUrl}
+                  setYoutubeUrl={setYoutubeUrl}
+                  textFile={textFile}
+                  setTextFile={setTextFile}
+                  errors={errors}
+                  setErrors={setErrors}
+                  onClearTextFile={clearTextFile}
+                  youtubeValid={youtubeValid}
+                />
 
-          <div className="flex flex-col gap-5">
-            <QuizLevelsPanel
-              levels={levels}
-              setLevelEnabled={setLevelEnabled}
-              setLevelCount={setLevelCount}
-            />
-            <PreviewPanel quiz={quiz} />
-          </div>
-        </section>
+                <SummaryPanel
+                  levels={levels}
+                  setLevelEnabled={setLevelEnabled}
+                  setLevelCount={setLevelCount}
+                  totalRequested={totalRequested}
+                  canGenerate={canGenerate}
+                  loading={loading}
+                  onGenerate={generate}
+                  feedback={feedback}
+                />
+              </div>
 
-        <SaveDraftBar quiz={quiz} onDiscard={handleDiscard} onSave={handleSave} />
+              <div className="flex flex-col gap-6 lg:gap-8">
+                <QuizLevelsPanel
+                  levels={levels}
+                  setLevelEnabled={setLevelEnabled}
+                  setLevelCount={setLevelCount}
+                />
+                <PreviewPanel quiz={quiz} />
+              </div>
+            </section>
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-white/60">
-          <p>
-            Need to attach quizzes back to a course? Return to the content dashboard when you are ready.
-          </p>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => navigate(PAGE_URLS.ContentManagement)}
-            className="mt-3 h-10 rounded-xl border border-white/10 bg-transparent text-white hover:bg-white/10"
-          >
-            Back to content management
-          </Button>
-        </div>
+            <SaveDraftBar quiz={quiz} onDiscard={handleDiscard} onSave={handleSave} />
+
+            <div className="rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm lg:p-8">
+              <p className="text-sm text-white/70">{t('ascendaQuiz.page.backNote')}</p>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => navigate(PAGE_URLS.ContentManagement)}
+                className="mt-3 h-11 rounded-xl border border-white/10 bg-transparent text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                {t('ascendaQuiz.page.backCta')}
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="assign" className="space-y-6">
+            <AssignQuizzesPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </main>
   );
