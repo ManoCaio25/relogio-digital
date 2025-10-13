@@ -6,97 +6,99 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import en from './en';
-import pt from './pt';
+import i18n from 'i18next';
+import {
+  I18nextProvider,
+  initReactI18next,
+  useTranslation as useI18nextTranslation,
+} from 'react-i18next';
+import en from './en.json';
+import pt from './pt.json';
 
 const STORAGE_KEY = 'language';
-const translations = { en, pt };
 
-function getNestedTranslation(language, key) {
-  const source = translations[language] || translations.en;
-  return key.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), source);
-}
+const resources = {
+  en: { translation: en },
+  pt: { translation: pt },
+};
 
-function interpolate(template, values) {
-  if (!template || !values) return template;
-  return template.replace(/\{\{(.*?)\}\}/g, (_, token) => {
-    const valueKey = token.trim();
-    return Object.prototype.hasOwnProperty.call(values, valueKey)
-      ? values[valueKey]
-      : `{{${valueKey}}}`;
+if (!i18n.isInitialized) {
+  i18n.use(initReactI18next).init({
+    resources,
+    lng: 'pt',
+    fallbackLng: 'en',
+    interpolation: { escapeValue: false },
+    returnObjects: true,
   });
 }
 
 const LanguageContext = createContext(null);
 
+function getStoredLanguage() {
+  if (typeof window === 'undefined') {
+    return 'pt';
+  }
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  return stored && Object.prototype.hasOwnProperty.call(resources, stored)
+    ? stored
+    : 'pt';
+}
+
 export function LanguageProvider({ children }) {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguageState] = useState(() => getStoredLanguage());
 
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored && translations[stored]) {
-      setLanguage(stored);
+    if (stored && Object.prototype.hasOwnProperty.call(resources, stored)) {
+      setLanguageState(stored);
     }
   }, []);
 
   useEffect(() => {
+    i18n.changeLanguage(language);
     if (typeof document !== 'undefined') {
       document.documentElement.setAttribute('lang', language);
     }
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, language);
+    }
   }, [language]);
 
-  const changeLanguage = useCallback((next) => {
-    setLanguage((prev) => {
-      const nextLanguage = translations[next] ? next : prev;
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(STORAGE_KEY, nextLanguage);
-      }
-      return nextLanguage;
-    });
+  const setLanguage = useCallback((nextLanguage) => {
+    setLanguageState((prev) =>
+      Object.prototype.hasOwnProperty.call(resources, nextLanguage) ? nextLanguage : prev,
+    );
   }, []);
 
-  const value = useMemo(() => ({
-    language,
-    setLanguage: changeLanguage,
-    t: (key, fallback, values) => {
-      const message = getNestedTranslation(language, key) ?? fallback ?? key;
-      if (typeof message === 'string') {
-        return interpolate(message, values);
-      }
-      return message;
-    },
-  }), [language, changeLanguage]);
+  const toggleLanguage = useCallback(() => {
+    setLanguageState((prev) => (prev === 'pt' ? 'en' : 'pt'));
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({ language, setLanguage, toggleLanguage }),
+    [language, setLanguage, toggleLanguage],
+  );
 
   return (
-    <LanguageContext.Provider value={value}>
-      {children}
+    <LanguageContext.Provider value={contextValue}>
+      <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
     </LanguageContext.Provider>
   );
 }
 
-export function useTranslation() {
+export function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error('useTranslation must be used within LanguageProvider');
+    throw new Error('useLanguage must be used within LanguageProvider');
   }
   return context;
 }
 
-export function useLanguage() {
-  const { language, setLanguage } = useTranslation();
-
-  const toggleLanguage = useCallback(() => {
-    const next = language === 'en' ? 'pt' : 'en';
-    setLanguage(next);
-  }, [language, setLanguage]);
-
-  return useMemo(
-    () => ({ language, setLanguage, toggleLanguage }),
-    [language, setLanguage, toggleLanguage],
-  );
+export function useTranslation(namespace, options) {
+  return useI18nextTranslation(namespace, options);
 }
 
-export { translations };
+export { i18n };
