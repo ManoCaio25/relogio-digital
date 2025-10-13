@@ -4,6 +4,21 @@
     "managerPortal": "Manager Portal",
     "navigation": "Navigation",
     "manager": "Manager",
+    "course_library": "Course Library",
+    "assign_from_template": "Assign from Template",
+    "new_version_saved": "New version saved",
+    "saved_to_library": "Saved to Library",
+    "archived": "Archived",
+    "unarchive": "Unarchive",
+    "duplicate": "Duplicate",
+    "preview": "Preview",
+    "edit": "Edit",
+    "assign": "Assign",
+    "due_date": "Due date",
+    "visibility": "Visibility",
+    "private": "Private",
+    "team": "Team",
+    "assigned_to_you": "New quiz assigned to you",
     "actions": {
       "logout": "Logout",
       "cancel": "Cancel",
@@ -436,6 +451,27 @@
       "backNote": "Need to attach quizzes back to a course? Return to the content dashboard when you are ready.",
       "backCta": "Back to content management"
     },
+    "library": {
+      "subtitle": "Curate generated quizzes and reuse them with a single assign action.",
+      "empty": "No templates yet. Generate new ones in AscendaIA → Generator.",
+      "searchLabel": "Search",
+      "searchPlaceholder": "Search by title, tags or description",
+      "difficultyFilter": "Difficulty",
+      "tagsFilter": "Filter by tags",
+      "noTags": "No tags yet",
+      "showArchived": "Show archived",
+      "addQuestion": "Add question",
+      "questionLabel": "Question prompt",
+      "optionsLabel": "Options (one per line)",
+      "answerLabel": "Correct answer",
+      "emptyItems": "No questions yet. Add items to this template.",
+      "noInterns": "No interns available.",
+      "assignError": "We couldn’t assign the template.",
+      "confirmArchive": "Archive template \"{{title}}\"? It will stay hidden until you undo."
+    },
+    "generator": {
+      "autoSavedToLibrary": "Quiz automatically saved to the library."
+    },
     "form": {
       "title": "Content sources",
       "subtitle": "Combine topics, videos or text files to feed the generator.",
@@ -498,13 +534,20 @@
         "challengeN": "Challenge {{n}}: exploring advanced insights on {{topic}}."
       }
     },
+    "tabs": {
+      "generator": "Generator",
+      "assign": "Assign to Intern",
+      "library": "Library"
+    },
     "actions": {
       "discard": "Discard",
       "save": "Save quiz",
       "saved": "Quiz saved locally!",
       "saveError": "Unable to save the quiz locally.",
       "reviewBeforeSaving": "Review the generated content before saving.",
-      "generateToEnable": "Generate a quiz to enable saving options."
+      "generateToEnable": "Generate a quiz to enable saving options.",
+      "saveTemplate": "Save as template",
+      "openLibrary": "Open in library"
     },
     "feedback": {
       "generationError": "Something went wrong while generating the quiz. Try again."
@@ -518,6 +561,14 @@
       "decrease": "Decrease {{level}}",
       "toggle": "Enable {{level}} level",
       "itemsField": "Items for {{level}}"
+    },
+    "assign": {
+      "libraryList": {
+        "title": "Library templates",
+        "subtitle": "Select one or more saved templates to assign.",
+        "count": "{{count}} available",
+        "empty": "No templates available in the library."
+      }
     }
   }
 }

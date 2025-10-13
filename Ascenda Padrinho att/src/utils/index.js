@@ -2,8 +2,10 @@ export const PAGE_URLS = {
   Dashboard: '/',
   Interns: '/interns',
   ContentManagement: '/content',
-  AscendaIA: '/ascenda/ai-quizzes',
-  AscendaIAAssign: '/ascenda/ai-quizzes/assign',
+  AscendaIABase: '/ascenda-ia',
+  AscendaIA: '/ascenda-ia/generator',
+  AscendaIAAssign: '/ascenda-ia/assign',
+  AscendaIALibrary: '/ascenda-ia/library',
   VacationRequests: '/vacation-requests',
   Reports: '/reports',
 };

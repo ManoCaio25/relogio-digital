@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from '@/i18n';
 import { Button } from '@/components/ui/button';
 
-export function SaveDraftBar({ quiz, onDiscard, onSave }) {
+export function SaveDraftBar({ quiz, onDiscard, onSave, onSaveTemplate, onOpenLibrary }) {
   const { t } = useTranslation();
 
   return (
@@ -26,6 +26,22 @@ export function SaveDraftBar({ quiz, onDiscard, onSave }) {
           className="h-10 rounded-xl bg-emerald-500/80 text-sm font-semibold text-emerald-950 transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {t('ascendaQuiz.actions.save')}
+        </Button>
+        <Button
+          type="button"
+          onClick={() => quiz && onSaveTemplate?.()}
+          disabled={!quiz}
+          className="h-10 rounded-xl bg-violet-500/80 text-sm font-semibold text-white transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {t('ascendaQuiz.actions.saveTemplate')}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onOpenLibrary}
+          className="h-10 rounded-xl border border-white/20 bg-transparent text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          {t('ascendaQuiz.actions.openLibrary')}
         </Button>
       </div>
     </div>
