@@ -55,8 +55,11 @@ function LayoutContent() {
       icon: BookOpen,
     },
     {
-      title: t("layout.nav.ascendaIA.title", "AscendaIA"),
-      subtitle: t("layout.nav.ascendaIA.subtitle", "Quiz Generator"),
+      title: t(
+        "common.nav.quizGen",
+        t("layout.nav.ascendaIA.title", "AscendaIA — Quiz Generator"),
+      ),
+      subtitle: null,
       url: createPageUrl("AscendaIA"),
       icon: Bot,
     },

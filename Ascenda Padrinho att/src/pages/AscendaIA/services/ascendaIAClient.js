@@ -1,27 +1,23 @@
-const ACCENT_MAP = {
-  easy: "sky",
-  intermediate: "violet",
-  advanced: "fuchsia",
-};
+import { i18n } from '@/i18n';
 
 function buildQuestion(level, index, topic, source) {
-  const prompts = {
-    easy: `Quick check ${index + 1} about ${topic}.`,
-    intermediate: `Scenario ${index + 1}: apply the knowledge on ${topic}.`,
-    advanced: `Challenge ${index + 1} exploring advanced insights on ${topic}.`,
-  };
+  const promptKey = {
+    easy: 'ascendaQuiz.preview.samples.quickCheckN',
+    intermediate: 'ascendaQuiz.preview.samples.scenarioN',
+    advanced: 'ascendaQuiz.preview.samples.challengeN',
+  }[level];
 
-  const options = [
-    "Option A",
-    "Option B",
-    "Option C",
-    "Option D",
-  ];
+  const prompt = i18n.t(promptKey ?? 'ascendaQuiz.preview.samples.quickCheckN', {
+    n: index + 1,
+    topic,
+  });
+
+  const options = ['Option A', 'Option B', 'Option C', 'Option D'];
 
   return {
     id: `${level}-${Date.now()}-${index}`,
     level,
-    prompt: prompts[level] ?? prompts.easy,
+    prompt,
     options,
     correctIndex: Math.floor(Math.random() * options.length),
     source,
@@ -30,7 +26,12 @@ function buildQuestion(level, index, topic, source) {
 
 async function fakeAscendaIAByLevels(request) {
   const { topic, youtubeUrl, textContent, counts } = request;
-  const sourceLabel = youtubeUrl || (textContent ? "text document" : topic);
+
+  const sourceLabel = youtubeUrl
+    ? i18n.t('ascendaQuiz.preview.sourceLabel.youtube')
+    : textContent
+        ? i18n.t('ascendaQuiz.preview.sourceLabel.document')
+        : topic;
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   await wait(1200 + Math.random() * 600);
@@ -47,11 +48,11 @@ async function fakeAscendaIAByLevels(request) {
   return {
     topic,
     source: sourceLabel,
-    createdBy: "AscendaIA 🤖",
+    createdBy: 'AscendaIA 🤖',
     createdAt: now.toISOString(),
-    easy: buildList("easy"),
-    intermediate: buildList("intermediate"),
-    advanced: buildList("advanced"),
+    easy: buildList('easy'),
+    intermediate: buildList('intermediate'),
+    advanced: buildList('advanced'),
   };
 }
 
@@ -60,5 +61,3 @@ export const ascendaIAClient = {
     return fakeAscendaIAByLevels(request);
   },
 };
-
-export { ACCENT_MAP };
