@@ -1,0 +1,153 @@
+{
+  "app": {
+    "name": "Ascenda Platform",
+    "logout": "Sair",
+    "assign": "Designar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "duplicate": "Duplicar",
+    "archive": "Arquivar",
+    "archived": "Arquivados",
+    "confirm": "Confirmar",
+    "dueDate": "Prazo",
+    "visibility": "Visibilidade",
+    "public": "Todos",
+    "private": "Restrito",
+    "status": "Status",
+    "pending": "Pendente",
+    "done": "Concluído",
+    "loading": "Carregando...",
+    "filters": "Filtros",
+    "search": "Buscar",
+    "apply": "Aplicar",
+    "clear": "Limpar",
+    "version": "Versão",
+    "assignments": "Designações",
+    "assignees": "Estagiários",
+    "tags": "Tags",
+    "difficulty": "Dificuldade",
+    "actions": "Ações",
+    "progress": "Progresso",
+    "new": "Novo",
+    "edit": "Editar",
+    "create": "Criar",
+    "request": "Solicitar"
+  },
+  "loading": {
+    "postLogin": "Estamos configurando sua jornada!",
+    "preLogin": "Desconectando da órbita..."
+  },
+  "login": {
+    "title": "Login Ascenda",
+    "subtitle": "Acelere seu crescimento com dados inteligentes.",
+    "email": "Email",
+    "password": "Senha",
+    "submit": "Entrar",
+    "error": "Credenciais inválidas. Tente novamente."
+  },
+  "nav": {
+    "dashboard": "Visão Geral",
+    "quizzes": "Quizzes",
+    "tasks": "Atividades",
+    "videos": "Vídeos",
+    "vacations": "Férias",
+    "forum": "Fórum",
+    "ascendaIA": "AscendaIA",
+    "generator": "Gerador",
+    "library": "Course Library",
+    "assign": "Assign",
+    "mentor": "Padrinho"
+  },
+  "dashboard": {
+    "intern": {
+      "title": "Painel do Estagiário",
+      "pendingTasks": "Atividades pendentes",
+      "pendingQuizzes": "Quizzes pendentes",
+      "videosInProgress": "Vídeos em andamento",
+      "overallScore": "Progresso geral"
+    },
+    "mentor": {
+      "title": "Painel do Padrinho",
+      "vacationApprovals": "Aprovações de férias",
+      "openAssignments": "Designações ativas",
+      "notifications": "Últimas notificações"
+    }
+  },
+  "generator": {
+    "title": "AscendaIA - Gerador",
+    "description": "Crie quizzes personalizados com inteligência assistida.",
+    "prompt": "Descreva o tema do quiz",
+    "generate": "Gerar Quiz",
+    "autoSaved": "Gerado automaticamente na Course Library"
+  },
+  "library": {
+    "title": "Course Library",
+    "subtitle": "Gerencie seus templates de quizzes.",
+    "newTemplate": "Novo template",
+    "editTemplate": "Editar template",
+    "name": "Nome",
+    "description": "Descrição",
+    "content": "Conteúdo",
+    "visibility": "Visibilidade",
+    "assigned": "Designado",
+    "empty": "Nenhum template encontrado"
+  },
+  "assign": {
+    "title": "Assign quizzes",
+    "subtitle": "Selecione templates e distribua para os estagiários certos.",
+    "selectTemplate": "Selecione um template",
+    "selectInterns": "Selecione estagiários",
+    "selected": "Selecionado",
+    "notify": "Notificar estagiários",
+    "success": "Quiz designado com sucesso!",
+    "missingSelection": "Selecione um template e pelo menos um estagiário"
+  },
+  "quizzes": {
+    "title": "Inbox de quizzes",
+    "empty": "Nenhum quiz pendente",
+    "markDone": "Marcar como concluído",
+    "assignedBy": "Designado por"
+  },
+  "tasks": {
+    "title": "Board de atividades",
+    "todo": "A Fazer",
+    "doing": "Em andamento",
+    "done": "Concluídas",
+    "notifyMentor": "Notificar padrinho"
+  },
+  "videos": {
+    "title": "Trilhas de vídeos",
+    "resume": "Retomar",
+    "progress": "Progresso",
+    "continue": "Continuar assistindo"
+  },
+  "vacations": {
+    "title": "Solicitações de férias",
+    "request": "Solicitar férias",
+    "start": "Início",
+    "end": "Fim",
+    "reason": "Motivo",
+    "submit": "Enviar solicitação",
+    "pending": "Pendente",
+    "approved": "Aprovado",
+    "rejected": "Rejeitado",
+    "mentorPanel": "Painel de aprovações",
+    "approve": "Aprovar",
+    "reject": "Rejeitar",
+    "empty": "Nenhuma solicitação pendente"
+  },
+  "forum": {
+    "title": "Comunidade Ascenda",
+    "threads": "Tópicos",
+    "reply": "Responder",
+    "newMessage": "Escreva uma mensagem",
+    "participants": "Participantes",
+    "empty": "Nenhum conteúdo encontrado"
+  },
+  "notifications": {
+    "assigned": "Você recebeu um novo quiz!",
+    "taskUpdated": "Atividade atualizada",
+    "vacationApproved": "Férias aprovadas",
+    "vacationRejected": "Férias rejeitadas"
+  }
+}
