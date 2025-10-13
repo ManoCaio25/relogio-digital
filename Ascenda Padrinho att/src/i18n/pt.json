@@ -4,6 +4,21 @@
     "managerPortal": "Portal do Gestor",
     "navigation": "Navegação",
     "manager": "Gestor",
+    "course_library": "Biblioteca de Cursos",
+    "assign_from_template": "Designar do Template",
+    "new_version_saved": "Nova versão salva",
+    "saved_to_library": "Salvo na Biblioteca",
+    "archived": "Arquivado",
+    "unarchive": "Desarquivar",
+    "duplicate": "Duplicar",
+    "preview": "Pré-visualizar",
+    "edit": "Editar",
+    "assign": "Designar",
+    "due_date": "Prazo",
+    "visibility": "Visibilidade",
+    "private": "Privado",
+    "team": "Time",
+    "assigned_to_you": "Novo quiz designado para você",
     "actions": {
       "logout": "Sair",
       "cancel": "Cancelar",
@@ -436,6 +451,27 @@
       "backNote": "Precisa anexar os quizzes a um curso? Volte ao painel de conteúdo quando estiver pronto.",
       "backCta": "Voltar para gestão de conteúdo"
     },
+    "library": {
+      "subtitle": "Curadoria dos quizzes gerados para reaproveitar e atribuir com um clique.",
+      "empty": "Nenhum template ainda. Gere no AscendaIA → Generator.",
+      "searchLabel": "Buscar",
+      "searchPlaceholder": "Busque por título, tags ou descrição",
+      "difficultyFilter": "Dificuldade",
+      "tagsFilter": "Filtrar por tags",
+      "noTags": "Sem tags ainda",
+      "showArchived": "Mostrar arquivados",
+      "addQuestion": "Adicionar questão",
+      "questionLabel": "Enunciado da pergunta",
+      "optionsLabel": "Opções (uma por linha)",
+      "answerLabel": "Resposta correta",
+      "emptyItems": "Nenhuma questão cadastrada. Adicione perguntas para este template.",
+      "noInterns": "Nenhum estagiário disponível.",
+      "assignError": "Não foi possível designar o template.",
+      "confirmArchive": "Arquivar o template \"{{title}}\"? Ele ficará oculto até você desfazer."
+    },
+    "generator": {
+      "autoSavedToLibrary": "Quiz salvo automaticamente na biblioteca."
+    },
     "form": {
       "title": "Fontes de conteúdo",
       "subtitle": "Combine temas, vídeos ou arquivos de texto para alimentar o gerador.",
@@ -498,13 +534,20 @@
         "challengeN": "Desafio {{n}}: explorando conceitos avançados de {{topic}}."
       }
     },
+    "tabs": {
+      "generator": "Gerador",
+      "assign": "Designar Quizzes",
+      "library": "Biblioteca"
+    },
     "actions": {
       "discard": "Descartar",
       "save": "Salvar quiz",
       "saved": "Quiz salvo localmente!",
       "saveError": "Não foi possível salvar o quiz localmente.",
       "reviewBeforeSaving": "Revise o conteúdo gerado antes de salvar.",
-      "generateToEnable": "Gere um quiz para liberar as opções de salvamento."
+      "generateToEnable": "Gere um quiz para liberar as opções de salvamento.",
+      "saveTemplate": "Salvar como template",
+      "openLibrary": "Abrir na biblioteca"
     },
     "feedback": {
       "generationError": "Algo deu errado ao gerar o quiz. Tente novamente."
@@ -518,6 +561,14 @@
       "decrease": "Reduzir {{level}}",
       "toggle": "Ativar nível {{level}}",
       "itemsField": "Itens para {{level}}"
+    },
+    "assign": {
+      "libraryList": {
+        "title": "Templates da biblioteca",
+        "subtitle": "Selecione 1 ou mais templates salvos para atribuir.",
+        "count": "{{count}} disponíveis",
+        "empty": "Nenhum template disponível na biblioteca."
+      }
     }
   }
 }

@@ -21,10 +21,22 @@ export default function AssignQuizzesPanel() {
   const {
     generatedQuizzes,
     setGeneratedQuizzes,
-    assignQuizzes,
     updateQuizMeta,
-  } = useQuizzesStore();
+    addTemplateFromGenerator,
+    templates,
+  } = useQuizzesStore((state) => ({
+    generatedQuizzes: state.generatedQuizzes,
+    setGeneratedQuizzes: state.setGeneratedQuizzes,
+    updateQuizMeta: state.updateQuizMeta,
+    addTemplateFromGenerator: state.addTemplateFromGenerator,
+    templates: state.templates,
+  }));
   const { pushToast } = useToast();
+
+  const libraryTemplates = React.useMemo(
+    () => templates.filter((template) => !template.archived),
+    [templates],
+  );
 
   const [loading, setLoading] = React.useState(false);
   const [assigning, setAssigning] = React.useState(false);
@@ -35,6 +47,7 @@ export default function AssignQuizzesPanel() {
   const [visibility, setVisibility] = React.useState('team');
   const [tags, setTags] = React.useState('');
   const [selectedQuizIds, setSelectedQuizIds] = React.useState([]);
+  const [selectedTemplateIds, setSelectedTemplateIds] = React.useState([]);
 
   React.useEffect(() => {
     let active = true;
@@ -74,6 +87,14 @@ export default function AssignQuizzesPanel() {
     );
   }, []);
 
+  const toggleTemplateSelection = React.useCallback((templateId) => {
+    setSelectedTemplateIds((prev) =>
+      prev.includes(templateId)
+        ? prev.filter((id) => id !== templateId)
+        : [...prev, templateId],
+    );
+  }, []);
+
   const handleUpdateMeta = React.useCallback(
     (quizId, patch) => {
       updateQuizMeta(quizId, patch);
@@ -104,7 +125,8 @@ export default function AssignQuizzesPanel() {
       return;
     }
 
-    if (!selectedQuizIds.length) {
+    const totalTemplates = selectedTemplateIds.length + selectedQuizIds.length;
+    if (!totalTemplates) {
       pushToast({
         variant: 'error',
         title: t('ascendaQuiz.assign.toasts.noQuizzes.title'),
@@ -114,35 +136,66 @@ export default function AssignQuizzesPanel() {
     }
 
     setAssigning(true);
-    const normalizedTags = tags
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-
-    const assignmentsPayload = {
-      assignees: Array.from(assigneesSet),
-      dueDate: dueDate || null,
-      difficulty,
-      visibility,
-      tags: normalizedTags,
-    };
-
-    const createdAssignments = assignQuizzes(selectedQuizIds, assignmentsPayload);
-
     try {
-      const response = await QuizService.assign(createdAssignments);
-      if (!response.success) {
-        throw new Error('assignment failed');
+      const templateIds = [...selectedTemplateIds];
+
+      selectedQuizIds.forEach((quizId) => {
+        const quiz = generatedQuizzes.find((item) => item.id === quizId);
+        if (!quiz) return;
+        const template = addTemplateFromGenerator(
+          {
+            quiz: {
+              topic: quiz.title,
+              source: quiz.contentPreview,
+              easy: [],
+              intermediate: [],
+              advanced: [],
+              tags: quiz.tags,
+            },
+          },
+          {
+            title: quiz.title,
+            description: quiz.contentPreview,
+            tags: quiz.tags ?? [],
+            difficulty: quiz.difficulty ? quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1) : 'Medium',
+            items:
+              quiz.items?.length
+                ? quiz.items
+                : [
+                    {
+                      id: `autogen_${quiz.id}`,
+                      question: quiz.contentPreview ?? quiz.title,
+                      options: [],
+                      answer: '',
+                    },
+                  ],
+          },
+        );
+        if (template) {
+          templateIds.push(template.id);
+        }
+      });
+
+      const visibilityValue = visibility === 'team' ? 'Team' : 'Private';
+
+      for (const templateId of templateIds) {
+        const result = await QuizService.assignFromTemplate(templateId, {
+          assignees: Array.from(assigneesSet),
+          dueDate: dueDate || null,
+          visibility: visibilityValue,
+        });
       }
+
       pushToast({
         variant: 'success',
         title: t('ascendaQuiz.assign.toasts.success.title', { count: assigneesSet.size }),
         description: t('ascendaQuiz.assign.toasts.success.description', {
-          quizzes: selectedQuizIds.length,
-          count: selectedQuizIds.length,
+          quizzes: totalTemplates,
+          count: totalTemplates,
         }),
       });
       setSelectedQuizIds([]);
+      setSelectedTemplateIds([]);
     } catch (error) {
       pushToast({
         variant: 'error',
@@ -152,20 +205,20 @@ export default function AssignQuizzesPanel() {
     } finally {
       setAssigning(false);
     }
-  }, [
-    assignQuizzes,
-    difficulty,
-    dueDate,
-    interns,
-    mentors,
-    pushToast,
-    selectedAssignees,
-    selectedGroup,
-    selectedQuizIds,
-    tags,
-    t,
-    visibility,
-  ]);
+    }, [
+      addTemplateFromGenerator,
+      dueDate,
+      interns,
+      mentors,
+      pushToast,
+      selectedAssignees,
+      selectedGroup,
+      selectedQuizIds,
+      selectedTemplateIds,
+      t,
+      visibility,
+      generatedQuizzes,
+    ]);
 
   const disableAssignButton = assigning;
 
@@ -211,15 +264,15 @@ export default function AssignQuizzesPanel() {
             onDueDateChange={setDueDate}
             difficulty={difficulty}
             onDifficultyChange={setDifficulty}
-            visibility={visibility}
-            onVisibilityChange={setVisibility}
-            tags={tags}
-            onTagsChange={setTags}
-            selectedCount={selectedQuizIds.length}
-            disabled={disableAssignButton}
-            onAssign={handleAssign}
-          />
-        </div>
+          visibility={visibility}
+          onVisibilityChange={setVisibility}
+          tags={tags}
+          onTagsChange={setTags}
+          selectedCount={selectedQuizIds.length + selectedTemplateIds.length}
+          disabled={disableAssignButton}
+          onAssign={handleAssign}
+        />
+      </div>
 
         <section className="rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm">
           <div className="mb-4 flex items-center justify-between gap-3">
@@ -258,6 +311,64 @@ export default function AssignQuizzesPanel() {
               <p className="text-xs text-white/40">
                 {t('ascendaQuiz.assign.generatedList.emptySubtitle')}
               </p>
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-2xl border border-border/60 bg-surface/80 p-6 shadow-e1 backdrop-blur-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-base font-semibold text-white">
+                {t('ascendaQuiz.assign.libraryList.title')}
+              </h3>
+              <p className="text-xs text-white/60">
+                {t('ascendaQuiz.assign.libraryList.subtitle')}
+              </p>
+            </div>
+            <span className="text-xs text-white/50">
+              {t('ascendaQuiz.assign.libraryList.count', { count: libraryTemplates.length })}
+            </span>
+          </div>
+
+          {libraryTemplates.length ? (
+            <div className="grid gap-3 lg:grid-cols-2">
+              {libraryTemplates.map((template) => {
+                const active = selectedTemplateIds.includes(template.id);
+                return (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => toggleTemplateSelection(template.id)}
+                    className={`flex flex-col gap-2 rounded-2xl border px-4 py-3 text-left transition ${
+                      active
+                        ? 'border-violet-400 bg-violet-500/10 text-white'
+                        : 'border-white/10 bg-white/5 text-white/80 hover:border-white/20 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-semibold">{template.title}</span>
+                      <span className="rounded-full border border-white/10 px-2 py-0.5 text-xs">
+                        v{template.version}
+                      </span>
+                    </div>
+                    <p className="text-xs text-white/60 line-clamp-2">{template.description}</p>
+                    <div className="flex flex-wrap gap-1 text-[11px] text-white/60">
+                      <span className="rounded-full border border-white/10 px-2 py-0.5">
+                        {template.difficulty}
+                      </span>
+                      {(template.tags ?? []).slice(0, 3).map((tag) => (
+                        <span key={tag} className="rounded-full border border-white/10 px-2 py-0.5">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex h-32 items-center justify-center text-sm text-white/60">
+              {t('ascendaQuiz.assign.libraryList.empty')}
             </div>
           )}
         </section>

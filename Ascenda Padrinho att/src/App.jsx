@@ -8,6 +8,7 @@ import VacationRequests from './pages/VacationRequests.jsx';
 import Reports from './pages/Reports.jsx';
 import AscendaIAQuizzesPage from './pages/AscendaIA/AscendaIAQuizzesPage.jsx';
 import { PAGE_URLS } from './utils/index.js';
+import { useQuizzesStore } from './pages/AscendaIA/stores/useQuizzesStore.js';
 
 const router = createBrowserRouter([
   {
@@ -27,11 +28,19 @@ const router = createBrowserRouter([
         element: <ContentManagement />,
       },
       {
+        path: PAGE_URLS.AscendaIABase.replace(/^\//, ''),
+        element: <Navigate to={PAGE_URLS.AscendaIA} replace />,
+      },
+      {
         path: PAGE_URLS.AscendaIA.replace(/^\//, ''),
         element: <AscendaIAQuizzesPage />,
       },
       {
         path: PAGE_URLS.AscendaIAAssign.replace(/^\//, ''),
+        element: <AscendaIAQuizzesPage />,
+      },
+      {
+        path: PAGE_URLS.AscendaIALibrary.replace(/^\//, ''),
         element: <AscendaIAQuizzesPage />,
       },
       {
@@ -51,6 +60,12 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+  const hydrate = useQuizzesStore((state) => state.hydrate);
+
+  React.useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
   return (
     <RouterProvider
       router={router}
